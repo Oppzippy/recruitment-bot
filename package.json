@@ -1,5 +1,5 @@
 {
-	"name": "huokan-bot",
+	"name": "huokan-discord-bot",
 	"version": "0.0.1",
 	"description": "",
 	"main": "out/index.js",
