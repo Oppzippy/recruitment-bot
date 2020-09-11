@@ -1,9 +1,9 @@
-import HuokanClient from "./HuokanClient";
+import { HuokanClient } from "./HuokanClient";
 import "source-map-support/register";
 import * as process from "process";
 import * as path from "path";
 import * as rootPath from "app-root-path";
-import ConfigurationFile from "./configuration-file/ConfigurationFile";
+import { ConfigurationFile } from "./configuration-file/ConfigurationFile";
 import Knex = require("knex");
 
 const configFile = new ConfigurationFile(

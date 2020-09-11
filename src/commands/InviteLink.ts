@@ -1,7 +1,7 @@
 import { Command } from "discord-akairo";
 import { Message } from "discord.js";
 
-class InviteLinkCommand extends Command {
+export class InviteLinkCommand extends Command {
 	constructor() {
 		super("invitelink", {
 			aliases: ["invitelink"],
@@ -12,5 +12,3 @@ class InviteLinkCommand extends Command {
 		message.reply("test");
 	}
 }
-
-export default InviteLinkCommand;

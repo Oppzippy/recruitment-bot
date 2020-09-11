@@ -1,9 +1,9 @@
 import { AkairoClient, CommandHandler } from "discord-akairo";
 import Knex = require("knex");
 import * as path from "path";
-import ConfigurationFile from "./configuration-file/ConfigurationFile";
+import { ConfigurationFile } from "./configuration-file/ConfigurationFile";
 
-class HuokanClient extends AkairoClient {
+export class HuokanClient extends AkairoClient {
 	private commandHandler: CommandHandler;
 	private configFile: ConfigurationFile;
 	private db: Knex;
@@ -34,5 +34,3 @@ class HuokanClient extends AkairoClient {
 		this.configFile.reload();
 	}
 }
-
-export default HuokanClient;

@@ -1,4 +1,4 @@
-interface ConfigurationFileInterface {
+export interface ConfigurationFileInterface {
 	token: string;
 	databaseConnection: {
 		client: string;
@@ -9,5 +9,3 @@ interface ConfigurationFileInterface {
 		filename?: string;
 	};
 }
-
-export default ConfigurationFileInterface;

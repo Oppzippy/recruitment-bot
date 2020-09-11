@@ -1,7 +1,7 @@
 import * as jsonfile from "jsonfile";
-import ConfigurationFileInterface from "./ConfigurationFileInterface";
+import { ConfigurationFileInterface } from "./ConfigurationFileInterface";
 
-class ConfigurationFile {
+export class ConfigurationFile {
 	public config: ConfigurationFileInterface;
 	private path: string;
 
@@ -19,5 +19,3 @@ class ConfigurationFile {
 		await this.load();
 	}
 }
-
-export default ConfigurationFile;
