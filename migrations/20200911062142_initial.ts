@@ -16,4 +16,7 @@ export async function up(knex: Knex): Promise<void> {
 	});
 }
 
-export async function down(knex: Knex): Promise<void> {}
+export async function down(knex: Knex): Promise<void> {
+	knex.schema.dropTable("recruitment_invite_link");
+	knex.schema.dropTable("accepted_recruitment_invite_link");
+}

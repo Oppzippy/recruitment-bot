@@ -1,7 +1,7 @@
-export interface RecruitmentInviteLink {
+export interface RecruitmentInviteLinkUsageChange {
 	id: number;
 	inviteLink: string;
-	ownerDiscordId: string;
+	numUses: number;
 	createdAt: Date;
 	updatedAt: Date;
 }
