@@ -1,14 +1,15 @@
 import { AkairoClient, CommandHandler } from "discord-akairo";
-import Knex = require("knex");
 import * as path from "path";
 import { ConfigurationFile } from "./configuration-file/ConfigurationFile";
+import { DataStore } from "./external/database/DataStore";
 
 export class HuokanClient extends AkairoClient {
-	private commandHandler: CommandHandler;
-	private configFile: ConfigurationFile;
-	private db: Knex;
+	public readonly configFile: ConfigurationFile;
+	public readonly db: DataStore;
 
-	constructor(configFile: ConfigurationFile, db: Knex) {
+	private commandHandler: CommandHandler;
+
+	constructor(configFile: ConfigurationFile, db: DataStore) {
 		super(
 			{
 				ownerID: "191587255557554177",

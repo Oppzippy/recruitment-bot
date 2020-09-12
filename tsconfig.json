@@ -5,7 +5,7 @@
 		"sourceMap": true,
 		"outDir": "out",
 		"moduleResolution": "node",
-		"target": "ESNext"
+		"target": "ES2018"
 	},
 	"include": ["src/**/*"]
 }
