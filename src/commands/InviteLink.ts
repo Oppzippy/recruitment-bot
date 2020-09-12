@@ -5,7 +5,7 @@ import { TextChannel } from "discord.js";
 import { Message } from "discord.js";
 import { HuokanClient } from "../HuokanClient";
 
-class InviteLinkCommand extends Command {
+export default class InviteLinkCommand extends Command {
 	constructor() {
 		super("invitelink", {
 			aliases: ["invitelink"],
@@ -65,5 +65,3 @@ class InviteLinkCommand extends Command {
 		return <HuokanClient>this.client;
 	}
 }
-
-export default InviteLinkCommand;
