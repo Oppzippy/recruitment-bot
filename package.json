@@ -7,7 +7,8 @@
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "tsc",
 		"watch": "tsc --watch",
-		"start": "node out/index.js"
+		"start": "node out/index.js",
+		"migrate": "knex migrate:latest"
 	},
 	"author": "Oppzippy",
 	"license": "UNLICENSED",

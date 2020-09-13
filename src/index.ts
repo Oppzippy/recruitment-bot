@@ -25,7 +25,7 @@ configFile.load().then((config) => {
 	};
 	const knex = Knex(knexStringcase(knexConfig));
 
-	const client = new HuokanClient(configFile, new DataStore(knex));
+	const client = new HuokanClient(new DataStore(knex));
 	client.login(config.token);
 
 	async function destroy() {

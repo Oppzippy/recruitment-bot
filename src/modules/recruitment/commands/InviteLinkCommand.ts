@@ -3,13 +3,17 @@ import { User } from "discord.js";
 import { Guild } from "discord.js";
 import { TextChannel } from "discord.js";
 import { Message } from "discord.js";
-import { HuokanClient } from "../HuokanClient";
+import { DataStore } from "../../../external/database/DataStore";
+import { HuokanClient } from "../../../HuokanClient";
 
 export default class InviteLinkCommand extends Command {
-	constructor() {
+	private db: DataStore;
+
+	constructor(db: DataStore) {
 		super("invitelink", {
 			aliases: ["invitelink"],
 		});
+		this.db = db;
 	}
 
 	async exec(message: Message) {
@@ -33,7 +37,7 @@ export default class InviteLinkCommand extends Command {
 	}
 
 	async getInviteLink(guild: Guild, user: User) {
-		const repo = this.getHuokanClient().db.recruitmentInviteLinkRepository;
+		const repo = this.db.recruitmentInviteLinkRepository;
 		const link = await repo.getRecruitmentInviteLinkByOwner(
 			guild.id,
 			user.id,
@@ -42,7 +46,7 @@ export default class InviteLinkCommand extends Command {
 	}
 
 	async createInviteLink(user: User, channel: TextChannel) {
-		const repo = this.getHuokanClient().db.recruitmentInviteLinkRepository;
+		const repo = this.db.recruitmentInviteLinkRepository;
 
 		const invite = await channel.createInvite({
 			temporary: false,
@@ -59,9 +63,5 @@ export default class InviteLinkCommand extends Command {
 		);
 
 		return invite.code;
-	}
-
-	getHuokanClient(): HuokanClient {
-		return <HuokanClient>this.client;
 	}
 }

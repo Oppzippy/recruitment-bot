@@ -2,24 +2,27 @@ import { Listener } from "discord-akairo";
 import { Collection } from "discord.js";
 import { Invite } from "discord.js";
 import { GuildMember } from "discord.js";
-import { HuokanClient } from "../HuokanClient";
+import { DataStore } from "../../../external/database/DataStore";
 
 export default class InviteAcceptListener extends Listener {
-	constructor() {
+	private db: DataStore;
+
+	constructor(db: DataStore) {
 		super("inviteAccept", {
 			emitter: "client",
 			event: "guildMemberAdd",
 		});
+		this.db = db;
 	}
 
 	async exec(member: GuildMember) {
-		const client = <HuokanClient>this.client;
-		const repo = client.db.recruitmentInviteLinkRepository;
+		const repo = this.db.recruitmentInviteLinkRepository;
 		const oldUsage = await repo.getRecruitmentLinkUsage(member.guild.id);
 		const usage = this.getInviteUsage(await member.guild.fetchInvites());
-		await repo.setRecruitmentLinkUsage(
-			this.getInviteUsageDifference(usage, oldUsage),
-		);
+		const diff = this.getInviteUsageDifference(usage, oldUsage);
+		if (diff.size == 0) {
+			await repo.setRecruitmentLinkUsage(diff);
+		}
 	}
 
 	getInviteUsage(invites: Collection<string, Invite>): Map<string, number> {
@@ -33,9 +36,9 @@ export default class InviteAcceptListener extends Listener {
 		oldInvites: Map<string, number>,
 	): Map<string, number> {
 		const changes = new Map<string, number>();
-		invites.forEach((invite, code) => {
-			if (oldInvites.get(code) != invites.get(code)) {
-				changes.set(code, invites.get(code));
+		invites.forEach((uses, code) => {
+			if (oldInvites.get(code) != uses) {
+				changes.set(code, uses);
 			}
 		});
 		return changes;
