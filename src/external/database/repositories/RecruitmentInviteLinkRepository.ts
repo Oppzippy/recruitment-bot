@@ -1,4 +1,6 @@
 import Knex = require("knex");
+import { threadId } from "worker_threads";
+import { RecruitmentCount } from "../models/RecruitmentCount";
 import { RecruitmentInviteLink } from "../models/RecruitmentInviteLink";
 import { RecruitmentInviteLinkUsageChange } from "../models/RecruitmentInviteLinkUsageChange";
 
@@ -65,5 +67,31 @@ export class RecruitmentInviteLinkRespository {
 		const usageByLink = new Map<string, number>();
 		links.forEach((link) => usageByLink.set(link.inviteLink, link.numUses));
 		return usageByLink;
+	}
+
+	async getRecruiterRecruitmentCount(
+		guildId: string,
+	): Promise<RecruitmentCount[]> {
+		const recruitmentCount = await this.db
+			.select({
+				guildId: "recruitment_invite_link.guild_id",
+				recruiterDiscordId: "recruitment_invite_link.owner_discord_id",
+				count: this.db.max(
+					"recruitment_invite_link_usage_change.num_uses",
+				),
+			})
+			.where("recruitment_invite_link.guild_id", "=", guildId)
+			.groupBy(
+				"recruitment_invite_link.guild_id",
+				"recruitment_invite_link.owner_discord_id",
+			)
+			.from<RecruitmentCount>("recruitment_invite_link")
+			.innerJoin(
+				"recruitment_invite_link_usage_change",
+				"recruitment_invite_link_usage_change.invite_link",
+				"=",
+				"recruitment_invite_link.invite_link",
+			);
+		return recruitmentCount;
 	}
 }

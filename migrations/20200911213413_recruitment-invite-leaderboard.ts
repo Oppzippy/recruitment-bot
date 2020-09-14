@@ -6,7 +6,9 @@ export async function up(knex: Knex): Promise<void> {
 		(table) => {
 			table.increments("id").primary();
 			table.string("guild_id").notNullable().index();
+			table.string("channel_id").notNullable().index();
 			table.string("message_id").notNullable().unique();
+			table.integer("size").notNullable().defaultTo(10);
 			table.timestamps(true, true);
 		},
 	);

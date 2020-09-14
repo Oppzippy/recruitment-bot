@@ -10,17 +10,21 @@ export class InviteLeaderboardRepository {
 
 	async addLeaderboardMessage(
 		guildId: string,
+		channelId: string,
 		messageId: string,
 	): Promise<void> {
 		await this.db("recruitment_invite_link_leaderboard").insert({
 			guildId,
+			channelId,
 			messageId,
 		});
 	}
 
-	async getLeaderboardMessages(guildId: string): Promise<string[]> {
+	async getLeaderboardMessages(
+		guildId: string,
+	): Promise<RecruitmentInviteLinkLeaderboard[]> {
 		const messages = await this.db
-			.select("messageId")
+			.select("*")
 			.where({
 				guildId,
 			})
@@ -28,16 +32,16 @@ export class InviteLeaderboardRepository {
 				"recruitment_invite_link_leaderboard",
 			);
 
-		return messages.map((message) => message.messageId);
+		return messages;
 	}
 
 	async deleteLeaderboardMessage(
-		guildId: string,
+		channelId: string,
 		messageId: string,
 	): Promise<void> {
 		await this.db("recruitment_invite_link_leaderboard")
 			.where({
-				guildId,
+				channelId,
 				messageId,
 			})
 			.delete();

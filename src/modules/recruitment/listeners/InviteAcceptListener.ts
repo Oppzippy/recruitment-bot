@@ -22,16 +22,19 @@ export default class InviteAcceptListener extends Listener {
 		const diff = this.getInviteUsageDifference(usage, oldUsage);
 		if (diff.size == 0) {
 			await repo.setRecruitmentLinkUsage(diff);
+			this.updateLeaderboards(member.guild.id);
 		}
 	}
 
-	getInviteUsage(invites: Collection<string, Invite>): Map<string, number> {
+	private getInviteUsage(
+		invites: Collection<string, Invite>,
+	): Map<string, number> {
 		const usage = new Map<string, number>();
 		invites.forEach((invite, code) => usage.set(code, invite.uses));
 		return usage;
 	}
 
-	getInviteUsageDifference(
+	private getInviteUsageDifference(
 		invites: Map<string, number>,
 		oldInvites: Map<string, number>,
 	): Map<string, number> {
@@ -42,5 +45,12 @@ export default class InviteAcceptListener extends Listener {
 			}
 		});
 		return changes;
+	}
+
+	private updateLeaderboards(guildId: string): void {
+		// TODO get the recruitmentModule emitter in here some other way
+		this.handler.emitters
+			.get("recruitmentModule")
+			.emit("updateLeaderboard", guildId);
 	}
 }
