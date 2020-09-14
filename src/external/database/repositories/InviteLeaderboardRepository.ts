@@ -23,16 +23,23 @@ export class InviteLeaderboardRepository {
 	public async getLeaderboardMessages(
 		guildId: string,
 	): Promise<RecruitmentInviteLinkLeaderboard[]> {
-		const messages = await this.db
+		return await this.db
 			.select("*")
-			.where({
-				guildId,
-			})
+			.where({ guildId })
 			.from<RecruitmentInviteLinkLeaderboard>(
 				"recruitment_invite_link_leaderboard",
 			);
+	}
 
-		return messages;
+	public async getLeaderboardMessagesInChannel(
+		channelId: string,
+	): Promise<RecruitmentInviteLinkLeaderboard[]> {
+		return await this.db
+			.select("*")
+			.where({ channelId })
+			.from<RecruitmentInviteLinkLeaderboard>(
+				"recruitment_invite_link_leaderboard",
+			);
 	}
 
 	public async deleteLeaderboardMessage(
@@ -40,10 +47,15 @@ export class InviteLeaderboardRepository {
 		messageId: string,
 	): Promise<void> {
 		await this.db("recruitment_invite_link_leaderboard")
-			.where({
-				channelId,
-				messageId,
-			})
+			.where({ channelId, messageId })
+			.delete();
+	}
+
+	public async deleteLeaderboardMessagesInChannel(
+		channelId: string,
+	): Promise<void> {
+		await this.db("recruitment_invite_link_leaderboard")
+			.where({ channelId })
 			.delete();
 	}
 }

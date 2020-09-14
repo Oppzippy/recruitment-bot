@@ -1,6 +1,8 @@
 import { Command } from "discord-akairo";
+import { DMChannel } from "discord.js";
 import { Message, TextChannel } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
+import { RecruitmentInviteLinkLeaderboard } from "../../../external/database/models/RecruitmentInviteLinkLeaderboard";
 import { InviteLeaderboard } from "../InviteLeaderboard";
 
 interface InviteLeaderboardArgs {
@@ -47,13 +49,18 @@ export class InviteLeaderboardCommand extends Command {
 					args.size,
 				);
 				if (args.dynamic) {
-					const leaderboardRepo = this.db.inviteLeaderboardRepository;
-					await leaderboardRepo.addLeaderboardMessage(
-						leaderboardMessage.guild.id,
-						leaderboardMessage.channel.id,
-						leaderboardMessage.id,
-					);
+					this.addDynamicLeaderboardMessage(leaderboardMessage);
 				}
+				this.deleteMessageIfPermissible(message);
+				let dmChannel = message.author.dmChannel;
+				if (!dmChannel) {
+					dmChannel = await message.author.createDM();
+				}
+				dmChannel.send(
+					`Created ${args.dynamic ? "dynamic " : ""}leaderboard in #${
+						message.channel.name
+					}.`,
+				);
 			} catch (err) {
 				console.error(err);
 			}
@@ -74,5 +81,58 @@ export class InviteLeaderboardCommand extends Command {
 		const leaderboard = new InviteLeaderboard(leaderboardMessage, size);
 		await leaderboard.update(recruitmentCount);
 		return leaderboardMessage;
+	}
+
+	private async deleteMessageIfPermissible(message: Message) {
+		if (message.author == this.client.user) {
+			message.delete();
+		} else if (message.channel instanceof TextChannel) {
+			if (
+				message.channel
+					.permissionsFor(this.client.user)
+					.has("MANAGE_MESSAGES")
+			) {
+				await message.delete();
+			}
+		}
+	}
+
+	private async addDynamicLeaderboardMessage(
+		leaderboardMessage: Message,
+	): Promise<void> {
+		const leaderboardRepo = this.db.inviteLeaderboardRepository;
+		const deletedMessages = await leaderboardRepo.getLeaderboardMessagesInChannel(
+			leaderboardMessage.channel.id,
+		);
+		this.deleteLeaderboardMesssages(deletedMessages);
+		await leaderboardRepo.deleteLeaderboardMessagesInChannel(
+			leaderboardMessage.channel.id,
+		);
+		await leaderboardRepo.addLeaderboardMessage(
+			leaderboardMessage.guild.id,
+			leaderboardMessage.channel.id,
+			leaderboardMessage.id,
+		);
+		deletedMessages;
+	}
+
+	private async deleteLeaderboardMesssages(
+		messages: RecruitmentInviteLinkLeaderboard[],
+	) {
+		for (let leaderboardMessage of messages) {
+			try {
+				const channel = <TextChannel>(
+					await this.client.channels.fetch(
+						leaderboardMessage.channelId,
+					)
+				);
+				const message = await channel.messages.fetch(
+					leaderboardMessage.messageId,
+				);
+				await message.delete();
+			} catch (err) {
+				console.error(err);
+			}
+		}
 	}
 }
