@@ -22,9 +22,7 @@ export class RecruitmentModule extends Module {
 
 	private registerCommands() {
 		this.commandHandler.register(new InviteLinkCommand(this.db));
-		this.commandHandler.register(
-			new InviteLeaderboardCommand(this.db, this.emitter),
-		);
+		this.commandHandler.register(new InviteLeaderboardCommand(this.db));
 	}
 
 	private registerListeners() {

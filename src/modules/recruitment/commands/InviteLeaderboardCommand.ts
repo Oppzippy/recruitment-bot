@@ -1,62 +1,78 @@
 import { Command } from "discord-akairo";
 import { Message, TextChannel } from "discord.js";
-import { EventEmitter } from "events";
 import { DataStore } from "../../../external/database/DataStore";
+import { InviteLeaderboard } from "../InviteLeaderboard";
+
+interface InviteLeaderboardArgs {
+	size: number;
+	dynamic: boolean;
+}
 
 export class InviteLeaderboardCommand extends Command {
 	private db: DataStore;
-	private emitter: EventEmitter;
 
-	public constructor(db: DataStore, emitter: EventEmitter) {
+	public constructor(db: DataStore) {
 		super("inviteLeaderboard", {
 			aliases: ["inviteleaderboard"],
 			args: [
 				{
 					id: "size",
 					type: "number",
-					prompt: {
-						start:
-							"How many recruiters should be listed on the leaderboard?",
-						retry: "Invalid number. Try again.",
-						optional: true,
-					},
+					match: "option",
+					flag: "--size",
 					default: 10,
+				},
+				{
+					id: "dynamic",
+					match: "flag",
+					flag: "--dynamic",
 				},
 			],
 		});
 
 		this.db = db;
-		this.emitter = emitter;
 	}
 
-	public async exec(message: Message) {
+	public async exec(message: Message, args: InviteLeaderboardArgs) {
+		let { size } = args;
+		if (size < 1) {
+			size = 1;
+		} else if (size > 50) {
+			size = 50;
+		}
 		if (message.channel instanceof TextChannel) {
-			let leaderboardMessage: Message;
 			try {
-				leaderboardMessage = await message.channel.send(
-					"Fetching invite leaderboard...",
+				const leaderboardMessage = await this.sendLeaderboard(
+					message.channel,
+					args.size,
 				);
-				const repo = this.db.inviteLeaderboardRepository;
-				await repo.addLeaderboardMessage(
-					leaderboardMessage.guild.id,
-					leaderboardMessage.channel.id,
-					leaderboardMessage.id,
-				);
-				// TODO only update the newly created message
-				this.emitter.emit(
-					"updateLeaderboard",
-					leaderboardMessage.guild.id,
-				);
+				if (args.dynamic) {
+					const leaderboardRepo = this.db.inviteLeaderboardRepository;
+					await leaderboardRepo.addLeaderboardMessage(
+						leaderboardMessage.guild.id,
+						leaderboardMessage.channel.id,
+						leaderboardMessage.id,
+					);
+				}
 			} catch (err) {
 				console.error(err);
-				this.editMessageFailedToCreateLeaderboard(leaderboardMessage);
 			}
 		}
 	}
 
-	private editMessageFailedToCreateLeaderboard(message?: Message) {
-		if (message) {
-			message.edit("Failed to create leaderboard.").catch(console.error);
-		}
+	private async sendLeaderboard(
+		channel: TextChannel,
+		size: number,
+	): Promise<Message> {
+		const leaderboardMessage = await channel.send(
+			"Fetching invite leaderboard...",
+		);
+		const inviteLinkRepo = this.db.recruitmentInviteLinkRepository;
+		const recruitmentCount = await inviteLinkRepo.getRecruiterRecruitmentCount(
+			channel.guild.id,
+		);
+		const leaderboard = new InviteLeaderboard(leaderboardMessage, size);
+		await leaderboard.update(recruitmentCount);
+		return leaderboardMessage;
 	}
 }
