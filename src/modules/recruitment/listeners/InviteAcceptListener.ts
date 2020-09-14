@@ -20,7 +20,7 @@ export default class InviteAcceptListener extends Listener {
 		const oldUsage = await repo.getRecruitmentLinkUsage(member.guild.id);
 		const usage = this.getInviteUsage(await member.guild.fetchInvites());
 		const diff = this.getInviteUsageDifference(usage, oldUsage);
-		if (diff.size == 0) {
+		if (diff.size != 0) {
 			await repo.setRecruitmentLinkUsage(diff);
 			this.updateLeaderboards(member.guild.id);
 		}
