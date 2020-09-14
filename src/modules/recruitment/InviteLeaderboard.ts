@@ -1,3 +1,4 @@
+import { MessageEmbed } from "discord.js";
 import { Message } from "discord.js";
 import { RecruitmentCount } from "../../external/database/models/RecruitmentCount";
 
@@ -19,25 +20,30 @@ export class InviteLeaderboard {
 			(a, b) => b.count - a.count,
 		);
 		const newMessageText = this.buildMessage(sortedLeaderboard);
-		await this.message.edit(newMessageText);
+		await this.message.edit(null, newMessageText);
 	}
 
-	private buildMessage(sortedLeaderboard: RecruitmentCount[]): string {
+	private buildMessage(sortedLeaderboard: RecruitmentCount[]): MessageEmbed {
 		const total = sortedLeaderboard.reduce(
 			(acc, curr) => acc + curr.count,
 			0,
 		);
-		const message = [
+		const messageContent = [];
+		const embed = new MessageEmbed();
+		embed.setTitle(
 			`**Recruitment Leaderboard Top ${this.size}** (${total} total invites)`,
-		];
+		);
 		sortedLeaderboard.forEach((recruitmentCount, i) =>
-			message.push(
-				`${i}. <@${recruitmentCount.recruiterDiscordId}>: ${recruitmentCount.count}`,
+			messageContent.push(
+				`${i + 1}. <@${recruitmentCount.recruiterDiscordId}>: ${
+					recruitmentCount.count
+				}`,
 			),
 		);
 		if (sortedLeaderboard.length == 0) {
-			message.push("The leaderboard is empty.");
+			messageContent.push("The leaderboard is empty.");
 		}
-		return message.join("\n");
+		embed.setDescription(messageContent.join("\n"));
+		return embed;
 	}
 }
