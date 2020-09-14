@@ -1,7 +1,5 @@
 import { Listener } from "discord-akairo";
-import { Collection } from "discord.js";
-import { Invite } from "discord.js";
-import { GuildMember } from "discord.js";
+import { Invite, Guild, GuildMember, Collection } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
 
 export default class InviteAcceptListener extends Listener {
@@ -15,14 +13,18 @@ export default class InviteAcceptListener extends Listener {
 		this.db = db;
 	}
 
-	public async exec(member: GuildMember) {
+	public async exec(member: GuildMember): Promise<void> {
+		await this.updateLeaderboardsIfNecessary(member.guild);
+	}
+
+	public async updateLeaderboardsIfNecessary(guild: Guild): Promise<void> {
 		const repo = this.db.recruitmentInviteLinkRepository;
-		const oldUsage = await repo.getRecruitmentLinkUsage(member.guild.id);
-		const usage = this.getInviteUsage(await member.guild.fetchInvites());
+		const oldUsage = await repo.getRecruitmentLinkUsage(guild.id);
+		const usage = this.getInviteUsage(await guild.fetchInvites());
 		const diff = this.getInviteUsageDifference(usage, oldUsage);
 		if (diff.size != 0) {
 			await repo.setRecruitmentLinkUsage(diff);
-			this.updateLeaderboards(member.guild.id);
+			this.fireUpdateLeaderboardsEvent(guild.id);
 		}
 	}
 
@@ -47,7 +49,7 @@ export default class InviteAcceptListener extends Listener {
 		return changes;
 	}
 
-	private updateLeaderboards(guildId: string): void {
+	private fireUpdateLeaderboardsEvent(guildId: string): void {
 		// TODO get the recruitmentModule emitter in here some other way
 		this.handler.emitters
 			.get("recruitmentModule")

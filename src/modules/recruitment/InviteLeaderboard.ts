@@ -1,5 +1,4 @@
-import { MessageEmbed } from "discord.js";
-import { Message } from "discord.js";
+import { MessageEmbed, Message } from "discord.js";
 import { RecruitmentCount } from "../../external/database/models/RecruitmentCount";
 
 export class InviteLeaderboard {

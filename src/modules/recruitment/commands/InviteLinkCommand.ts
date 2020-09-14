@@ -1,8 +1,5 @@
 import { Command } from "discord-akairo";
-import { User } from "discord.js";
-import { Guild } from "discord.js";
-import { TextChannel } from "discord.js";
-import { Message } from "discord.js";
+import { User, Guild, TextChannel, Message } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
 import { HuokanClient } from "../../../HuokanClient";
 

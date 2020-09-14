@@ -1,5 +1,4 @@
-import { AkairoClient, CommandHandler, ListenerHandler } from "discord-akairo";
-import * as path from "path";
+import { AkairoClient } from "discord-akairo";
 import { ConfigurationFile } from "./configuration-file/ConfigurationFile";
 import { DataStore } from "./external/database/DataStore";
 import { RecruitmentModule } from "./modules/recruitment/RecruitmentModule";

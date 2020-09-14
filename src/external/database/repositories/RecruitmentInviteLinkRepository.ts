@@ -1,5 +1,4 @@
 import Knex = require("knex");
-import { threadId } from "worker_threads";
 import { RecruitmentCount } from "../models/RecruitmentCount";
 import { RecruitmentInviteLink } from "../models/RecruitmentInviteLink";
 import { RecruitmentInviteLinkUsageChange } from "../models/RecruitmentInviteLinkUsageChange";

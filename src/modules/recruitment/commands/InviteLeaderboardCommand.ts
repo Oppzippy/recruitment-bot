@@ -1,6 +1,5 @@
 import { Command } from "discord-akairo";
-import { DMChannel } from "discord.js";
-import { Message, TextChannel } from "discord.js";
+import { Message, TextChannel, DiscordAPIError } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
 import { RecruitmentInviteLinkLeaderboard } from "../../../external/database/models/RecruitmentInviteLinkLeaderboard";
 import { InviteLeaderboard } from "../InviteLeaderboard";
@@ -131,7 +130,9 @@ export class InviteLeaderboardCommand extends Command {
 				);
 				await message.delete();
 			} catch (err) {
-				console.error(err);
+				if (!(err instanceof DiscordAPIError && err.code == 10008)) {
+					console.error(err);
+				}
 			}
 		}
 	}

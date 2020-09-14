@@ -1,6 +1,5 @@
 import { Listener } from "discord-akairo";
-import { DiscordAPIError } from "discord.js";
-import { TextChannel } from "discord.js";
+import { TextChannel, DiscordAPIError } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
 import { RecruitmentCount } from "../../../external/database/models/RecruitmentCount";
 import { RecruitmentInviteLinkLeaderboard } from "../../../external/database/models/RecruitmentInviteLinkLeaderboard";
