@@ -7,7 +7,7 @@ import { DataStore } from "../../../external/database/DataStore";
 export default class InviteAcceptListener extends Listener {
 	private db: DataStore;
 
-	constructor(db: DataStore) {
+	public constructor(db: DataStore) {
 		super("inviteAccept", {
 			emitter: "client",
 			event: "guildMemberAdd",
@@ -15,7 +15,7 @@ export default class InviteAcceptListener extends Listener {
 		this.db = db;
 	}
 
-	async exec(member: GuildMember) {
+	public async exec(member: GuildMember) {
 		const repo = this.db.recruitmentInviteLinkRepository;
 		const oldUsage = await repo.getRecruitmentLinkUsage(member.guild.id);
 		const usage = this.getInviteUsage(await member.guild.fetchInvites());

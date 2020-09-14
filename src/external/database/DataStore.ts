@@ -8,7 +8,7 @@ export class DataStore {
 
 	private db: Knex;
 
-	constructor(db: Knex) {
+	public constructor(db: Knex) {
 		this.db = db;
 
 		this.recruitmentInviteLinkRepository = new RecruitmentInviteLinkRespository(
@@ -17,7 +17,7 @@ export class DataStore {
 		this.inviteLeaderboardRepository = new InviteLeaderboardRepository(db);
 	}
 
-	destroy() {
+	public destroy() {
 		this.db.destroy();
 		this.db = null;
 	}

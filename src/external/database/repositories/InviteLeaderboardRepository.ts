@@ -4,11 +4,11 @@ import { RecruitmentInviteLinkLeaderboard } from "../models/RecruitmentInviteLin
 export class InviteLeaderboardRepository {
 	private db: Knex;
 
-	constructor(db: Knex) {
+	public constructor(db: Knex) {
 		this.db = db;
 	}
 
-	async addLeaderboardMessage(
+	public async addLeaderboardMessage(
 		guildId: string,
 		channelId: string,
 		messageId: string,
@@ -20,7 +20,7 @@ export class InviteLeaderboardRepository {
 		});
 	}
 
-	async getLeaderboardMessages(
+	public async getLeaderboardMessages(
 		guildId: string,
 	): Promise<RecruitmentInviteLinkLeaderboard[]> {
 		const messages = await this.db
@@ -35,7 +35,7 @@ export class InviteLeaderboardRepository {
 		return messages;
 	}
 
-	async deleteLeaderboardMessage(
+	public async deleteLeaderboardMessage(
 		channelId: string,
 		messageId: string,
 	): Promise<void> {

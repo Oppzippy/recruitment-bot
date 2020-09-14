@@ -7,11 +7,11 @@ import { RecruitmentInviteLinkUsageChange } from "../models/RecruitmentInviteLin
 export class RecruitmentInviteLinkRespository {
 	private db: Knex;
 
-	constructor(db: Knex) {
+	public constructor(db: Knex) {
 		this.db = db;
 	}
 
-	async addRecruitmentInviteLink(
+	public async addRecruitmentInviteLink(
 		guildId: string,
 		inviteLink: string,
 		ownerId: string,
@@ -23,7 +23,7 @@ export class RecruitmentInviteLinkRespository {
 		});
 	}
 
-	async getRecruitmentInviteLinkByOwner(
+	public async getRecruitmentInviteLinkByOwner(
 		guildId: string,
 		ownerId: string,
 	): Promise<RecruitmentInviteLink> {
@@ -34,7 +34,9 @@ export class RecruitmentInviteLinkRespository {
 			.first();
 	}
 
-	async setRecruitmentLinkUsage(usage: Map<string, number>): Promise<void> {
+	public async setRecruitmentLinkUsage(
+		usage: Map<string, number>,
+	): Promise<void> {
 		const insert = [];
 		usage.forEach((uses, code) => {
 			insert.push({
@@ -45,7 +47,7 @@ export class RecruitmentInviteLinkRespository {
 		await this.db("recruitment_invite_link_usage_change").insert(insert);
 	}
 
-	async getRecruitmentLinkUsage(
+	public async getRecruitmentLinkUsage(
 		guildId: string,
 	): Promise<Map<string, number>> {
 		const links = await this.db
@@ -69,7 +71,7 @@ export class RecruitmentInviteLinkRespository {
 		return usageByLink;
 	}
 
-	async getRecruiterRecruitmentCount(
+	public async getRecruiterRecruitmentCount(
 		guildId: string,
 	): Promise<RecruitmentCount[]> {
 		const recruitmentCount = await this.db

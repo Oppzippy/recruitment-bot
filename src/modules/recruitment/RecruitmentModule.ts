@@ -10,7 +10,7 @@ import { UpdateLeaderboardListener } from "./listeners/UpdateLeaderboardListener
 export class RecruitmentModule extends Module {
 	private emitter: EventEmitter;
 
-	constructor(client: HuokanClient, db: DataStore) {
+	public constructor(client: HuokanClient, db: DataStore) {
 		super(client, db);
 		this.emitter = new EventEmitter();
 		this.listenerHandler.setEmitters({
@@ -20,14 +20,14 @@ export class RecruitmentModule extends Module {
 		this.registerListeners();
 	}
 
-	registerCommands() {
+	private registerCommands() {
 		this.commandHandler.register(new InviteLinkCommand(this.db));
 		this.commandHandler.register(
 			new InviteLeaderboardCommand(this.db, this.emitter),
 		);
 	}
 
-	registerListeners() {
+	private registerListeners() {
 		this.listenerHandler.register(new InviteAcceptListener(this.db));
 		this.listenerHandler.register(new UpdateLeaderboardListener(this.db));
 	}

@@ -5,17 +5,17 @@ export class ConfigurationFile {
 	public config: ConfigurationFileInterface;
 	private path: string;
 
-	constructor(path: string) {
+	public constructor(path: string) {
 		this.path = path;
 	}
 
-	async load(): Promise<ConfigurationFileInterface> {
+	public async load(): Promise<ConfigurationFileInterface> {
 		const config = await jsonfile.readFile(this.path);
 		this.config = config;
 		return this.config;
 	}
 
-	async reload() {
+	public async reload() {
 		await this.load();
 	}
 }

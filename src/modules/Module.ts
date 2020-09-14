@@ -12,7 +12,7 @@ export abstract class Module {
 	protected listenerHandler: ListenerHandler;
 	protected inhibitorHandler: InhibitorHandler;
 
-	constructor(client: HuokanClient, db?: DataStore) {
+	public constructor(client: HuokanClient, db?: DataStore) {
 		this.db = db;
 		this.commandHandler = new CommandHandler(client, {
 			defaultCooldown: 1000,

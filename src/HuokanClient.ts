@@ -10,7 +10,7 @@ export class HuokanClient extends AkairoClient {
 
 	private recruitmentModule: RecruitmentModule;
 
-	constructor(db: DataStore) {
+	public constructor(db: DataStore) {
 		super(
 			{
 				ownerID: "191587255557554177",

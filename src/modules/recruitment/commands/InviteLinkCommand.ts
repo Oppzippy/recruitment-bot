@@ -9,14 +9,14 @@ import { HuokanClient } from "../../../HuokanClient";
 export default class InviteLinkCommand extends Command {
 	private db: DataStore;
 
-	constructor(db: DataStore) {
+	public constructor(db: DataStore) {
 		super("invitelink", {
 			aliases: ["invitelink"],
 		});
 		this.db = db;
 	}
 
-	async exec(message: Message) {
+	public async exec(message: Message) {
 		if (
 			this.client instanceof HuokanClient &&
 			message.channel instanceof TextChannel
@@ -36,7 +36,7 @@ export default class InviteLinkCommand extends Command {
 		}
 	}
 
-	async getInviteLink(guild: Guild, user: User) {
+	private async getInviteLink(guild: Guild, user: User) {
 		const repo = this.db.recruitmentInviteLinkRepository;
 		const link = await repo.getRecruitmentInviteLinkByOwner(
 			guild.id,
@@ -45,7 +45,7 @@ export default class InviteLinkCommand extends Command {
 		return link?.inviteLink;
 	}
 
-	async createInviteLink(user: User, channel: TextChannel) {
+	private async createInviteLink(user: User, channel: TextChannel) {
 		const repo = this.db.recruitmentInviteLinkRepository;
 
 		const invite = await channel.createInvite({

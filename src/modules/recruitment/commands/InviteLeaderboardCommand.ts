@@ -7,7 +7,7 @@ export class InviteLeaderboardCommand extends Command {
 	private db: DataStore;
 	private emitter: EventEmitter;
 
-	constructor(db: DataStore, emitter: EventEmitter) {
+	public constructor(db: DataStore, emitter: EventEmitter) {
 		super("inviteLeaderboard", {
 			aliases: ["inviteleaderboard"],
 			args: [
@@ -29,7 +29,7 @@ export class InviteLeaderboardCommand extends Command {
 		this.emitter = emitter;
 	}
 
-	async exec(message: Message) {
+	public async exec(message: Message) {
 		if (message.channel instanceof TextChannel) {
 			let leaderboardMessage: Message;
 			try {

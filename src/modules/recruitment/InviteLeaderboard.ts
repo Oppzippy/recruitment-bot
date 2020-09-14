@@ -6,7 +6,7 @@ export class InviteLeaderboard {
 	private message: Message;
 	private size: number;
 
-	constructor(message: Message, size: number) {
+	public constructor(message: Message, size: number) {
 		this.message = message;
 		this.size = size;
 	}
@@ -15,30 +15,29 @@ export class InviteLeaderboard {
 	 * Updates the message to match the current leaderboard data
 	 * @param leaderboard Latest invite usage change for all recruiters
 	 */
-	async update(leaderboard: RecruitmentCount[]): Promise<void> {
-		const sortedLeaderboard = [...leaderboard].sort(
-			(a, b) => b.count - a.count,
-		);
-		const newMessageText = this.buildMessage(sortedLeaderboard);
+	public async update(leaderboard: RecruitmentCount[]): Promise<void> {
+		const newMessageText = this.buildMessage(leaderboard);
 		await this.message.edit(null, newMessageText);
 	}
 
-	private buildMessage(sortedLeaderboard: RecruitmentCount[]): MessageEmbed {
+	public buildMessage(leaderboard: RecruitmentCount[]): MessageEmbed {
+		const sortedLeaderboard = [...leaderboard].sort(
+			(a, b) => b.count - a.count,
+		);
 		const total = sortedLeaderboard.reduce(
 			(acc, curr) => acc + curr.count,
 			0,
 		);
-		const messageContent = [];
+
 		const embed = new MessageEmbed();
 		embed.setTitle(
 			`**Recruitment Leaderboard Top ${this.size}** (${total} total invites)`,
 		);
-		sortedLeaderboard.forEach((recruitmentCount, i) =>
-			messageContent.push(
+		const messageContent = sortedLeaderboard.map(
+			(recruitmentCount, i) =>
 				`${i + 1}. <@${recruitmentCount.recruiterDiscordId}>: ${
 					recruitmentCount.count
 				}`,
-			),
 		);
 		if (sortedLeaderboard.length == 0) {
 			messageContent.push("The leaderboard is empty.");

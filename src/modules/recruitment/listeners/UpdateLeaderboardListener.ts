@@ -9,7 +9,7 @@ import { InviteLeaderboard } from "../InviteLeaderboard";
 export class UpdateLeaderboardListener extends Listener {
 	private db: DataStore;
 
-	constructor(db: DataStore) {
+	public constructor(db: DataStore) {
 		super("updateLeaderboard", {
 			emitter: "recruitmentModule",
 			event: "updateLeaderboard",
@@ -17,7 +17,7 @@ export class UpdateLeaderboardListener extends Listener {
 		this.db = db;
 	}
 
-	async exec(guildId: string) {
+	public async exec(guildId: string) {
 		const leaderboardRepo = this.db.inviteLeaderboardRepository;
 		const inviteLinkRepo = this.db.recruitmentInviteLinkRepository;
 
@@ -70,18 +70,6 @@ export class UpdateLeaderboardListener extends Listener {
 			} else {
 				throw err;
 			}
-		}
-	}
-
-	async fetchOrNull<T>(getFunc: CallableFunction): Promise<T> {
-		try {
-			return await getFunc();
-		} catch (err) {
-			if (err instanceof DiscordAPIError && err.code == 10008) {
-				// unknown message
-				return null;
-			}
-			throw err;
 		}
 	}
 }
