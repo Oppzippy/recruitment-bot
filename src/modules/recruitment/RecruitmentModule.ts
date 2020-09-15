@@ -1,3 +1,4 @@
+import { DiscordAPIError } from "discord.js";
 import { EventEmitter } from "events";
 import { DataStore } from "../../external/database/DataStore";
 import { HuokanClient } from "../../HuokanClient";
@@ -9,6 +10,7 @@ import { UpdateLeaderboardListener } from "./listeners/UpdateLeaderboardListener
 
 export class RecruitmentModule extends Module {
 	private emitter: EventEmitter;
+	private inviteAcceptListener: InviteAcceptListener;
 
 	public constructor(client: HuokanClient, db: DataStore) {
 		super(client, db);
@@ -18,6 +20,23 @@ export class RecruitmentModule extends Module {
 		});
 		this.registerCommands();
 		this.registerListeners();
+
+		db.inviteLeaderboardRepository.getGuilds().then(async (guilds) => {
+			for (const guildId of guilds) {
+				try {
+					const guild = await client.guilds.fetch(guildId);
+					await this.inviteAcceptListener.updateLeaderboardsIfNecessary(
+						guild,
+					);
+				} catch (err) {
+					if (
+						!(err instanceof DiscordAPIError && err.code == 10008)
+					) {
+						console.log(`Error updating guild ${guildId}: `, err);
+					}
+				}
+			}
+		});
 	}
 
 	private registerCommands() {
@@ -26,7 +45,8 @@ export class RecruitmentModule extends Module {
 	}
 
 	private registerListeners() {
-		this.listenerHandler.register(new InviteAcceptListener(this.db));
+		this.inviteAcceptListener = new InviteAcceptListener(this.db);
+		this.listenerHandler.register(this.inviteAcceptListener);
 		this.listenerHandler.register(new UpdateLeaderboardListener(this.db));
 	}
 }

@@ -60,4 +60,11 @@ export class InviteLeaderboardRepository {
 			.where({ channelId })
 			.delete();
 	}
+
+	public async getGuilds(): Promise<string[]> {
+		const rows = await this.db("recruitment_invite_link_leaderboard")
+			.select("guild_id")
+			.groupBy("guild_id");
+		return rows.map((row) => row.guildId);
+	}
 }
