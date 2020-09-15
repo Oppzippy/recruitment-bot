@@ -2,12 +2,13 @@ import "source-map-support/register";
 import * as process from "process";
 import * as path from "path";
 import * as readline from "readline";
-import * as rootPath from "app-root-path";
 import * as Knex from "knex";
 import * as knexStringcase from "knex-stringcase";
 import { ConfigurationFile } from "./configuration-file/ConfigurationFile";
 import { HuokanClient } from "./HuokanClient";
 import { DataStore } from "./external/database/DataStore";
+
+const rootPath = path.join(__dirname, ".."); // TODO step through and find the dir with package.json
 
 const configFile = new ConfigurationFile(
 	path.join(rootPath.toString(), "config.json"),
