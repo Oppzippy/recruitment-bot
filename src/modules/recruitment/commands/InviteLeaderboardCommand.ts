@@ -2,7 +2,10 @@ import { Command } from "discord-akairo";
 import { Message, TextChannel, DiscordAPIError } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
 import { RecruitmentInviteLinkLeaderboard } from "../../../external/database/models/RecruitmentInviteLinkLeaderboard";
-import { InviteLeaderboard } from "../InviteLeaderboard";
+import {
+	InviteLeaderboard,
+	InviteLeaderboardOptions,
+} from "../InviteLeaderboard";
 
 interface InviteLeaderboardArgs {
 	size: number;
@@ -45,10 +48,10 @@ export class InviteLeaderboardCommand extends Command {
 			try {
 				const leaderboardMessage = await this.sendLeaderboard(
 					message.channel,
-					args.size,
+					{ size: args.size, isDynamic: args.dynamic },
 				);
 				if (args.dynamic) {
-					this.addDynamicLeaderboardMessage(leaderboardMessage);
+					this.addDynamicLeaderboardMessage(leaderboardMessage, size);
 				}
 				this.deleteMessageIfPermissible(message);
 				let dmChannel = message.author.dmChannel;
@@ -68,7 +71,7 @@ export class InviteLeaderboardCommand extends Command {
 
 	private async sendLeaderboard(
 		channel: TextChannel,
-		size: number,
+		options: InviteLeaderboardOptions,
 	): Promise<Message> {
 		const leaderboardMessage = await channel.send(
 			"Fetching invite leaderboard...",
@@ -77,7 +80,7 @@ export class InviteLeaderboardCommand extends Command {
 		const recruitmentCount = await inviteLinkRepo.getRecruiterRecruitmentCount(
 			channel.guild.id,
 		);
-		const leaderboard = new InviteLeaderboard(leaderboardMessage, size);
+		const leaderboard = new InviteLeaderboard(leaderboardMessage, options);
 		await leaderboard.update(recruitmentCount);
 		return leaderboardMessage;
 	}
@@ -98,6 +101,7 @@ export class InviteLeaderboardCommand extends Command {
 
 	private async addDynamicLeaderboardMessage(
 		leaderboardMessage: Message,
+		size: number,
 	): Promise<void> {
 		const leaderboardRepo = this.db.inviteLeaderboardRepository;
 		const deletedMessages = await leaderboardRepo.getLeaderboardMessagesInChannel(
@@ -111,6 +115,7 @@ export class InviteLeaderboardCommand extends Command {
 			leaderboardMessage.guild.id,
 			leaderboardMessage.channel.id,
 			leaderboardMessage.id,
+			size,
 		);
 		deletedMessages;
 	}

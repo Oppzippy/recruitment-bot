@@ -12,11 +12,13 @@ export class InviteLeaderboardRepository {
 		guildId: string,
 		channelId: string,
 		messageId: string,
+		size: number,
 	): Promise<void> {
 		await this.db("recruitment_invite_link_leaderboard").insert({
 			guildId,
 			channelId,
 			messageId,
+			size,
 		});
 	}
 

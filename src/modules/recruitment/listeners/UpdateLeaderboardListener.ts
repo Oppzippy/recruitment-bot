@@ -51,10 +51,10 @@ export class UpdateLeaderboardListener extends Listener {
 			const message = await channel.messages.fetch(
 				leaderboardMessage.messageId,
 			);
-			const leaderboard = new InviteLeaderboard(
-				message,
-				leaderboardMessage.size,
-			);
+			const leaderboard = new InviteLeaderboard(message, {
+				size: leaderboardMessage.size,
+				isDynamic: true, // Only dynamic leaderboards are updated
+			});
 			await leaderboard.update(recruitmentCount);
 		} catch (err) {
 			if (err instanceof DiscordAPIError && err.code == 10008) {
