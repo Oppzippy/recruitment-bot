@@ -1,4 +1,4 @@
-import Knex = require("knex");
+import * as Knex from "knex";
 import { RecruitmentCount } from "../models/RecruitmentCount";
 import { RecruitmentInviteLink } from "../models/RecruitmentInviteLink";
 import { RecruitmentInviteLinkUsageChange } from "../models/RecruitmentInviteLinkUsageChange";

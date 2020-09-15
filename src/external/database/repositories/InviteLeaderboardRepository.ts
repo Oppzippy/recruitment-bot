@@ -1,4 +1,4 @@
-import Knex = require("knex");
+import * as Knex from "knex";
 import { RecruitmentInviteLinkLeaderboard } from "../models/RecruitmentInviteLinkLeaderboard";
 
 export class InviteLeaderboardRepository {
