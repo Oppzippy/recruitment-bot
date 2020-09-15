@@ -19,12 +19,14 @@ configFile.load().then((config) => {
 		client: config.databaseConnection.client,
 		connection: {
 			...config.databaseConnection,
-			filename: path.join(
-				rootPath.toString(),
-				config.databaseConnection.filename,
-			),
 		},
 	};
+	if (config.databaseConnection.filename) {
+		knexConfig.connection.filename = path.join(
+			rootPath.toString(),
+			config.databaseConnection.filename,
+		);
+	}
 	const knex = Knex(knexStringcase(knexConfig));
 
 	const client = new HuokanClient(new DataStore(knex));
