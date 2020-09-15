@@ -10,6 +10,7 @@
 		"watch": "tsc --watch",
 		"start": "node out/index.js",
 		"migrate": "knex migrate:latest",
+		"migrade:production": "knex migrate:latest --production",
 		"lint": "eslint src"
 	},
 	"author": "Oppzippy",
