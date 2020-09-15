@@ -15,7 +15,17 @@ export class ConfigurationFile {
 		return this.config;
 	}
 
-	public async reload() {
-		await this.load();
+	public loadSync(): ConfigurationFileInterface {
+		const config = jsonfile.readFileSync(this.path);
+		this.config = config;
+		return config;
+	}
+
+	public async reload(): Promise<ConfigurationFileInterface> {
+		return await this.load();
+	}
+
+	public reloadSync(): ConfigurationFileInterface {
+		return this.loadSync();
 	}
 }

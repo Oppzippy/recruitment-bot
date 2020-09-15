@@ -17,6 +17,7 @@ configFile.load().then((config) => {
 	const knexConfig = {
 		client: config.databaseConnection.client,
 		connection: {
+			...config.databaseConnection,
 			filename: path.join(
 				rootPath.toString(),
 				config.databaseConnection.filename,

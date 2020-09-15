@@ -7,5 +7,6 @@ export interface ConfigurationFileInterface {
 		password?: string;
 		database?: string;
 		filename?: string;
+		port?: number;
 	};
 }
