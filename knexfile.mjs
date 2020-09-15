@@ -1,4 +1,11 @@
-import config from "config.json";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+import jsonfile from "jsonfile";
+import rootPath from "app-root-path";
+import path from "path";
+
+const config = jsonfile.readFileSync(
+	path.join(rootPath.toString(), "config.json"),
+);
 
 export default {
 	development: {
