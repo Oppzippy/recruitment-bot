@@ -1,7 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import jsonfile from "jsonfile";
-import rootPath from "app-root-path";
-import path from "path";
+import * as jsonfile from "jsonfile";
+import * as path from "path";
+import * as rootPath from "app-root-path";
 
 const config = jsonfile.readFileSync(
 	path.join(rootPath.toString(), "config.json"),
