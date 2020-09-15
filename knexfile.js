@@ -1,7 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const config = require("./config.json");
+import config from "config.json";
 
-module.exports = {
+export default {
 	development: {
 		client: "sqlite3",
 		connection: {
