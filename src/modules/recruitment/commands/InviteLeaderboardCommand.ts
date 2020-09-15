@@ -32,6 +32,8 @@ export class InviteLeaderboardCommand extends Command {
 					flag: "--dynamic",
 				},
 			],
+			clientPermissions: ["MANAGE_GUILD"],
+			userPermissions: ["MANAGE_GUILD"],
 		});
 
 		this.db = db;
