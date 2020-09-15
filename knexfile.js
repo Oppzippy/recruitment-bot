@@ -25,7 +25,7 @@ export default {
 	// },
 
 	production: {
-		client: "mysql",
+		client: config?.databaseConnection?.client,
 		connection: {
 			host: config?.databaseConnection?.host,
 			database: config?.databaseConnection?.database,
