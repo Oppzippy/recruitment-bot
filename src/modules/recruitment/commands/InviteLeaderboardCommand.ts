@@ -37,7 +37,10 @@ export class InviteLeaderboardCommand extends Command {
 		this.db = db;
 	}
 
-	public async exec(message: Message, args: InviteLeaderboardArgs) {
+	public async exec(
+		message: Message,
+		args: InviteLeaderboardArgs,
+	): Promise<void> {
 		let { size } = args;
 		if (size < 1) {
 			size = 1;
@@ -123,7 +126,7 @@ export class InviteLeaderboardCommand extends Command {
 	private async deleteLeaderboardMesssages(
 		messages: RecruitmentInviteLinkLeaderboard[],
 	) {
-		for (let leaderboardMessage of messages) {
+		for (const leaderboardMessage of messages) {
 			try {
 				const channel = <TextChannel>(
 					await this.client.channels.fetch(

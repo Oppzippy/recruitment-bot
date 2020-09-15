@@ -9,7 +9,8 @@
 		"compile": "npm run build",
 		"watch": "tsc --watch",
 		"start": "node out/index.js",
-		"migrate": "knex migrate:latest"
+		"migrate": "knex migrate:latest",
+		"lint": "eslint src"
 	},
 	"author": "Oppzippy",
 	"license": "UNLICENSED",
@@ -27,6 +28,9 @@
 		"@types/app-root-path": "^1.2.4",
 		"@types/jsonfile": "^6.0.0",
 		"@types/node": "^14.10.0",
+		"@typescript-eslint/eslint-plugin": "^4.1.1",
+		"@typescript-eslint/parser": "^4.1.1",
+		"eslint": "^7.9.0",
 		"prettier": "^2.1.1",
 		"source-map-support": "^0.5.19",
 		"typescript": "^4.0.2"

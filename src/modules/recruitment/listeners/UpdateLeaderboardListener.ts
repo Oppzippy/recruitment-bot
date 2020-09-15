@@ -16,7 +16,7 @@ export class UpdateLeaderboardListener extends Listener {
 		this.db = db;
 	}
 
-	public async exec(guildId: string) {
+	public async exec(guildId: string): Promise<void> {
 		const leaderboardRepo = this.db.inviteLeaderboardRepository;
 		const inviteLinkRepo = this.db.recruitmentInviteLinkRepository;
 
@@ -29,7 +29,7 @@ export class UpdateLeaderboardListener extends Listener {
 			// XXX Switch to Promisme.allSettled
 			// There is currently (as of 2020-09-14) a discord.js bug causing some promises to never resolve/reject
 			// and just hang forever if we create them all at the same time.
-			for (let leaderboardMessage of leaderboardMessages) {
+			for (const leaderboardMessage of leaderboardMessages) {
 				await this.updateLeaderboardMessage(
 					leaderboardMessage,
 					recruitmentCount,

@@ -17,7 +17,7 @@ export class DataStore {
 		this.inviteLeaderboardRepository = new InviteLeaderboardRepository(db);
 	}
 
-	public destroy() {
+	public destroy(): void {
 		this.db.destroy();
 		this.db = null;
 	}

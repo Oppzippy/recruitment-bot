@@ -13,7 +13,7 @@ export default class InviteLinkCommand extends Command {
 		this.db = db;
 	}
 
-	public async exec(message: Message) {
+	public async exec(message: Message): Promise<void> {
 		if (
 			this.client instanceof HuokanClient &&
 			message.channel instanceof TextChannel
