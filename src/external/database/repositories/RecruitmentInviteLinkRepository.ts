@@ -73,18 +73,18 @@ export class RecruitmentInviteLinkRespository {
 	public async getRecruiterRecruitmentCount(
 		guildId: string,
 	): Promise<RecruitmentCount[]> {
-		const recruitmentCount = await this.db
+		const recruitmentCountByInviteLink = this.db
 			.select({
-				guildId: "recruitment_invite_link.guild_id",
-				recruiterDiscordId: "recruitment_invite_link.owner_discord_id",
-				count: this.db.max(
+				guild_id: "recruitment_invite_link.guild_id",
+				owner_discord_id: "recruitment_invite_link.owner_discord_id",
+				num_uses: this.db.max(
 					"recruitment_invite_link_usage_change.num_uses",
 				),
 			})
 			.where("recruitment_invite_link.guild_id", "=", guildId)
 			.groupBy(
 				"recruitment_invite_link.guild_id",
-				"recruitment_invite_link.owner_discord_id",
+				"recruitment_invite_link.invite_link",
 			)
 			.from<RecruitmentCount>("recruitment_invite_link")
 			.innerJoin(
@@ -93,6 +93,14 @@ export class RecruitmentInviteLinkRespository {
 				"=",
 				"recruitment_invite_link.invite_link",
 			);
-		return recruitmentCount;
+		const recruitmentCount = this.db
+			.select({
+				guildId: "guild_id",
+				recruiterDiscordId: "owner_discord_id",
+				count: this.db.sum("num_uses"),
+			})
+			.from(recruitmentCountByInviteLink)
+			.groupBy("owner_discord_id");
+		return await recruitmentCount;
 	}
 }
