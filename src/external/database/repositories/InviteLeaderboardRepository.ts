@@ -1,4 +1,5 @@
 import * as Knex from "knex";
+import { InviteLeaderboardOptions } from "../../../modules/recruitment/InviteLeaderboard";
 import { RecruitmentInviteLinkLeaderboard } from "../models/RecruitmentInviteLinkLeaderboard";
 
 export class InviteLeaderboardRepository {
@@ -12,13 +13,14 @@ export class InviteLeaderboardRepository {
 		guildId: string,
 		channelId: string,
 		messageId: string,
-		size: number,
+		options: InviteLeaderboardOptions,
 	): Promise<void> {
 		await this.db("recruitment_invite_link_leaderboard").insert({
 			guildId,
 			channelId,
 			messageId,
-			size,
+			size: options.size,
+			filter: options.filter,
 		});
 	}
 

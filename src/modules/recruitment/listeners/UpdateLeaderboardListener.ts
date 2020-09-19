@@ -23,7 +23,7 @@ export class UpdateLeaderboardListener extends Listener {
 		try {
 			const [leaderboardMessages, recruitmentCount] = await Promise.all([
 				leaderboardRepo.getLeaderboardMessages(guildId),
-				inviteLinkRepo.getRecruiterRecruitmentCount(guildId),
+				inviteLinkRepo.getRecruiterScores(guildId),
 			]);
 
 			// XXX Switch to Promisme.allSettled

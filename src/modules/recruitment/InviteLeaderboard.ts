@@ -1,9 +1,11 @@
 import { MessageEmbed, Message } from "discord.js";
 import { RecruitmentCount } from "../../external/database/models/RecruitmentCount";
+import { InviteLinkFilter } from "../../external/database/repositories/RecruitmentInviteLinkRepository";
 
 export interface InviteLeaderboardOptions {
 	size: number;
 	isDynamic?: boolean;
+	filter?: InviteLinkFilter;
 }
 
 export class InviteLeaderboard {

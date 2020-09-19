@@ -1,7 +1,15 @@
+import { addDays } from "date-fns";
 import * as Knex from "knex";
+import { getCycleStartDate } from "../../../util/date";
 import { RecruitmentCount } from "../models/RecruitmentCount";
 import { RecruitmentInviteLink } from "../models/RecruitmentInviteLink";
 import { RecruitmentInviteLinkUsageChange } from "../models/RecruitmentInviteLinkUsageChange";
+
+export interface InviteLinkFilter {
+	startDate: Date;
+	resetIntervalInDays: number;
+	now?: Date;
+}
 
 export class RecruitmentInviteLinkRespository {
 	private db: Knex;
@@ -70,8 +78,9 @@ export class RecruitmentInviteLinkRespository {
 		return usageByLink;
 	}
 
-	public async getRecruiterRecruitmentCount(
+	public async getRecruiterScores(
 		guildId: string,
+		filter?: InviteLinkFilter,
 	): Promise<RecruitmentCount[]> {
 		const recruitmentCountByInviteLink = this.db
 			.select({
@@ -86,7 +95,7 @@ export class RecruitmentInviteLinkRespository {
 				"recruitment_invite_link.guild_id",
 				"recruitment_invite_link.invite_link",
 			)
-			.from<RecruitmentCount>("recruitment_invite_link")
+			.from("recruitment_invite_link")
 			.innerJoin(
 				"recruitment_invite_link_usage_change",
 				"recruitment_invite_link_usage_change.invite_link",
@@ -99,8 +108,51 @@ export class RecruitmentInviteLinkRespository {
 				recruiterDiscordId: "owner_discord_id",
 				count: this.db.sum("num_uses"),
 			})
-			.from(recruitmentCountByInviteLink)
+			.from<RecruitmentCount>(recruitmentCountByInviteLink)
 			.groupBy("owner_discord_id");
-		return await recruitmentCount;
+
+		if (filter) {
+			this.filterRecruiterScoresQueryBuilder(
+				recruitmentCountByInviteLink,
+				filter,
+			);
+		}
+		// For some reason the original query doesn't return anything, but converting to string and back does
+		// Probably a knex bug. This issue occurs as of 2020-09-19.
+		return await this.db.raw(recruitmentCount.toString());
+	}
+
+	private filterRecruiterScoresQueryBuilder(
+		queryBuilder: Knex.QueryBuilder,
+		filter: InviteLinkFilter,
+	) {
+		const cycleStartDate = getCycleStartDate(
+			filter.startDate,
+			filter.resetIntervalInDays,
+			filter.now,
+		);
+		queryBuilder
+			.select({
+				num_uses: this.db.raw(
+					`MAX(recruitment_invite_link_usage_change.num_uses) - COALESCE((
+						SELECT num_uses FROM recruitment_invite_link_usage_change AS prev_usage
+						WHERE prev_usage.invite_link = recruitment_invite_link.invite_link
+						AND prev_usage.created_at < ?
+						ORDER BY prev_usage.created_at DESC
+						LIMIT 1
+					), 0)`,
+					cycleStartDate,
+				),
+			})
+			.where(
+				"recruitment_invite_link_usage_change.created_at",
+				">=",
+				cycleStartDate,
+			)
+			.where(
+				"recruitment_invite_link_usage_change.created_at",
+				"<",
+				addDays(cycleStartDate, filter.resetIntervalInDays),
+			);
 	}
 }

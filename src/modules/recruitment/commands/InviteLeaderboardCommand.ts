@@ -1,5 +1,6 @@
 import { Command } from "discord-akairo";
 import { Message, TextChannel, DiscordAPIError } from "discord.js";
+import { clamp } from "lodash";
 import { DataStore } from "../../../external/database/DataStore";
 import { RecruitmentInviteLinkLeaderboard } from "../../../external/database/models/RecruitmentInviteLinkLeaderboard";
 import {
@@ -10,6 +11,8 @@ import {
 interface InviteLeaderboardArgs {
 	size: number;
 	dynamic: boolean;
+	startDate: Date;
+	resetIntervalInDays: number;
 }
 
 export class InviteLeaderboardCommand extends Command {
@@ -31,6 +34,18 @@ export class InviteLeaderboardCommand extends Command {
 					match: "flag",
 					flag: "--dynamic",
 				},
+				{
+					id: "startDate",
+					type: "date",
+					match: "option",
+					flag: "--startDate",
+				},
+				{
+					id: "resetIntervalInDays",
+					type: "integer",
+					match: "option",
+					flag: "--cycle",
+				},
 			],
 			clientPermissions: ["MANAGE_GUILD"],
 			userPermissions: ["MANAGE_GUILD"],
@@ -43,26 +58,23 @@ export class InviteLeaderboardCommand extends Command {
 		message: Message,
 		args: InviteLeaderboardArgs,
 	): Promise<void> {
-		let { size } = args;
-		if (size < 1) {
-			size = 1;
-		} else if (size > 50) {
-			size = 50;
-		}
+		const options = this.getOptionsFromArgs(args);
 		if (message.channel instanceof TextChannel) {
 			try {
 				const leaderboardMessage = await this.sendLeaderboard(
 					message.channel,
-					{ size: args.size, isDynamic: args.dynamic },
+					options,
 				);
 				if (args.dynamic) {
-					this.addDynamicLeaderboardMessage(leaderboardMessage, size);
+					this.addDynamicLeaderboardMessage(
+						leaderboardMessage,
+						options,
+					);
 				}
 				this.deleteMessageIfPermissible(message);
-				let dmChannel = message.author.dmChannel;
-				if (!dmChannel) {
-					dmChannel = await message.author.createDM();
-				}
+				const dmChannel =
+					message.author.dmChannel ||
+					(await message.author.createDM());
 				dmChannel.send(
 					`Created ${args.dynamic ? "dynamic " : ""}leaderboard in #${
 						message.channel.name
@@ -82,8 +94,9 @@ export class InviteLeaderboardCommand extends Command {
 			"Fetching invite leaderboard...",
 		);
 		const inviteLinkRepo = this.db.recruitmentInviteLinkRepository;
-		const recruitmentCount = await inviteLinkRepo.getRecruiterRecruitmentCount(
+		const recruitmentCount = await inviteLinkRepo.getRecruiterScores(
 			channel.guild.id,
+			options.filter,
 		);
 		const leaderboard = new InviteLeaderboard(leaderboardMessage, options);
 		await leaderboard.update(recruitmentCount);
@@ -106,7 +119,7 @@ export class InviteLeaderboardCommand extends Command {
 
 	private async addDynamicLeaderboardMessage(
 		leaderboardMessage: Message,
-		size: number,
+		options: InviteLeaderboardOptions,
 	): Promise<void> {
 		const leaderboardRepo = this.db.inviteLeaderboardRepository;
 		const deletedMessages = await leaderboardRepo.getLeaderboardMessagesInChannel(
@@ -120,7 +133,7 @@ export class InviteLeaderboardCommand extends Command {
 			leaderboardMessage.guild.id,
 			leaderboardMessage.channel.id,
 			leaderboardMessage.id,
-			size,
+			options,
 		);
 		deletedMessages;
 	}
@@ -145,5 +158,22 @@ export class InviteLeaderboardCommand extends Command {
 				}
 			}
 		}
+	}
+
+	private getOptionsFromArgs(
+		args: InviteLeaderboardArgs,
+	): InviteLeaderboardOptions {
+		const size = clamp(args.size, 1, 50);
+		const options: InviteLeaderboardOptions = {
+			size,
+			isDynamic: args.dynamic,
+		};
+		if (args.startDate) {
+			options.filter = {
+				startDate: args.startDate,
+				resetIntervalInDays: args.resetIntervalInDays,
+			};
+		}
+		return options;
 	}
 }

@@ -1,3 +1,5 @@
+import { InviteLinkFilter } from "../repositories/RecruitmentInviteLinkRepository";
+
 export interface RecruitmentInviteLinkLeaderboard {
 	id: number;
 	guildId: string;
@@ -6,4 +8,5 @@ export interface RecruitmentInviteLinkLeaderboard {
 	size: number;
 	createdAt: Date;
 	updatedAt?: Date;
+	filter?: InviteLinkFilter;
 }
