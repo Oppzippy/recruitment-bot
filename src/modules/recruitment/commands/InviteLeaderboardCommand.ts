@@ -48,7 +48,7 @@ export class InviteLeaderboardCommand extends Command {
 				},
 			],
 			clientPermissions: ["MANAGE_GUILD"],
-			userPermissions: ["MANAGE_GUILD"],
+			// userPermissions: ["MANAGE_GUILD"],
 		});
 
 		this.db = db;

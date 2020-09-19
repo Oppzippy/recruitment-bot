@@ -57,22 +57,23 @@ export class RecruitmentInviteLinkRespository {
 	public async getRecruitmentLinkUsage(
 		guildId: string,
 	): Promise<Map<string, number>> {
-		const links = await this.db
+		const query = this.db
 			.select({
-				id: "recruitment_invite_link_usage_change.id",
-				inviteLink: "recruitment_invite_link_usage_change.invite_link",
-				createdAt: "recruitment_invite_link_usage_change.created_at",
+				id: "id",
+				inviteLink: "invite_link",
+				createdAt: "created_at",
+				numUses: this.db
+					.select("num_uses")
+					.from("recruitment_invite_link_usage_change")
+					.whereRaw(
+						"recruitment_invite_link_usage_change.invite_link = recruitment_invite_link.invite_link",
+					)
+					.orderBy("created_at", "desc")
+					.limit(1),
 			})
-			.max({ numUses: "recruitment_invite_link_usage_change.num_uses" })
-			.innerJoin(
-				"recruitment_invite_link_usage_change",
-				"recruitment_invite_link.invite_link",
-				"=",
-				"recruitment_invite_link_usage_change.inviteLink",
-			)
-			.where("recruitment_invite_link.guild_id", "=", guildId)
-			.groupBy("recruitment_invite_link.invite_link")
+			.where("guild_id", "=", guildId)
 			.from<RecruitmentInviteLinkUsageChange>("recruitment_invite_link");
+		const links = await query;
 		const usageByLink = new Map<string, number>();
 		links.forEach((link) => usageByLink.set(link.inviteLink, link.numUses));
 		return usageByLink;

@@ -42,7 +42,7 @@ export default class InviteAcceptListener extends Listener {
 	): Map<string, number> {
 		const changes = new Map<string, number>();
 		invites.forEach((uses, code) => {
-			if (oldInvites.get(code) != uses) {
+			if (oldInvites.has(code) && oldInvites.get(code) != uses) {
 				changes.set(code, uses);
 			}
 		});
