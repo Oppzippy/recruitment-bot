@@ -1,7 +1,6 @@
 import { Listener } from "discord-akairo";
 import { TextChannel, DiscordAPIError } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
-import { RecruitmentCount } from "../../../external/database/models/RecruitmentCount";
 import { RecruitmentInviteLinkLeaderboard } from "../../../external/database/models/RecruitmentInviteLinkLeaderboard";
 import { InviteLeaderboard } from "../InviteLeaderboard";
 
@@ -18,7 +17,6 @@ export class UpdateLeaderboardListener extends Listener {
 
 	public async exec(guildId: string): Promise<void> {
 		const leaderboardRepo = this.db.inviteLeaderboardRepository;
-		const inviteLinkRepo = this.db.recruitmentInviteLinkRepository;
 
 		try {
 			const leaderboardMessages = await leaderboardRepo.getLeaderboardMessages(
