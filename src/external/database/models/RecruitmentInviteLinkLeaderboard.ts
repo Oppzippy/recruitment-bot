@@ -10,3 +10,9 @@ export interface RecruitmentInviteLinkLeaderboard {
 	updatedAt?: Date;
 	filter?: InviteLinkFilter;
 }
+
+export function parseFilter(filterJSON: string): InviteLinkFilter {
+	const filter = JSON.parse(filterJSON);
+	filter.startDate = new Date(filter.startDate);
+	return filter;
+}

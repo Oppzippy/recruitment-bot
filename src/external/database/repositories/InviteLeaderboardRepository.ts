@@ -1,6 +1,9 @@
 import * as Knex from "knex";
 import { InviteLeaderboardOptions } from "../../../modules/recruitment/InviteLeaderboard";
-import { RecruitmentInviteLinkLeaderboard } from "../models/RecruitmentInviteLinkLeaderboard";
+import {
+	parseFilter,
+	RecruitmentInviteLinkLeaderboard,
+} from "../models/RecruitmentInviteLinkLeaderboard";
 
 export class InviteLeaderboardRepository {
 	private db: Knex;
@@ -20,30 +23,25 @@ export class InviteLeaderboardRepository {
 			channelId,
 			messageId,
 			size: options.size,
-			filter: options.filter,
+			filter: JSON.stringify(options.filter),
 		});
 	}
 
-	public async getLeaderboardMessages(
-		guildId: string,
-	): Promise<RecruitmentInviteLinkLeaderboard[]> {
-		return await this.db
+	public async getLeaderboardMessages(filter: {
+		guildId?: string;
+		channelId?: string;
+	}): Promise<RecruitmentInviteLinkLeaderboard[]> {
+		const query = this.db
 			.select("*")
-			.where({ guildId })
-			.from<RecruitmentInviteLinkLeaderboard>(
-				"recruitment_invite_link_leaderboard",
-			);
-	}
-
-	public async getLeaderboardMessagesInChannel(
-		channelId: string,
-	): Promise<RecruitmentInviteLinkLeaderboard[]> {
-		return await this.db
-			.select("*")
-			.where({ channelId })
-			.from<RecruitmentInviteLinkLeaderboard>(
-				"recruitment_invite_link_leaderboard",
-			);
+			.where(filter)
+			.from("recruitment_invite_link_leaderboard");
+		const leaderboards = await query;
+		return leaderboards.map((leaderboard) => {
+			return {
+				...leaderboard,
+				filter: parseFilter(leaderboard.filter),
+			};
+		});
 	}
 
 	public async deleteLeaderboardMessage(

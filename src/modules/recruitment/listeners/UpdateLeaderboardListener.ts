@@ -21,19 +21,14 @@ export class UpdateLeaderboardListener extends Listener {
 		const inviteLinkRepo = this.db.recruitmentInviteLinkRepository;
 
 		try {
-			const [leaderboardMessages, recruitmentCount] = await Promise.all([
-				leaderboardRepo.getLeaderboardMessages(guildId),
-				inviteLinkRepo.getRecruiterScores(guildId),
-			]);
-
+			const leaderboardMessages = await leaderboardRepo.getLeaderboardMessages(
+				{ guildId },
+			);
 			// XXX Switch to Promisme.allSettled
 			// There is currently (as of 2020-09-14) a discord.js bug causing some promises to never resolve/reject
 			// and just hang forever if we create them all at the same time.
 			for (const leaderboardMessage of leaderboardMessages) {
-				await this.updateLeaderboardMessage(
-					leaderboardMessage,
-					recruitmentCount,
-				);
+				await this.updateLeaderboardMessage(leaderboardMessage);
 			}
 		} catch (err) {
 			console.error(`Error updating invite leaderboards: ${err}`);
@@ -42,9 +37,12 @@ export class UpdateLeaderboardListener extends Listener {
 
 	private async updateLeaderboardMessage(
 		leaderboardMessage: RecruitmentInviteLinkLeaderboard,
-		recruitmentCount: RecruitmentCount[],
 	): Promise<void> {
 		try {
+			const recruitmentCount = await this.db.recruitmentInviteLinkRepository.getRecruiterScores(
+				leaderboardMessage.guildId,
+				leaderboardMessage.filter,
+			);
 			const channel = <TextChannel>(
 				await this.client.channels.fetch(leaderboardMessage.channelId)
 			);
@@ -54,6 +52,7 @@ export class UpdateLeaderboardListener extends Listener {
 			const leaderboard = new InviteLeaderboard(message, {
 				size: leaderboardMessage.size,
 				isDynamic: true, // Only dynamic leaderboards are updated
+				filter: leaderboardMessage.filter,
 			});
 			await leaderboard.update(recruitmentCount);
 		} catch (err) {

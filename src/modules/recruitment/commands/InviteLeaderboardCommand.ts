@@ -122,9 +122,9 @@ export class InviteLeaderboardCommand extends Command {
 		options: InviteLeaderboardOptions,
 	): Promise<void> {
 		const leaderboardRepo = this.db.inviteLeaderboardRepository;
-		const deletedMessages = await leaderboardRepo.getLeaderboardMessagesInChannel(
-			leaderboardMessage.channel.id,
-		);
+		const deletedMessages = await leaderboardRepo.getLeaderboardMessages({
+			channelId: leaderboardMessage.channel.id,
+		});
 		this.deleteLeaderboardMesssages(deletedMessages);
 		await leaderboardRepo.deleteLeaderboardMessagesInChannel(
 			leaderboardMessage.channel.id,
@@ -135,7 +135,6 @@ export class InviteLeaderboardCommand extends Command {
 			leaderboardMessage.id,
 			options,
 		);
-		deletedMessages;
 	}
 
 	private async deleteLeaderboardMesssages(
@@ -156,6 +155,7 @@ export class InviteLeaderboardCommand extends Command {
 				if (!(err instanceof DiscordAPIError && err.code == 10008)) {
 					console.error(err);
 				}
+				console.error(err);
 			}
 		}
 	}

@@ -62,14 +62,7 @@ export class RecruitmentInviteLinkRespository {
 				id: "id",
 				inviteLink: "invite_link",
 				createdAt: "created_at",
-				numUses: this.db
-					.select("num_uses")
-					.from("recruitment_invite_link_usage_change")
-					.whereRaw(
-						"recruitment_invite_link_usage_change.invite_link = recruitment_invite_link.invite_link",
-					)
-					.orderBy("created_at", "desc")
-					.limit(1),
+				numUses: this.getNumUsesSubquery(),
 			})
 			.where("guild_id", "=", guildId)
 			.from<RecruitmentInviteLinkUsageChange>("recruitment_invite_link");
@@ -87,9 +80,7 @@ export class RecruitmentInviteLinkRespository {
 			.select({
 				guild_id: "recruitment_invite_link.guild_id",
 				owner_discord_id: "recruitment_invite_link.owner_discord_id",
-				num_uses: this.db.max(
-					"recruitment_invite_link_usage_change.num_uses",
-				),
+				num_uses: this.getNumUsesSubquery(),
 			})
 			.where("recruitment_invite_link.guild_id", "=", guildId)
 			.groupBy(
@@ -133,9 +124,12 @@ export class RecruitmentInviteLinkRespository {
 			filter.now,
 		);
 		queryBuilder
+			.clearSelect()
 			.select({
+				guild_id: "recruitment_invite_link.guild_id",
+				owner_discord_id: "recruitment_invite_link.owner_discord_id",
 				num_uses: this.db.raw(
-					`MAX(recruitment_invite_link_usage_change.num_uses) - COALESCE((
+					`(${this.getNumUsesSubquery().toString()}) - COALESCE((
 						SELECT num_uses FROM recruitment_invite_link_usage_change AS prev_usage
 						WHERE prev_usage.invite_link = recruitment_invite_link.invite_link
 						AND prev_usage.created_at < ?
@@ -155,5 +149,16 @@ export class RecruitmentInviteLinkRespository {
 				"<",
 				addDays(cycleStartDate, filter.resetIntervalInDays),
 			);
+	}
+
+	private getNumUsesSubquery() {
+		return this.db
+			.select("num_uses")
+			.from("recruitment_invite_link_usage_change")
+			.whereRaw(
+				"recruitment_invite_link_usage_change.invite_link = recruitment_invite_link.invite_link",
+			)
+			.orderBy("created_at", "desc")
+			.limit(1);
 	}
 }
