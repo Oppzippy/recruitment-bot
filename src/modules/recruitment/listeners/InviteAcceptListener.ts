@@ -2,7 +2,7 @@ import { Listener } from "discord-akairo";
 import { Invite, Guild, GuildMember, Collection } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
 
-export default class InviteAcceptListener extends Listener {
+export class InviteAcceptListener extends Listener {
 	private db: DataStore;
 
 	public constructor(db: DataStore) {

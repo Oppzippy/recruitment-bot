@@ -3,9 +3,10 @@ import { EventEmitter } from "events";
 import { DataStore } from "../../external/database/DataStore";
 import { HuokanClient } from "../../HuokanClient";
 import { Module } from "../Module";
+import { InviteChannelCommand } from "./commands/InviteChannelCommand";
 import { InviteLeaderboardCommand } from "./commands/InviteLeaderboardCommand";
-import InviteLinkCommand from "./commands/InviteLinkCommand";
-import InviteAcceptListener from "./listeners/InviteAcceptListener";
+import { InviteLinkCommand } from "./commands/InviteLinkCommand";
+import { InviteAcceptListener } from "./listeners/InviteAcceptListener";
 import { UpdateLeaderboardListener } from "./listeners/UpdateLeaderboardListener";
 
 export class RecruitmentModule extends Module {
@@ -42,6 +43,7 @@ export class RecruitmentModule extends Module {
 	private registerCommands() {
 		this.commandHandler.register(new InviteLinkCommand(this.db));
 		this.commandHandler.register(new InviteLeaderboardCommand(this.db));
+		this.commandHandler.register(new InviteChannelCommand(this.db));
 	}
 
 	private registerListeners() {
