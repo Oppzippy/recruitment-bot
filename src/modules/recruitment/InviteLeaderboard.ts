@@ -1,6 +1,8 @@
+import { addDays } from "date-fns";
 import { MessageEmbed, Message } from "discord.js";
 import { RecruitmentCount } from "../../external/database/models/RecruitmentCount";
 import { InviteLinkFilter } from "../../external/database/repositories/RecruitmentInviteLinkRepository";
+import { getCycleStartDate } from "../../util/date";
 
 export interface InviteLeaderboardOptions {
 	size: number;
@@ -11,10 +13,19 @@ export interface InviteLeaderboardOptions {
 export class InviteLeaderboard {
 	private message: Message;
 	private options: InviteLeaderboardOptions;
+	private dateFormat: Intl.DateTimeFormat;
 
 	public constructor(message: Message, options: InviteLeaderboardOptions) {
 		this.message = message;
 		this.options = options;
+		this.dateFormat = new Intl.DateTimeFormat(undefined, {
+			year: "numeric",
+			month: "short",
+			day: "numeric",
+			hour: "numeric",
+			minute: "2-digit",
+			timeZoneName: "short",
+		});
 	}
 
 	/**
@@ -22,11 +33,34 @@ export class InviteLeaderboard {
 	 * @param leaderboard Latest invite usage change for all recruiters
 	 */
 	public async update(leaderboard: RecruitmentCount[]): Promise<void> {
-		const newMessageText = this.buildMessage(leaderboard);
-		await this.message.edit(null, newMessageText);
+		const newText = this.buildText();
+		const newEmbed = this.buildEmbed(leaderboard);
+		await this.message.edit(newText, newEmbed);
 	}
 
-	public buildMessage(leaderboard: RecruitmentCount[]): MessageEmbed {
+	private buildText(): string {
+		if (this.options.filter?.startDate) {
+			const filter = this.options.filter;
+			const startDate = getCycleStartDate(
+				filter.startDate,
+				filter.resetIntervalInDays,
+			);
+			let message = `This leaderboard started on ${this.dateFormat.format(
+				startDate,
+			)}`;
+			if (filter.resetIntervalInDays) {
+				const endDate = addDays(startDate, filter.resetIntervalInDays);
+				message += ` and will reset on ${this.dateFormat.format(
+					endDate,
+				)}`;
+			}
+			message += ".";
+			return message;
+		}
+		return null;
+	}
+
+	public buildEmbed(leaderboard: RecruitmentCount[]): MessageEmbed {
 		const sortedLeaderboard = [...leaderboard].sort(
 			(a, b) => b.count - a.count,
 		);
