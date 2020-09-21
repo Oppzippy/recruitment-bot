@@ -48,7 +48,6 @@ export class InviteLeaderboardCommand extends Command {
 				},
 			],
 			clientPermissions: ["MANAGE_GUILD", "SEND_MESSAGES", "EMBED_LINKS"],
-			userPermissions: ["MANAGE_GUILD"],
 			channel: "guild",
 		});
 
