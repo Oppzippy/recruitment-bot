@@ -161,9 +161,9 @@ export class RecruitmentInviteLinkRespository {
 	private getNumUsesSubquery() {
 		return this.db
 			.select("num_uses")
-			.from("recruitment_invite_link_usage_change")
+			.from({ num_uses_subtable: "recruitment_invite_link_usage_change" })
 			.whereRaw(
-				"recruitment_invite_link_usage_change.invite_link = recruitment_invite_link.invite_link",
+				"num_uses_subtable.invite_link = recruitment_invite_link.invite_link",
 			)
 			.orderBy("created_at", "desc")
 			.limit(1);

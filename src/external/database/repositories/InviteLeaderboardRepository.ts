@@ -37,10 +37,13 @@ export class InviteLeaderboardRepository {
 			.from("recruitment_invite_link_leaderboard");
 		const leaderboards = await query;
 		return leaderboards.map((leaderboard) => {
-			return {
-				...leaderboard,
-				filter: parseFilter(leaderboard.filter),
-			};
+			if (leaderboard.filter) {
+				return {
+					...leaderboard,
+					filter: parseFilter(leaderboard.filter),
+				};
+			}
+			return leaderboard;
 		});
 	}
 
