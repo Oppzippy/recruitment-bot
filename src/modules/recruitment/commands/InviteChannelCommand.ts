@@ -27,6 +27,6 @@ export class InviteChannelCommand extends Command {
 		const repo = this.db.settingRepository;
 		const channel = args.channel ?? <TextChannel>message.channel;
 		repo.set(message.guild.id, "invite_channel", channel.id);
-		message.reply(`Set invite channel to #${channel.name}.`);
+		message.reply(`the invite channel has been set to <#${channel.id}>.`);
 	}
 }
