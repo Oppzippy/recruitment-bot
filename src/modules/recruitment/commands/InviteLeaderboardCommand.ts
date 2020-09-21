@@ -60,10 +60,10 @@ export class InviteLeaderboardCommand extends Command {
 				role.name.toLowerCase().startsWith("moderator"),
 			)
 		) {
-			return;
+			return null;
 		}
 		if (message.member.hasPermission("MANAGE_GUILD")) {
-			return;
+			return null;
 		}
 		return "MANAGE_GUILD";
 	}
