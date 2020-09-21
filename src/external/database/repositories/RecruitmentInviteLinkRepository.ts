@@ -143,12 +143,19 @@ export class RecruitmentInviteLinkRespository {
 				"recruitment_invite_link_usage_change.created_at",
 				">=",
 				cycleStartDate,
-			)
-			.where(
+			);
+
+		if (filter.resetIntervalInDays) {
+			const cycleEndDate = addDays(
+				cycleStartDate,
+				filter.resetIntervalInDays,
+			);
+			queryBuilder.where(
 				"recruitment_invite_link_usage_change.created_at",
 				"<",
-				addDays(cycleStartDate, filter.resetIntervalInDays),
+				cycleEndDate,
 			);
+		}
 	}
 
 	private getNumUsesSubquery() {
