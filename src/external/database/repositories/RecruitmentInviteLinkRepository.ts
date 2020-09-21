@@ -93,7 +93,8 @@ export class RecruitmentInviteLinkRespository {
 				"recruitment_invite_link_usage_change.invite_link",
 				"=",
 				"recruitment_invite_link.invite_link",
-			);
+			)
+			.as("recruitment_count_by_invite_link");
 		const recruitmentCount = this.db
 			.select({
 				guildId: "guild_id",
@@ -111,7 +112,9 @@ export class RecruitmentInviteLinkRespository {
 		}
 		// For some reason the original query doesn't return anything, but converting to string and back does
 		// Probably a knex bug. This issue occurs as of 2020-09-19.
-		return await this.db.raw(recruitmentCount.toString());
+		// Possibly fixed as of 2020-09-21 by ensuring every subquery has a name.
+		const scores = await recruitmentCount;
+		return scores;
 	}
 
 	private filterRecruiterScoresQueryBuilder(
