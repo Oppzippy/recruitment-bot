@@ -10,6 +10,7 @@ export default class InviteLinkCommand extends Command {
 		super("invitelink", {
 			aliases: ["invitelink"],
 			clientPermissions: ["CREATE_INSTANT_INVITE", "SEND_MESSAGES"],
+			channel: "guild",
 		});
 		this.db = db;
 	}

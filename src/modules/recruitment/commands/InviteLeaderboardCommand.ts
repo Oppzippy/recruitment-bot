@@ -49,9 +49,24 @@ export class InviteLeaderboardCommand extends Command {
 			],
 			clientPermissions: ["MANAGE_GUILD", "SEND_MESSAGES", "EMBED_LINKS"],
 			userPermissions: ["MANAGE_GUILD"],
+			channel: "guild",
 		});
 
 		this.db = db;
+	}
+
+	public static userPermissions(message: Message): string {
+		if (
+			message.member.roles.cache.some((role) =>
+				role.name.toLowerCase().startsWith("moderator"),
+			)
+		) {
+			return null;
+		}
+		if (message.member.hasPermission("MANAGE_GUILD")) {
+			return null;
+		}
+		return "MANAGE_GUILD";
 	}
 
 	public async exec(
