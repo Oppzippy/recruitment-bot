@@ -99,7 +99,7 @@ export class RecruitmentInviteLinkRespository {
 			.select({
 				guildId: "guild_id",
 				recruiterDiscordId: "owner_discord_id",
-				count: this.db.sum("num_uses"),
+				count: this.db.raw("CAST(SUM(num_uses) AS SIGNED)"), // cast is necessary to get the correct type from the driver
 			})
 			.from<RecruitmentCount>(recruitmentCountByInviteLink)
 			.groupBy("owner_discord_id");
