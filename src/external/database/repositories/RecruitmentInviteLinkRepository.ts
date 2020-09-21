@@ -7,7 +7,7 @@ import { RecruitmentInviteLinkUsageChange } from "../models/RecruitmentInviteLin
 
 export interface InviteLinkFilter {
 	startDate: Date;
-	resetIntervalInDays: number;
+	resetIntervalInDays?: number;
 	now?: Date;
 }
 
