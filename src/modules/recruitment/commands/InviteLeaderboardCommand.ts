@@ -48,7 +48,7 @@ export class InviteLeaderboardCommand extends Command {
 				},
 			],
 			clientPermissions: ["MANAGE_GUILD"],
-			// userPermissions: ["MANAGE_GUILD"],
+			userPermissions: ["MANAGE_GUILD"],
 		});
 
 		this.db = db;
@@ -72,14 +72,6 @@ export class InviteLeaderboardCommand extends Command {
 					);
 				}
 				this.deleteMessageIfPermissible(message);
-				const dmChannel =
-					message.author.dmChannel ||
-					(await message.author.createDM());
-				dmChannel.send(
-					`Created ${args.dynamic ? "dynamic " : ""}leaderboard in #${
-						message.channel.name
-					}.`,
-				);
 			} catch (err) {
 				console.error(err);
 			}
