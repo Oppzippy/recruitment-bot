@@ -9,6 +9,7 @@ export default class InviteLinkCommand extends Command {
 	public constructor(db: DataStore) {
 		super("invitelink", {
 			aliases: ["invitelink"],
+			clientPermissions: ["CREATE_INSTANT_INVITE", "SEND_MESSAGES"],
 		});
 		this.db = db;
 	}

@@ -47,7 +47,7 @@ export class InviteLeaderboardCommand extends Command {
 					flag: "--cycle",
 				},
 			],
-			clientPermissions: ["MANAGE_GUILD"],
+			clientPermissions: ["MANAGE_GUILD", "SEND_MESSAGES", "EMBED_LINKS"],
 			userPermissions: ["MANAGE_GUILD"],
 		});
 
