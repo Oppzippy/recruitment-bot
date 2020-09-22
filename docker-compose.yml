@@ -1,0 +1,22 @@
+services:
+  # app:
+  #   build: .
+  #   restart: always
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - database
+  database:
+    image: mariadb:latest
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+volumes:
+  db_data: {}
