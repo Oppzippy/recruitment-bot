@@ -131,7 +131,7 @@ export class InviteLeaderboardCommand extends Command {
 		const deletedMessages = await leaderboardRepo.getLeaderboardMessages({
 			channelId: leaderboardMessage.channel.id,
 		});
-		this.deleteLeaderboardMessages(deletedMessages);
+		this.convertToStaticLeaderboardMessages(deletedMessages);
 		await leaderboardRepo.deleteLeaderboardMessagesInChannel(
 			leaderboardMessage.channel.id,
 		);
@@ -143,7 +143,7 @@ export class InviteLeaderboardCommand extends Command {
 		);
 	}
 
-	private async deleteLeaderboardMessages(
+	private async convertToStaticLeaderboardMessages(
 		messages: RecruitmentInviteLinkLeaderboard[],
 	) {
 		for (const leaderboardMessage of messages) {
@@ -153,10 +153,20 @@ export class InviteLeaderboardCommand extends Command {
 						leaderboardMessage.channelId,
 					)
 				);
+				// TODO move to abstraction
 				const message = await channel.messages.fetch(
 					leaderboardMessage.messageId,
 				);
-				await message.delete();
+				const leaderboard = new InviteLeaderboard(message, {
+					size: leaderboardMessage.size,
+					isDynamic: false,
+					filter: leaderboardMessage.filter,
+				});
+				const recruitmentCount = await this.db.recruitmentInviteLinkRepository.getRecruiterScores(
+					message.guild.id,
+					leaderboardMessage.filter,
+				);
+				leaderboard.update(recruitmentCount);
 			} catch (err) {
 				if (!(err instanceof DiscordAPIError && err.code == 10008)) {
 					console.error(err);
