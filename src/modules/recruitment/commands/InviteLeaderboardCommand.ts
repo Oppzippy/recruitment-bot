@@ -131,7 +131,7 @@ export class InviteLeaderboardCommand extends Command {
 		const deletedMessages = await leaderboardRepo.getLeaderboardMessages({
 			channelId: leaderboardMessage.channel.id,
 		});
-		this.deleteLeaderboardMesssages(deletedMessages);
+		this.deleteLeaderboardMessages(deletedMessages);
 		await leaderboardRepo.deleteLeaderboardMessagesInChannel(
 			leaderboardMessage.channel.id,
 		);
@@ -143,7 +143,7 @@ export class InviteLeaderboardCommand extends Command {
 		);
 	}
 
-	private async deleteLeaderboardMesssages(
+	private async deleteLeaderboardMessages(
 		messages: RecruitmentInviteLinkLeaderboard[],
 	) {
 		for (const leaderboardMessage of messages) {
@@ -161,7 +161,6 @@ export class InviteLeaderboardCommand extends Command {
 				if (!(err instanceof DiscordAPIError && err.code == 10008)) {
 					console.error(err);
 				}
-				console.error(err);
 			}
 		}
 	}
