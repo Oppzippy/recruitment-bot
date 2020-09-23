@@ -100,7 +100,6 @@ export class InviteLinkRespository {
 				filter,
 			);
 		}
-		const qry = recruitmentScore.toString();
 		// For some reason the original query doesn't return anything, but converting to string and back does
 		// Probably a knex bug. This issue occurs as of 2020-09-19.
 		// Possibly fixed as of 2020-09-21 by ensuring every subquery has a name.
