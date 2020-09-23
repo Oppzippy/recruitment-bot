@@ -1,14 +1,8 @@
 import { addDays } from "date-fns";
 import { MessageEmbed } from "discord.js";
 import { RecruitmentScore } from "../../../external/database/models/RecruitmentScore";
-import { InviteLinkFilter } from "../../../external/database/repositories/RecruitmentInviteLinkRepository";
 import { getCycleStartDate } from "../../../util/Date";
-
-export interface LeaderboardOptions {
-	size: number;
-	isDynamic?: boolean;
-	filter?: InviteLinkFilter;
-}
+import { LeaderboardOptions } from "./LeaderboardOptions";
 
 export class LeaderboardMessageGenerator {
 	private recruitmentScores: RecruitmentScore[];
@@ -32,25 +26,33 @@ export class LeaderboardMessageGenerator {
 	}
 
 	public buildText(): string {
-		if (this.options.filter?.startDate) {
-			const filter = this.options.filter;
+		let message = "";
+		const filter = this.options.filter;
+		if (filter?.startDate) {
 			const startDate = getCycleStartDate(
 				filter.startDate,
 				filter.resetIntervalInDays,
 			);
-			let message = `This leaderboard started on ${this.dateFormat.format(
+			message += `This leaderboard started on ${this.dateFormat.format(
 				startDate,
 			)}`;
 			if (filter.resetIntervalInDays) {
-				const endDate = addDays(startDate, filter.resetIntervalInDays);
+				const resetDate = addDays(
+					startDate,
+					filter.resetIntervalInDays,
+				);
 				message += ` and will reset on ${this.dateFormat.format(
-					endDate,
+					resetDate,
 				)}`;
 			}
 			message += ".";
-			return message;
 		}
-		return null;
+		if (filter?.endDate) {
+			message += `  The leaderboard will end on ${this.dateFormat.format(
+				filter.endDate,
+			)}`;
+		}
+		return message.length == 0 ? null : message;
 	}
 
 	public buildEmbed(): MessageEmbed {

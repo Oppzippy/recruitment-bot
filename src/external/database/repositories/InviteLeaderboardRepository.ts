@@ -1,5 +1,5 @@
 import * as Knex from "knex";
-import { LeaderboardOptions } from "../../../modules/recruitment/leaderboard/LeaderboardMessageGenerator";
+import { LeaderboardOptions } from "../../../modules/recruitment/leaderboard/LeaderboardOptions";
 import {
 	parseFilter,
 	RecruitmentInviteLinkLeaderboard,

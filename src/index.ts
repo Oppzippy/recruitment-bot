@@ -12,6 +12,7 @@ dotenv.config();
 const knexConfig = {
 	client: process.env.DB_CLIENT,
 	connection: {
+		timezone: "+00:00",
 		host: process.env.DB_HOST,
 		database: process.env.DB_DATABASE,
 		user: process.env.DB_USER,

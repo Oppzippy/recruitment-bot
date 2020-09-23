@@ -3,13 +3,14 @@ import { Message, TextChannel } from "discord.js";
 import { clamp } from "lodash";
 import { DataStore } from "../../../external/database/DataStore";
 import { LeaderboardManager } from "../leaderboard/LeaderboardManager";
-import { LeaderboardOptions } from "../leaderboard/LeaderboardMessageGenerator";
+import { LeaderboardOptions } from "../leaderboard/LeaderboardOptions";
 
 interface LeaderboardArgs {
 	size: number;
 	dynamic: boolean;
-	startDate: Date;
-	resetIntervalInDays: number;
+	startDate?: Date;
+	resetIntervalInDays?: number;
+	endDate?: Date;
 }
 
 export class LeaderboardCommand extends Command {
@@ -43,6 +44,12 @@ export class LeaderboardCommand extends Command {
 					type: "integer",
 					match: "option",
 					flag: "--cycle",
+				},
+				{
+					id: "endDate",
+					type: "date",
+					match: "option",
+					flag: "--endDate",
 				},
 			],
 			clientPermissions: ["MANAGE_GUILD", "SEND_MESSAGES", "EMBED_LINKS"],
@@ -98,10 +105,11 @@ export class LeaderboardCommand extends Command {
 			size,
 			isDynamic: args.dynamic,
 		};
-		if (args.startDate) {
+		if (args.startDate || args.endDate) {
 			options.filter = {
 				startDate: args.startDate,
 				resetIntervalInDays: args.resetIntervalInDays,
+				endDate: args.endDate,
 			};
 		}
 		return options;

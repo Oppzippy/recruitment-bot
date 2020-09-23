@@ -4,7 +4,7 @@ import { TextChannel, Message } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
 import { RecruitmentInviteLinkLeaderboard } from "../../../external/database/models/RecruitmentInviteLinkLeaderboard";
 import { isDiscordNotFoundError } from "../../../util/DiscordUtils";
-import { LeaderboardOptions } from "./LeaderboardMessageGenerator";
+import { LeaderboardOptions } from "./LeaderboardOptions";
 import { LeaderboardUpdater } from "./LeaderboardUpdater";
 
 export class LeaderboardManager {

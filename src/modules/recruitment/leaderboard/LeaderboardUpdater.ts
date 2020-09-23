@@ -1,9 +1,7 @@
 import { Message } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
-import {
-	LeaderboardMessageGenerator,
-	LeaderboardOptions,
-} from "./LeaderboardMessageGenerator";
+import { LeaderboardMessageGenerator } from "./LeaderboardMessageGenerator";
+import { LeaderboardOptions } from "./LeaderboardOptions";
 
 export class LeaderboardUpdater {
 	private db: DataStore;

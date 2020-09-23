@@ -1,4 +1,4 @@
-import { InviteLinkFilter } from "../repositories/RecruitmentInviteLinkRepository";
+import { InviteLinkFilter } from "../../../modules/recruitment/leaderboard/InviteLinkFilter";
 
 export interface RecruitmentInviteLinkLeaderboard {
 	id: number;
@@ -13,6 +13,11 @@ export interface RecruitmentInviteLinkLeaderboard {
 
 export function parseFilter(filterJSON: string): InviteLinkFilter {
 	const filter = JSON.parse(filterJSON);
-	filter.startDate = new Date(filter.startDate);
+	if (filter.startDate) {
+		filter.startDate = new Date(filter.startDate);
+	}
+	if (filter.endDate) {
+		filter.endDate = new Date(filter.endDate);
+	}
 	return filter;
 }
