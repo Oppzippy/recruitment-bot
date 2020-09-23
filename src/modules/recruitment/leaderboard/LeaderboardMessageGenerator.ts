@@ -1,22 +1,25 @@
 import { addDays } from "date-fns";
-import { MessageEmbed, Message } from "discord.js";
-import { RecruitmentCount } from "../../external/database/models/RecruitmentCount";
-import { InviteLinkFilter } from "../../external/database/repositories/RecruitmentInviteLinkRepository";
-import { getCycleStartDate } from "../../util/date";
+import { MessageEmbed } from "discord.js";
+import { RecruitmentScore } from "../../../external/database/models/RecruitmentScore";
+import { InviteLinkFilter } from "../../../external/database/repositories/RecruitmentInviteLinkRepository";
+import { getCycleStartDate } from "../../../util/Date";
 
-export interface InviteLeaderboardOptions {
+export interface LeaderboardOptions {
 	size: number;
 	isDynamic?: boolean;
 	filter?: InviteLinkFilter;
 }
 
-export class InviteLeaderboard {
-	private message: Message;
-	private options: InviteLeaderboardOptions;
+export class LeaderboardMessageGenerator {
+	private recruitmentScores: RecruitmentScore[];
+	private options: LeaderboardOptions;
 	private dateFormat: Intl.DateTimeFormat;
 
-	public constructor(message: Message, options: InviteLeaderboardOptions) {
-		this.message = message;
+	public constructor(
+		recruitmentScores: RecruitmentScore[],
+		options: LeaderboardOptions,
+	) {
+		this.recruitmentScores = recruitmentScores;
 		this.options = options;
 		this.dateFormat = new Intl.DateTimeFormat(undefined, {
 			year: "numeric",
@@ -28,17 +31,7 @@ export class InviteLeaderboard {
 		});
 	}
 
-	/**
-	 * Updates the message to match the current leaderboard data
-	 * @param leaderboard Latest invite usage change for all recruiters
-	 */
-	public async update(leaderboard: RecruitmentCount[]): Promise<void> {
-		const newText = this.buildText();
-		const newEmbed = this.buildEmbed(leaderboard);
-		await this.message.edit(newText, newEmbed);
-	}
-
-	private buildText(): string {
+	public buildText(): string {
 		if (this.options.filter?.startDate) {
 			const filter = this.options.filter;
 			const startDate = getCycleStartDate(
@@ -60,8 +53,8 @@ export class InviteLeaderboard {
 		return null;
 	}
 
-	public buildEmbed(leaderboard: RecruitmentCount[]): MessageEmbed {
-		const sortedLeaderboard = [...leaderboard].sort(
+	public buildEmbed(): MessageEmbed {
+		const sortedLeaderboard = [...this.recruitmentScores].sort(
 			(a, b) => b.count - a.count,
 		);
 		const total = sortedLeaderboard.reduce(

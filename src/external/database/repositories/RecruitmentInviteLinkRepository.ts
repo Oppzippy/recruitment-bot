@@ -1,7 +1,7 @@
 import { addDays } from "date-fns";
 import * as Knex from "knex";
-import { getCycleStartDate } from "../../../util/date";
-import { RecruitmentCount } from "../models/RecruitmentCount";
+import { getCycleStartDate } from "../../../util/Date";
+import { RecruitmentScore } from "../models/RecruitmentScore";
 import { RecruitmentInviteLink } from "../models/RecruitmentInviteLink";
 import { RecruitmentInviteLinkUsageChange } from "../models/RecruitmentInviteLinkUsageChange";
 
@@ -75,8 +75,8 @@ export class RecruitmentInviteLinkRespository {
 	public async getRecruiterScores(
 		guildId: string,
 		filter?: InviteLinkFilter,
-	): Promise<RecruitmentCount[]> {
-		const recruitmentCountByInviteLink = this.db
+	): Promise<RecruitmentScore[]> {
+		const recruitmentScoreByInviteLink = this.db
 			.select({
 				guild_id: "recruitment_invite_link.guild_id",
 				owner_discord_id: "recruitment_invite_link.owner_discord_id",
@@ -95,25 +95,25 @@ export class RecruitmentInviteLinkRespository {
 				"recruitment_invite_link.invite_link",
 			)
 			.as("recruitment_count_by_invite_link");
-		const recruitmentCount = this.db
+		const recruitmentScore = this.db
 			.select({
 				guildId: "guild_id",
 				recruiterDiscordId: "owner_discord_id",
 				count: this.db.raw("CAST(SUM(num_uses) AS SIGNED)"), // XXX mysql only. cast is necessary to get the correct type from the driver.
 			})
-			.from<RecruitmentCount>(recruitmentCountByInviteLink)
+			.from<RecruitmentScore>(recruitmentScoreByInviteLink)
 			.groupBy("owner_discord_id");
 
 		if (filter) {
 			this.filterRecruiterScoresQueryBuilder(
-				recruitmentCountByInviteLink,
+				recruitmentScoreByInviteLink,
 				filter,
 			);
 		}
 		// For some reason the original query doesn't return anything, but converting to string and back does
 		// Probably a knex bug. This issue occurs as of 2020-09-19.
 		// Possibly fixed as of 2020-09-21 by ensuring every subquery has a name.
-		const scores = await recruitmentCount;
+		const scores = await recruitmentScore;
 		return scores;
 	}
 

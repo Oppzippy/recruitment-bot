@@ -3,18 +3,20 @@ import { EventEmitter } from "events";
 import { DataStore } from "../../external/database/DataStore";
 import { HuokanClient } from "../../HuokanClient";
 import { Module } from "../Module";
-import { InviteChannelCommand } from "./commands/InviteChannelCommand";
-import { InviteLeaderboardCommand } from "./commands/InviteLeaderboardCommand";
-import { InviteLinkCommand } from "./commands/InviteLinkCommand";
-import { InviteAcceptListener } from "./listeners/InviteAcceptListener";
-import { UpdateLeaderboardListener } from "./listeners/UpdateLeaderboardListener";
+import { LeaderboardManager } from "./leaderboard/LeaderboardManager";
+import { DefaultChannelCommand } from "./commands/DefaultChannelCommand";
+import { LeaderboardCommand } from "./commands/LeaderboardCommand";
+import { LinkCommand } from "./commands/LinkCommand";
+import { InviteLinkListener } from "./listeners/InviteLinkListener";
 
 export class RecruitmentModule extends Module {
 	private emitter: EventEmitter;
-	private inviteAcceptListener: InviteAcceptListener;
+	private inviteAcceptListener: InviteLinkListener;
+	private leaderboardManager: LeaderboardManager;
 
 	public constructor(client: HuokanClient, db: DataStore) {
 		super(client, db);
+		this.leaderboardManager = new LeaderboardManager(client, db);
 		this.emitter = new EventEmitter();
 		this.listenerHandler.setEmitters({
 			recruitmentModule: this.emitter,
@@ -22,7 +24,7 @@ export class RecruitmentModule extends Module {
 		this.registerCommands();
 		this.registerListeners();
 
-		db.inviteLeaderboardRepository.getGuilds().then(async (guilds) => {
+		db.inviteLeaderboards.getGuilds().then(async (guilds) => {
 			for (const guildId of guilds) {
 				try {
 					const guild = await client.guilds.fetch(guildId);
@@ -41,14 +43,18 @@ export class RecruitmentModule extends Module {
 	}
 
 	private registerCommands() {
-		this.commandHandler.register(new InviteLinkCommand(this.db));
-		this.commandHandler.register(new InviteLeaderboardCommand(this.db));
-		this.commandHandler.register(new InviteChannelCommand(this.db));
+		this.commandHandler.register(new LinkCommand(this.db));
+		this.commandHandler.register(
+			new LeaderboardCommand(this.db, this.leaderboardManager),
+		);
+		this.commandHandler.register(new DefaultChannelCommand(this.db));
 	}
 
 	private registerListeners() {
-		this.inviteAcceptListener = new InviteAcceptListener(this.db);
+		this.inviteAcceptListener = new InviteLinkListener(
+			this.db,
+			this.leaderboardManager,
+		);
 		this.listenerHandler.register(this.inviteAcceptListener);
-		this.listenerHandler.register(new UpdateLeaderboardListener(this.db));
 	}
 }

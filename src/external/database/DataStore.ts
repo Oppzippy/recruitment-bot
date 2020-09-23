@@ -4,20 +4,18 @@ import { InviteLeaderboardRepository } from "./repositories/InviteLeaderboardRep
 import { SettingRepository } from "./repositories/SettingRepository";
 
 export class DataStore {
-	public readonly recruitmentInviteLinkRepository: RecruitmentInviteLinkRespository;
-	public readonly inviteLeaderboardRepository: InviteLeaderboardRepository;
-	public readonly settingRepository: SettingRepository;
+	public readonly inviteLinks: RecruitmentInviteLinkRespository;
+	public readonly inviteLeaderboards: InviteLeaderboardRepository;
+	public readonly settings: SettingRepository;
 
 	private db: Knex;
 
 	public constructor(db: Knex) {
 		this.db = db;
 
-		this.recruitmentInviteLinkRepository = new RecruitmentInviteLinkRespository(
-			db,
-		);
-		this.inviteLeaderboardRepository = new InviteLeaderboardRepository(db);
-		this.settingRepository = new SettingRepository(db);
+		this.inviteLinks = new RecruitmentInviteLinkRespository(db);
+		this.inviteLeaderboards = new InviteLeaderboardRepository(db);
+		this.settings = new SettingRepository(db);
 	}
 
 	public destroy(): void {

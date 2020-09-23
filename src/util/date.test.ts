@@ -1,4 +1,4 @@
-import { getCycleStartDate } from "./date";
+import { getCycleStartDate } from "./Date";
 
 describe("get cycle start date", () => {
 	it("works in the first cycle", () => {

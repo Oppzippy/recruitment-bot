@@ -4,7 +4,7 @@ import { User, Guild, TextChannel, Message } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
 import { HuokanClient } from "../../../HuokanClient";
 
-export class InviteLinkCommand extends Command {
+export class LinkCommand extends Command {
 	private db: DataStore;
 
 	public constructor(db: DataStore) {
@@ -34,7 +34,7 @@ export class InviteLinkCommand extends Command {
 	}
 
 	private async getInviteLink(guild: Guild, user: User) {
-		const repo = this.db.recruitmentInviteLinkRepository;
+		const repo = this.db.inviteLinks;
 		const link = await repo.getRecruitmentInviteLinkByOwner(
 			guild.id,
 			user.id,
@@ -43,7 +43,7 @@ export class InviteLinkCommand extends Command {
 	}
 
 	private async createInviteLink(message: Message) {
-		const repo = this.db.recruitmentInviteLinkRepository;
+		const repo = this.db.inviteLinks;
 		const user = message.author;
 		const channel = await this.getInviteLinkChannel(message);
 
@@ -84,7 +84,7 @@ export class InviteLinkCommand extends Command {
 	}
 
 	private async getCustomInviteLinkChannel(guild: Guild): Promise<string> {
-		const repo = this.db.settingRepository;
+		const repo = this.db.settings;
 		const channel = await repo.get<string>(guild.id, "invite_channel");
 		return channel;
 	}

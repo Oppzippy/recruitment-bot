@@ -1,5 +1,5 @@
 import * as Knex from "knex";
-import { InviteLeaderboardOptions } from "../../../modules/recruitment/InviteLeaderboard";
+import { LeaderboardOptions } from "../../../modules/recruitment/leaderboard/LeaderboardMessageGenerator";
 import {
 	parseFilter,
 	RecruitmentInviteLinkLeaderboard,
@@ -16,7 +16,7 @@ export class InviteLeaderboardRepository {
 		guildId: string,
 		channelId: string,
 		messageId: string,
-		options: InviteLeaderboardOptions,
+		options: LeaderboardOptions,
 	): Promise<void> {
 		await this.db("recruitment_invite_link_leaderboard").insert({
 			guildId,

@@ -6,7 +6,7 @@ interface InviteChannelArgs {
 	channel?: TextChannel;
 }
 
-export class InviteChannelCommand extends Command {
+export class DefaultChannelCommand extends Command {
 	private db: DataStore;
 	constructor(db: DataStore) {
 		super("inviteChannel", {
@@ -24,7 +24,7 @@ export class InviteChannelCommand extends Command {
 	}
 
 	async exec(message: Message, args: InviteChannelArgs): Promise<void> {
-		const repo = this.db.settingRepository;
+		const repo = this.db.settings;
 		const channel = args.channel ?? <TextChannel>message.channel;
 		repo.set(message.guild.id, "invite_channel", channel.id);
 		message.reply(`the invite channel has been set to <#${channel.id}>.`);
