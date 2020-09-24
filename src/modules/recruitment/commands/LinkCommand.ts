@@ -22,15 +22,37 @@ export class LinkCommand extends Command {
 			message.channel instanceof TextChannel
 		) {
 			try {
-				const inviteLink =
-					(await this.getInviteLink(message.guild, message.author)) ??
-					(await this.createInviteLink(message));
+				const inviteLink = await this.getOrCreateInviteLinkFromMessage(
+					message,
+				);
 
 				await message.reply(`https://discord.gg/${inviteLink}`);
 			} catch (err) {
 				console.log(err);
 			}
 		}
+	}
+
+	private async getOrCreateInviteLinkFromMessage(
+		message: Message,
+	): Promise<string> {
+		const cachedInviteLink = await this.getInviteLink(
+			message.guild,
+			message.author,
+		);
+		if (
+			cachedInviteLink &&
+			(await this.inviteLinkExists(cachedInviteLink))
+		) {
+			return cachedInviteLink;
+		}
+		const defaultChannel = await this.getDefaultInviteLinkChannel(
+			message.guild,
+		);
+		return this.createInviteLink(
+			message.author,
+			defaultChannel ?? <TextChannel>message.channel,
+		);
 	}
 
 	private async getInviteLink(guild: Guild, user: User) {
@@ -42,17 +64,15 @@ export class LinkCommand extends Command {
 		return link?.inviteLink;
 	}
 
-	private async createInviteLink(message: Message) {
+	private async createInviteLink(user: User, channel: TextChannel) {
 		const repo = this.db.inviteLinks;
-		const user = message.author;
-		const channel = await this.getInviteLinkChannel(message);
 
 		const invite = await channel.createInvite({
 			temporary: false,
 			maxAge: 0,
 			maxUses: 0,
 			unique: true,
-			reason: `User id ${user.id}'s recruitment invite link`,
+			reason: `${user.username}#${user.discriminator}'s recruitment invite link`,
 		});
 
 		await repo.addRecruitmentInviteLink(
@@ -64,8 +84,10 @@ export class LinkCommand extends Command {
 		return invite.code;
 	}
 
-	private async getInviteLinkChannel(message: Message): Promise<TextChannel> {
-		const channelId = await this.getCustomInviteLinkChannel(message.guild);
+	private async getDefaultInviteLinkChannel(
+		guild: Guild,
+	): Promise<TextChannel> {
+		const channelId = await this.getCustomInviteLinkChannel(guild);
 		if (channelId) {
 			try {
 				const settingsChannel = await this.client.channels.fetch(
@@ -80,12 +102,25 @@ export class LinkCommand extends Command {
 				}
 			}
 		}
-		return <TextChannel>message.channel;
+		return null;
 	}
 
 	private async getCustomInviteLinkChannel(guild: Guild): Promise<string> {
 		const repo = this.db.settings;
 		const channel = await repo.get<string>(guild.id, "invite_channel");
 		return channel;
+	}
+
+	private async inviteLinkExists(invite: string): Promise<boolean> {
+		try {
+			await this.client.fetchInvite(invite);
+			return true;
+		} catch (err) {
+			if (err instanceof DiscordAPIError && err.code == 10006) {
+				// Unknown Invite
+				console.log(err);
+			}
+		}
+		return false;
 	}
 }
