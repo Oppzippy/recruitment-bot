@@ -24,9 +24,12 @@ export class InviteLinkListener extends Listener {
 		const repo = this.db.inviteLinks;
 		const oldUsage = await repo.getRecruitmentLinkUsage(guild.id);
 		const usage = this.getInviteUsage(await guild.fetchInvites());
-		const diff = this.getInviteUsageDifference(usage, oldUsage);
-		if (diff.size != 0) {
-			await repo.setRecruitmentLinkUsage(diff);
+		const usageMinusOldUsage = this.getInviteUsageDifference(
+			usage,
+			oldUsage,
+		);
+		if (usageMinusOldUsage.size != 0) {
+			await repo.setRecruitmentLinkUsage(usageMinusOldUsage);
 			this.leaderboardManager.updateLeaderboardsForGuild(guild);
 		}
 	}
