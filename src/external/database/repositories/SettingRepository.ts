@@ -1,11 +1,5 @@
 import Knex = require("knex");
 
-interface GuildSetting {
-	guild_id: string;
-	key: string;
-	value: string;
-}
-
 export class SettingRepository {
 	private db: Knex;
 
@@ -29,7 +23,7 @@ export class SettingRepository {
 		const row = await this.db("guild_setting")
 			.select("value")
 			.where({ guildId, key })
-			.first<GuildSetting>();
-		return row ? JSON.parse(row.value) : null;
+			.first();
+		return row?.value; // XXX with mysql the json is parsed. mariadb does not parse the json.
 	}
 }
