@@ -28,7 +28,7 @@ export class LinkCommand extends Command {
 
 				await message.reply(`https://discord.gg/${inviteLink}`);
 			} catch (err) {
-				console.log(err);
+				console.error(err);
 			}
 		}
 	}
@@ -118,7 +118,7 @@ export class LinkCommand extends Command {
 		} catch (err) {
 			if (err instanceof DiscordAPIError && err.code == 10006) {
 				// Unknown Invite
-				console.log(err);
+				console.error(err);
 			}
 		}
 		return false;

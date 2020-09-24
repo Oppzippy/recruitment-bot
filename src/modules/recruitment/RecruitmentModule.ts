@@ -35,7 +35,7 @@ export class RecruitmentModule extends Module {
 					if (
 						!(err instanceof DiscordAPIError && err.code == 10008)
 					) {
-						console.log(`Error updating guild ${guildId}: `, err);
+						console.error(`Error updating guild ${guildId}: `, err);
 					}
 				}
 			}
