@@ -24,10 +24,14 @@ export class RecruitmentModule extends Module {
 		this.registerCommands();
 		this.registerListeners();
 
-		db.inviteLeaderboards.getGuilds().then(async (guilds) => {
+		this.refreshLeaderboards();
+	}
+
+	public async refreshLeaderboards(): Promise<void> {
+		this.db.inviteLeaderboards.getGuilds().then(async (guilds) => {
 			for (const guildId of guilds) {
 				try {
-					const guild = await client.guilds.fetch(guildId);
+					const guild = await this.client.guilds.fetch(guildId);
 					await this.inviteAcceptListener.updateLeaderboardsIfNecessary(
 						guild,
 					);
