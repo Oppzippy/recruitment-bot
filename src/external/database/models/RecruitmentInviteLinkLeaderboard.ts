@@ -1,3 +1,6 @@
+// TODO add types
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { InviteLinkFilter } from "../../../modules/recruitment/leaderboard/InviteLinkFilter";
 
 export interface RecruitmentInviteLinkLeaderboard {
@@ -11,8 +14,7 @@ export interface RecruitmentInviteLinkLeaderboard {
 	filter?: InviteLinkFilter;
 }
 
-export function parseFilter(filterJSON: string): InviteLinkFilter {
-	const filter = JSON.parse(filterJSON);
+export function parseFilter(filter: any): InviteLinkFilter {
 	if (filter.startDate) {
 		filter.startDate = new Date(filter.startDate);
 	}
