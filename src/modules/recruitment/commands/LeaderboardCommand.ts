@@ -86,16 +86,20 @@ export class LeaderboardCommand extends Command {
 	}
 
 	private async deleteMessageIfPermissible(message: Message) {
-		if (message.author == this.client.user) {
-			message.delete();
-		} else if (message.channel instanceof TextChannel) {
-			if (
-				message.channel
-					.permissionsFor(this.client.user)
-					.has("MANAGE_MESSAGES")
-			) {
+		try {
+			if (message.author == this.client.user) {
 				await message.delete();
+			} else if (message.channel instanceof TextChannel) {
+				if (
+					message.channel
+						.permissionsFor(this.client.user)
+						.has("MANAGE_MESSAGES")
+				) {
+					await message.delete();
+				}
 			}
+		} catch (err) {
+			// XXX do nothing
 		}
 	}
 
