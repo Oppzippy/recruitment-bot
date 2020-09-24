@@ -31,8 +31,26 @@ export class InviteLinkRespository {
 	): Promise<RecruitmentInviteLink> {
 		return await this.db
 			.select("*")
-			.where({ guildId, ownerDiscordId: ownerId })
+			.where({
+				"recruitment_invite_link.guild_id": guildId,
+				ownerDiscordId: ownerId,
+			})
 			.from<RecruitmentInviteLink>("recruitment_invite_link")
+			.leftJoin(
+				"guild_setting",
+				"recruitment_invite_link.guild_id",
+				"=",
+				"guild_setting.guild_id",
+			)
+
+			.where(function () {
+				this.where("guild_setting.key", "=", "invite_channel")
+					.andWhereRaw(
+						"guild_setting.updated_at <= recruitment_invite_link.created_at",
+					)
+					.orWhereNull("guild_setting.key");
+			})
+			.orderBy("recruitment_invite_link.created_at", "desc")
 			.first();
 	}
 
