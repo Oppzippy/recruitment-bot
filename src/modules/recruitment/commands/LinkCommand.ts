@@ -3,6 +3,7 @@ import { DiscordAPIError } from "discord.js";
 import { User, Guild, TextChannel, Message } from "discord.js";
 import { DataStore } from "../../../external/database/DataStore";
 import { HuokanClient } from "../../../HuokanClient";
+import { isDiscordNotFoundError } from "../../../util/DiscordUtils";
 
 export class LinkCommand extends Command {
 	private db: DataStore;
@@ -97,7 +98,7 @@ export class LinkCommand extends Command {
 					return settingsChannel;
 				}
 			} catch (err) {
-				if (!(err instanceof DiscordAPIError && err.code != 10008)) {
+				if (!isDiscordNotFoundError(err)) {
 					console.error(err);
 				}
 			}
