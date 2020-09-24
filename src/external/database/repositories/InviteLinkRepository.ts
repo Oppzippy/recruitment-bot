@@ -110,7 +110,7 @@ export class InviteLinkRespository {
 			})
 			.having(this.db.raw("SUM(num_uses)"), ">", 0)
 			.from<RecruitmentScore>(recruitmentScoreByInviteLink)
-			.groupBy("owner_discord_id");
+			.groupBy("guild_id", "owner_discord_id");
 
 		if (filter) {
 			this.filterRecruiterScoresQueryBuilder(
