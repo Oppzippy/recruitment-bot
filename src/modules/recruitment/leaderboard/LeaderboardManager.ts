@@ -1,7 +1,7 @@
 import { AkairoClient } from "discord-akairo";
 import { Guild } from "discord.js";
 import { TextChannel, Message } from "discord.js";
-import { DataStore } from "../../../external/database/DataStore";
+import { DataStore } from "../../../external/DataStore";
 import { RecruitmentInviteLinkLeaderboard } from "../../../external/database/models/RecruitmentInviteLinkLeaderboard";
 import { isDiscordNotFoundError } from "../../../util/DiscordUtils";
 import { LeaderboardOptions } from "./LeaderboardOptions";

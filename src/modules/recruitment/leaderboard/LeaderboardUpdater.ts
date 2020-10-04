@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import { DataStore } from "../../../external/database/DataStore";
+import { DataStore } from "../../../external/DataStore";
 import { LeaderboardMessageGenerator } from "./LeaderboardMessageGenerator";
 import { LeaderboardOptions } from "./LeaderboardOptions";
 
@@ -25,7 +25,7 @@ export class LeaderboardUpdater {
 	public async getMessageGenerator(
 		guildId: string,
 	): Promise<LeaderboardMessageGenerator> {
-		const scores = await this.db.inviteLinks.getRecruiterScores(
+		const scores = await this.db.recruiters.getRecruiterScoresByGuild(
 			guildId,
 			this.options.filter,
 		);

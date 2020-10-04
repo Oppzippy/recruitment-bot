@@ -1,17 +1,11 @@
-import * as Knex from "knex";
 import { LeaderboardOptions } from "../../../modules/recruitment/leaderboard/LeaderboardOptions";
+import { KnexRepository } from "../KnexRepository";
 import {
 	parseFilter,
 	RecruitmentInviteLinkLeaderboard,
 } from "../models/RecruitmentInviteLinkLeaderboard";
 
-export class InviteLeaderboardRepository {
-	private db: Knex;
-
-	public constructor(db: Knex) {
-		this.db = db;
-	}
-
+export class InviteLeaderboardRepository extends KnexRepository {
 	public async addLeaderboardMessage(
 		guildId: string,
 		channelId: string,

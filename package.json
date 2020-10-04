@@ -15,7 +15,6 @@
 	"author": "Oppzippy",
 	"license": "UNLICENSED",
 	"dependencies": {
-		"app-root-path": "^3.0.0",
 		"date-fns": "^2.16.1",
 		"discord-akairo": "^8.1.0",
 		"discord.js": "^12.3.1",
@@ -24,15 +23,15 @@
 		"knex": "^0.21.6",
 		"knex-stringcase": "^1.4.3",
 		"lodash": "^4.17.20",
+		"multimap": "^1.1.0",
 		"mysql2": "^2.2.5",
-		"sqlite3": "^5.0.0",
 		"ts-node": "^9.0.0"
 	},
 	"devDependencies": {
-		"@types/app-root-path": "^1.2.4",
 		"@types/jest": "^26.0.14",
 		"@types/jsonfile": "^6.0.0",
 		"@types/lodash": "^4.14.161",
+		"@types/multimap": "^1.1.1",
 		"@types/node": "^14.11.2",
 		"@typescript-eslint/eslint-plugin": "^4.3.0",
 		"@typescript-eslint/parser": "^4.3.0",

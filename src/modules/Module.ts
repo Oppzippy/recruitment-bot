@@ -3,7 +3,7 @@ import {
 	InhibitorHandler,
 	ListenerHandler,
 } from "discord-akairo";
-import { DataStore } from "../external/database/DataStore";
+import { DataStore } from "../external/DataStore";
 import { HuokanClient } from "../HuokanClient";
 
 export abstract class Module {

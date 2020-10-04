@@ -1,7 +1,7 @@
 import { Command } from "discord-akairo";
 import { DiscordAPIError } from "discord.js";
 import { User, Guild, TextChannel, Message } from "discord.js";
-import { DataStore } from "../../../external/database/DataStore";
+import { DataStore } from "../../../external/DataStore";
 import { HuokanClient } from "../../../HuokanClient";
 import { isDiscordNotFoundError } from "../../../util/DiscordUtils";
 
@@ -58,10 +58,7 @@ export class LinkCommand extends Command {
 
 	private async getInviteLink(guild: Guild, user: User) {
 		const repo = this.db.inviteLinks;
-		const link = await repo.getRecruitmentInviteLinkByOwner(
-			guild.id,
-			user.id,
-		);
+		const link = await repo.getInviteLinkByOwner(guild.id, user.id);
 		return link?.inviteLink;
 	}
 
@@ -76,11 +73,7 @@ export class LinkCommand extends Command {
 			reason: `${user.username}#${user.discriminator}'s recruitment invite link`,
 		});
 
-		await repo.addRecruitmentInviteLink(
-			channel.guild.id,
-			invite.code,
-			user.id,
-		);
+		await repo.addInviteLink(channel.guild.id, invite.code, user.id);
 
 		return invite.code;
 	}
@@ -107,7 +100,7 @@ export class LinkCommand extends Command {
 	}
 
 	private async getCustomInviteLinkChannel(guild: Guild): Promise<string> {
-		const repo = this.db.settings;
+		const repo = this.db.guildSettings;
 		const channel = await repo.get<string>(guild.id, "invite_channel");
 		return channel;
 	}

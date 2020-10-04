@@ -1,7 +1,7 @@
 import { Command } from "discord-akairo";
 import { Message, TextChannel } from "discord.js";
 import { clamp } from "lodash";
-import { DataStore } from "../../../external/database/DataStore";
+import { DataStore } from "../../../external/DataStore";
 import { LeaderboardManager } from "../leaderboard/LeaderboardManager";
 import { LeaderboardOptions } from "../leaderboard/LeaderboardOptions";
 

@@ -1,19 +1,36 @@
-import { addDays } from "date-fns";
-import * as Knex from "knex";
-import { getCycleStartDate } from "../../../util/Date";
-import { RecruitmentScore } from "../models/RecruitmentScore";
 import { RecruitmentInviteLink } from "../models/RecruitmentInviteLink";
-import { RecruitmentInviteLinkUsageChange } from "../models/RecruitmentInviteLinkUsageChange";
-import { InviteLinkFilter } from "../../../modules/recruitment/leaderboard/InviteLinkFilter";
+import { KnexRepository } from "../KnexRepository";
 
-export class InviteLinkRespository {
-	private db: Knex;
-
-	public constructor(db: Knex) {
-		this.db = db;
+export class InviteLinkRespository extends KnexRepository {
+	public async getOwnerId(inviteLink: string): Promise<string> {
+		const row = await this.db("recruitment_invite_link")
+			.select<RecruitmentInviteLink>("owner_discord_id")
+			.where({ inviteLink })
+			.first();
+		return row.ownerDiscordId;
 	}
 
-	public async addRecruitmentInviteLink(
+	public async logInviteLinkUse(
+		userId: string,
+		inviteLink?: string,
+	): Promise<void> {
+		await this.db("accepted_recruitment_invite_link").insert({
+			accepteeDiscordId: userId,
+			inviteLink: inviteLink,
+		});
+	}
+
+	public async hasUserJoinedBefore(userId: string): Promise<boolean> {
+		const row = await this.db("accepted_recruitment_invite_link")
+			.select({
+				count: this.db.count("*"),
+			})
+			.where({ accepteeDiscordId: userId })
+			.first();
+		return row && row.count >= 1;
+	}
+
+	public async addInviteLink(
 		guildId: string,
 		inviteLink: string,
 		ownerId: string,
@@ -25,38 +42,35 @@ export class InviteLinkRespository {
 		});
 	}
 
-	public async getRecruitmentInviteLinkByOwner(
+	public async getInviteLinkByOwner(
 		guildId: string,
 		ownerId: string,
 	): Promise<RecruitmentInviteLink> {
 		return await this.db
-			.select("*")
+			.select<RecruitmentInviteLink>("*")
 			.where({
 				"recruitment_invite_link.guild_id": guildId,
 				ownerDiscordId: ownerId,
 			})
-			.from<RecruitmentInviteLink>("recruitment_invite_link")
+			.from("recruitment_invite_link")
 			.leftJoin(
-				"guild_setting",
-				"recruitment_invite_link.guild_id",
-				"=",
-				"guild_setting.guild_id",
+				"setting",
+				this.db.raw(
+					`setting.setting_type = "guild" AND recruitment_invite_link.guild_id = setting.setting_group`,
+				),
 			)
-
 			.where(function () {
-				this.where("guild_setting.key", "=", "invite_channel")
+				this.where("setting.setting", "=", "invite_channel")
 					.andWhereRaw(
-						"guild_setting.updated_at <= recruitment_invite_link.created_at",
+						"setting.updated_at <= recruitment_invite_link.created_at",
 					)
-					.orWhereNull("guild_setting.key");
+					.orWhereNull("setting.setting");
 			})
 			.orderBy("recruitment_invite_link.created_at", "desc")
 			.first();
 	}
 
-	public async setRecruitmentLinkUsage(
-		usage: Map<string, number>,
-	): Promise<void> {
+	public async setInviteLinkUsage(usage: Map<string, number>): Promise<void> {
 		const insert = [];
 		usage.forEach((uses, code) => {
 			insert.push({
@@ -67,7 +81,7 @@ export class InviteLinkRespository {
 		await this.db("recruitment_invite_link_usage_change").insert(insert);
 	}
 
-	public async getRecruitmentLinkUsage(
+	public async getInviteLinkUsage(
 		guildId: string,
 	): Promise<Map<string, number>> {
 		const query = this.db
@@ -78,115 +92,11 @@ export class InviteLinkRespository {
 				numUses: this.getNumUsesSubquery(),
 			})
 			.where("guild_id", "=", guildId)
-			.from<RecruitmentInviteLinkUsageChange>("recruitment_invite_link");
+			.from("recruitment_invite_link");
 		const links = await query;
 		const usageByLink = new Map<string, number>();
 		links.forEach((link) => usageByLink.set(link.inviteLink, link.numUses));
 		return usageByLink;
-	}
-
-	public async getRecruiterScores(
-		guildId: string,
-		filter?: InviteLinkFilter,
-	): Promise<RecruitmentScore[]> {
-		const recruitmentScoreByInviteLink = this.db
-			.select({
-				guild_id: "recruitment_invite_link.guild_id",
-				owner_discord_id: "recruitment_invite_link.owner_discord_id",
-				num_uses: this.getNumUsesSubquery(),
-			})
-			.where("recruitment_invite_link.guild_id", "=", guildId)
-			.groupBy(
-				"recruitment_invite_link.guild_id",
-				"recruitment_invite_link.invite_link",
-			)
-			.from("recruitment_invite_link")
-			.as("recruitment_score_by_invite_link");
-		const recruitmentScore = this.db
-			.select({
-				guildId: "guild_id",
-				recruiterDiscordId: "owner_discord_id",
-				count: this.db.raw("CAST(SUM(num_uses) AS SIGNED)"), // XXX mysql only. cast is necessary to get the correct type from the driver.
-			})
-			.having(this.db.raw("SUM(num_uses)"), ">", 0)
-			.from<RecruitmentScore>(recruitmentScoreByInviteLink)
-			.groupBy("guild_id", "owner_discord_id");
-
-		if (filter) {
-			this.filterRecruiterScoresQueryBuilder(
-				recruitmentScoreByInviteLink,
-				filter,
-			);
-		}
-		// For some reason the original query doesn't return anything, but converting to string and back does
-		// Probably a knex bug. This issue occurs as of 2020-09-19.
-		// Possibly fixed as of 2020-09-21 by ensuring every subquery has a name.
-		const scores = await recruitmentScore;
-		return scores;
-	}
-
-	private filterRecruiterScoresQueryBuilder(
-		queryBuilder: Knex.QueryBuilder,
-		filter: InviteLinkFilter,
-	) {
-		const numUsesQuery = this.getNumUsesSubquery();
-		let startDate: Date = filter.startDate;
-		let endDate: Date = filter.endDate;
-		if (filter.resetIntervalInDays) {
-			startDate = getCycleStartDate(
-				filter.startDate,
-				filter.resetIntervalInDays,
-				filter.now,
-			);
-			const cycleEndDate = addDays(startDate, filter.resetIntervalInDays);
-			if (!endDate || cycleEndDate < endDate) {
-				endDate = cycleEndDate;
-			}
-		}
-
-		const numUsesBeforeStartQuery = this.db
-			.select("num_uses")
-			.from({ prev_usage: "recruitment_invite_link_usage_change" })
-			.where(
-				"prev_usage.invite_link",
-				"=",
-				this.db.column("recruitment_invite_link.invite_link"),
-			)
-			.orderBy("prev_usage.created_at", "desc")
-			.limit(1);
-
-		if (startDate) {
-			numUsesBeforeStartQuery.where(
-				"prev_usage.created_at",
-				"<",
-				startDate.toISOString(),
-			);
-			numUsesQuery.where(
-				"num_uses_subtable.created_at",
-				">",
-				startDate.toISOString(),
-			);
-		}
-
-		if (endDate) {
-			numUsesQuery.where(
-				"num_uses_subtable.created_at",
-				"<",
-				endDate.toISOString(),
-			);
-		}
-
-		queryBuilder.clearSelect().select({
-			guild_id: "recruitment_invite_link.guild_id",
-			owner_discord_id: "recruitment_invite_link.owner_discord_id",
-			num_uses: startDate
-				? this.db.raw(
-						`(${numUsesQuery.toString()}) - COALESCE((${numUsesBeforeStartQuery.toString()}), 0)`,
-						// XXX eslint error
-						// eslint-disable-next-line no-mixed-spaces-and-tabs
-				  )
-				: numUsesQuery,
-		});
 	}
 
 	private getNumUsesSubquery() {

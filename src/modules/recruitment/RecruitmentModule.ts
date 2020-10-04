@@ -1,17 +1,17 @@
 import { DiscordAPIError } from "discord.js";
 import { EventEmitter } from "events";
-import { DataStore } from "../../external/database/DataStore";
+import { DataStore } from "../../external/DataStore";
 import { HuokanClient } from "../../HuokanClient";
 import { Module } from "../Module";
 import { LeaderboardManager } from "./leaderboard/LeaderboardManager";
 import { DefaultChannelCommand } from "./commands/DefaultChannelCommand";
 import { LeaderboardCommand } from "./commands/LeaderboardCommand";
 import { LinkCommand } from "./commands/LinkCommand";
-import { InviteLinkListener } from "./listeners/InviteLinkListener";
+import { InviteLinkAcceptListener } from "./listeners/InviteLinkAcceptListener";
 
 export class RecruitmentModule extends Module {
 	private emitter: EventEmitter;
-	private inviteAcceptListener: InviteLinkListener;
+	private inviteAcceptListener: InviteLinkAcceptListener;
 	private leaderboardManager: LeaderboardManager;
 
 	public constructor(client: HuokanClient, db: DataStore) {
@@ -55,7 +55,7 @@ export class RecruitmentModule extends Module {
 	}
 
 	private registerListeners() {
-		this.inviteAcceptListener = new InviteLinkListener(
+		this.inviteAcceptListener = new InviteLinkAcceptListener(
 			this.db,
 			this.leaderboardManager,
 		);

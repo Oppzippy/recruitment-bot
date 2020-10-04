@@ -5,7 +5,8 @@
 		"sourceMap": true,
 		"outDir": "out",
 		"moduleResolution": "node",
-		"target": "ES2020"
+		"target": "ES2020",
+		"incremental": true
 	},
 	"include": ["src/**/*"]
 }
