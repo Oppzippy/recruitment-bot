@@ -7,16 +7,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Use Node.js
         uses: actions/setup-node@v1
         with:
           node-version: 14.x
-      - name: npm install, lint, and test
-        run: |
-          npm ci
-          npx eslint .
-          npm test -- --ci
+      - name: npm install
+        run: npm ci
+        env:
+          CI: true
+      - name: lint
+        run: npx eslint .
+        env:
+          CI: true
+      - name: build
+        run: npm run build
+        env:
+          CI: true
+      - name: test
+        run: npm test -- -ci
         env:
           CI: true
 
@@ -32,7 +41,4 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          script: |
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
-            screen -dm bash -c "./update.sh"
+          script: screen -dm bash -c "./update.sh"
