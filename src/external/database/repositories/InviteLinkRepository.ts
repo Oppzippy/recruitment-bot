@@ -7,7 +7,7 @@ export class InviteLinkRespository extends KnexRepository {
 			.select<RecruitmentInviteLink>("owner_discord_id")
 			.where({ inviteLink })
 			.first();
-		return row.ownerDiscordId;
+		return row?.ownerDiscordId;
 	}
 
 	public async logInviteLinkUse(
