@@ -130,9 +130,7 @@ export class RecruiterRepository extends KnexRepository {
 				),
 			})
 			.leftJoin(
-				this.db.raw(
-					`(${this.getDuplicateInvitesQuery().toString()}) AS duplicate_invite`,
-				),
+				"recruitment_invite_link_duplicates AS duplicate_invite",
 				"num_uses_parent_table.invite_link",
 				"=",
 				"duplicate_invite.invite_link",
@@ -144,36 +142,5 @@ export class RecruiterRepository extends KnexRepository {
 				"num_uses_parent_table.invite_link",
 				"duplicate_invite.duplicates",
 			);
-	}
-
-	private getDuplicateInvitesQuery(): Knex.QueryBuilder {
-		return this.db
-			.select({
-				inviteLink: "duplicate_invites_by_user.invite_link",
-				duplicates: this.db.sum(
-					"duplicate_invites_by_user.user_duplicates",
-				),
-			})
-			.from(
-				this.db.raw(
-					`(${this.getDuplicateInvitesByUserQuery().toString()}) AS duplicate_invites_by_user`,
-				),
-			)
-			.groupBy(
-				"duplicate_invites_by_user.invite_link",
-				"duplicate_invites_by_user.acceptee_discord_id",
-			);
-	}
-
-	private getDuplicateInvitesByUserQuery(): Knex.QueryBuilder {
-		return this.db
-			.select({
-				inviteLink: "aril.invite_link",
-				accepteeDiscordId: "aril.acceptee_discord_id",
-				userDuplicates: this.db.raw("COUNT(*) - 1"),
-			})
-			.from({ aril: "accepted_recruitment_invite_link" })
-			.groupBy("aril.invite_link", "aril.acceptee_discord_id")
-			.having("user_duplicates", ">", 0);
 	}
 }

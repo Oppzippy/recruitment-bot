@@ -92,6 +92,8 @@ export class LeaderboardManager {
 					leaderboard.channelId,
 					leaderboard.messageId,
 				);
+			} else {
+				console.error(err);
 			}
 		}
 	}

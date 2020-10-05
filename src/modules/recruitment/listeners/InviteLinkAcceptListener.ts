@@ -44,9 +44,7 @@ export class InviteLinkAcceptListener extends Listener {
 				),
 			);
 		}
-		if (usage.size >= 1) {
-			await this.updateInviteUsageAndLeaderboards(guild, usage);
-		}
+		await this.updateInviteUsageAndLeaderboards(guild, usage);
 	}
 
 	private async getUsageDifference(
