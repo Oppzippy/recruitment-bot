@@ -1,6 +1,6 @@
 name: Run Tests
 
-on: [push, release]
+on: [push]
 
 jobs:
   build:
@@ -16,14 +16,14 @@ jobs:
         run: |
           npm ci
           npx eslint .
-        #  npm test -- --ci
+          npm test -- --ci
         env:
           CI: true
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' && github.event_name == 'release'
+    if: github.ref.startsWith('refs/tags/')
     steps:
       - name: SSH Remote Commands
         uses: appleboy/ssh-action@v0.0.7
