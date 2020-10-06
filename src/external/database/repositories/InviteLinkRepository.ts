@@ -34,11 +34,16 @@ export class InviteLinkRespository extends KnexRepository {
 		guildId: string,
 		inviteLink: string,
 		ownerId: string,
+		numUses = 0,
 	): Promise<void> {
 		await this.db("recruitment_invite_link").insert({
 			guildId,
 			inviteLink,
 			ownerDiscordId: ownerId,
+		});
+		await this.db("recruitment_invite_link_usage_change").insert({
+			inviteLink,
+			numUses,
 		});
 	}
 
@@ -72,10 +77,10 @@ export class InviteLinkRespository extends KnexRepository {
 
 	public async setInviteLinkUsage(usage: Map<string, number>): Promise<void> {
 		const insert = [];
-		usage.forEach((uses, code) => {
+		usage.forEach((numUses, inviteLink) => {
 			insert.push({
-				inviteLink: code,
-				numUses: uses,
+				inviteLink,
+				numUses,
 			});
 		});
 		await this.db("recruitment_invite_link_usage_change").insert(insert);
