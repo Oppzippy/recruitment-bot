@@ -72,7 +72,7 @@ export class LeaderboardMessageGenerator {
 			.slice(0, this.options.size)
 			.map(
 				(recruitmentCount, i) =>
-					`${i + 1}. <@!${recruitmentCount.recruiterDiscordId}>: ${
+					`${i + 1}. <@${recruitmentCount.recruiterDiscordId}>: ${
 						recruitmentCount.count
 					}`,
 			);
