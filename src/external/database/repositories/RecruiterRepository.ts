@@ -62,12 +62,14 @@ export class RecruiterRepository extends KnexRepository {
 		}
 
 		if (startDate) {
-			return this.getFilteredInviteLinkQuery(filter);
+			return this.getFilteredInviteLinkQuery(startDate, endDate, filter);
 		}
 		return this.getUsageBefore(endDate, filter);
 	}
 
 	private getFilteredInviteLinkQuery(
+		startDate: Date,
+		endDate?: Date,
 		filter?: InviteLinkFilter,
 	): Knex.QueryBuilder {
 		return this.db
@@ -77,11 +79,11 @@ export class RecruiterRepository extends KnexRepository {
 					"end_data.usage - COALESCE(start_data.usage, 0)",
 				),
 			})
-			.from(this.getUsageBefore(filter?.endDate, filter).as("end_data"))
+			.from(this.getUsageBefore(endDate, filter).as("end_data"))
 			.leftJoin(
 				this.db.raw(
 					`(${this.getUsageBefore(
-						filter?.startDate,
+						startDate,
 						filter,
 					).toString()}) AS start_data`,
 				),
@@ -105,6 +107,7 @@ export class RecruiterRepository extends KnexRepository {
 				this.db.raw("num_uses_parent_table.invite_link"),
 			)
 			.orderBy("num_uses_table.created_at", "desc")
+			.orderBy("num_uses_table.id", "desc")
 			.limit(1);
 
 		if (endDate) {
@@ -169,6 +172,7 @@ export class RecruiterRepository extends KnexRepository {
 				"rildc2.acceptee_discord_id = rildc.acceptee_discord_id",
 			)
 			.orderBy("rildc2.created_at", "desc")
+			.orderBy("rildc2.id", "desc")
 			.limit(1);
 		if (endDate) {
 			lastDuplicate.andWhere(
