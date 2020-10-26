@@ -25,10 +25,10 @@ export class LeaderboardUpdater {
 	public async getMessageGenerator(
 		guildId: string,
 	): Promise<LeaderboardMessageGenerator> {
-		const scores = await this.db.recruiters.getRecruiterScoresByGuild(
+		const scores = await this.db.recruiters.getRecruiterScores({
+			...this.options.filter,
 			guildId,
-			this.options.filter,
-		);
+		});
 		return new LeaderboardMessageGenerator(scores, this.options);
 	}
 }

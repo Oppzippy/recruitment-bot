@@ -1,0 +1,18 @@
+services:
+  integration_app:
+    build: ..
+    volumes:
+      - ../integration:/opt/huokanbot/integration
+      - ../seeds:/opt/huokanbot/seeds
+    env_file:
+      - .env
+    depends_on:
+      - integration_db
+  integration_db:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    tmpfs:
+      - /var/lib/mysql/:rw
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}

@@ -10,7 +10,8 @@
 		"watch": "tsc --watch",
 		"start": "node out/index.js",
 		"migrate": "knex migrate:latest",
-		"lint": "eslint src"
+		"lint": "eslint src",
+		"integration": "knex seed:run && jest --config=jest-integration.config.mjs"
 	},
 	"author": "Oppzippy",
 	"license": "UNLICENSED",
@@ -31,7 +32,6 @@
 		"@types/jest": "^26.0.14",
 		"@types/jsonfile": "^6.0.0",
 		"@types/lodash": "^4.14.161",
-		"@types/multimap": "^1.1.1",
 		"@types/node": "^14.11.2",
 		"@typescript-eslint/eslint-plugin": "^4.3.0",
 		"@typescript-eslint/parser": "^4.3.0",

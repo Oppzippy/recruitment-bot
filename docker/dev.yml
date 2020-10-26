@@ -6,7 +6,7 @@ services:
   #     - .env
   #   depends_on:
   #     - database
-  database:
+  dev_db:
     image: mysql:latest
     volumes:
       - db_data:/var/lib/mysql
