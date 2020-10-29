@@ -110,8 +110,7 @@ export class LinkCommand extends Command {
 			await this.client.fetchInvite(invite);
 			return true;
 		} catch (err) {
-			if (err instanceof DiscordAPIError && err.code == 10006) {
-				// Unknown Invite
+			if (!isDiscordNotFoundError(err)) {
 				console.error(err);
 			}
 		}
