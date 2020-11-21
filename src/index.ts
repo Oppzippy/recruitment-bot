@@ -31,6 +31,7 @@ client.login(process.env.DISCORD_TOKEN);
 const api = new HuokanAPI(db);
 
 async function destroy() {
+	api.destroy();
 	client.destroy();
 	await knex.destroy();
 }
