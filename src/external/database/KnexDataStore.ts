@@ -4,6 +4,9 @@ import { InviteLeaderboardRepository } from "./repositories/InviteLeaderboardRep
 import { SettingRepository } from "./repositories/SettingRepository";
 import { DataStore } from "../DataStore";
 import { RecruiterRepository } from "./repositories/RecruiterRepository";
+import { BankDepositRepository } from "./repositories/BankDepositRepository";
+import { BankGuildRepositry } from "./repositories/BankGuildRepository";
+import { ApiKeyRepository } from "./repositories/ApiKeyRepository";
 
 export class KnexDataStore extends DataStore {
 	private db: Knex;
@@ -15,6 +18,9 @@ export class KnexDataStore extends DataStore {
 			guildSettings: new SettingRepository(db, "guild"),
 			userSettings: new SettingRepository(db, "user"),
 			recruiters: new RecruiterRepository(db),
+			bankGuilds: new BankGuildRepositry(db),
+			bankDeposits: new BankDepositRepository(db),
+			apiKeys: new ApiKeyRepository(db),
 		});
 		this.db = db;
 	}

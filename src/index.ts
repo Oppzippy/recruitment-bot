@@ -6,6 +6,7 @@ import * as knexStringcase from "knex-stringcase";
 import * as dotenv from "dotenv";
 import { HuokanClient } from "./HuokanClient";
 import { KnexDataStore } from "./external/database/KnexDataStore";
+import { HuokanAPI } from "./HuokanAPI";
 
 dotenv.config();
 
@@ -22,9 +23,12 @@ const knexConfig = {
 };
 
 const knex = Knex(knexStringcase(knexConfig));
+const db = new KnexDataStore(knex);
 
-const client = new HuokanClient(new KnexDataStore(knex));
+const client = new HuokanClient(db);
 client.login(process.env.DISCORD_TOKEN);
+
+const api = new HuokanAPI(db);
 
 async function destroy() {
 	client.destroy();
