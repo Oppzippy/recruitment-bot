@@ -1,6 +1,17 @@
-import { dataStore } from "./DataStore";
+import { DataStore } from "../src/external/DataStore";
+import { useDataStore, doneWithDataStore } from "./DataStore";
 
 describe("recruiter score", () => {
+	let dataStore: DataStore;
+
+	beforeAll(() => {
+		dataStore = useDataStore();
+	});
+
+	afterAll(() => {
+		doneWithDataStore();
+	});
+
 	it("doesn't track duplicates with an end date", async () => {
 		const score = await dataStore.recruiters.getRecruiterScoreByUser({
 			guildId: "guild1",
@@ -55,8 +66,4 @@ describe("recruiter score", () => {
 		});
 		expect(scores).toHaveLength(2);
 	});
-});
-
-afterAll(async () => {
-	dataStore.destroy();
 });

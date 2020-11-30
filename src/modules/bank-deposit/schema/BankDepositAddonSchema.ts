@@ -1,7 +1,7 @@
 import * as myzod from "myzod";
 
 export const bankDepositAddonSchema = myzod.object({
-	latestTransaction: myzod.object({
+	latestDeposit: myzod.object({
 		player: myzod.object({
 			name: myzod.string().min(1),
 			realm: myzod.string().min(1),
@@ -14,7 +14,7 @@ export const bankDepositAddonSchema = myzod.object({
 			),
 		timestamp: myzod.date(),
 	}),
-	previousTransactions: myzod
+	previousDeposits: myzod
 		.array(
 			myzod.object({
 				player: myzod.object({

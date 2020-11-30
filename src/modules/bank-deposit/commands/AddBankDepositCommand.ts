@@ -1,17 +1,10 @@
 import { Command } from "discord-akairo";
 import { Message } from "discord.js";
-import { promisify } from "util";
-import { inflateRaw } from "zlib";
 import { BankGuildNotFoundError } from "../../../external/database/errors/BankGuildNotFoundError";
-import { BankDeposit } from "../../../external/database/models/BankDeposit";
-import { BankDepositHistoryRecord } from "../../../external/database/models/BankDepositHistoryRecord";
-import { BankGuild } from "../../../external/database/models/BankGuild";
 import { DataStore } from "../../../external/DataStore";
 import { WoWMoney } from "../../../util/WoWMoney";
-import { bankDepositAddonSchema } from "../schema/BankDepositAddonSchema";
 import { BankDepositValidityService } from "../validity-checking/BankDepositValidityService";
-
-const inflateRawPromise = promisify(inflateRaw);
+import { parseCompressedDepositInfo } from "../schema/DepositInfo";
 
 type AddBankDepositCommandArgs = {
 	depositInfo: string;
@@ -42,19 +35,19 @@ export class AddBankDepositCommand extends Command {
 	): Promise<void> {
 		try {
 			const {
-				latestTransaction,
-				previousTransactions,
+				latestDeposit,
+				previousDeposits,
 				bankGuild,
-			} = await this.parseDepositInfo(args.depositInfo);
+			} = await parseCompressedDepositInfo(args.depositInfo);
 
 			const transactionId = await this.db.bankDeposits.addDeposit(
 				message.guild.id,
 				bankGuild,
-				latestTransaction,
-				previousTransactions,
+				latestDeposit,
+				previousDeposits,
 			);
 			const dmChannel = await message.author.createDM();
-			const money = new WoWMoney(latestTransaction.copper);
+			const money = new WoWMoney(latestDeposit.copper);
 			await Promise.all([
 				dmChannel.send(
 					`Your guild deposit of ${money.toMinimalString()} has been registered. The transaction id is \`${transactionId}\`.`,
@@ -74,30 +67,5 @@ export class AddBankDepositCommand extends Command {
 				);
 			}
 		}
-	}
-
-	private async parseDepositInfo(compressedDepositInfo: string) {
-		const unvalidatedDepositInfo = JSON.parse(
-			await this.decompress(compressedDepositInfo),
-		);
-
-		// zod requires strict null checking to be enabled to function properly with required args
-		// since we have that disabled, we'll have to do some type casting here. Unsafe but akairo and discord.js
-		// are annoying to use with strict null checking.
-		const depositInfo = bankDepositAddonSchema.parse(
-			unvalidatedDepositInfo,
-		);
-
-		return {
-			bankGuild: depositInfo.bankGuild as BankGuild,
-			latestTransaction: depositInfo.latestTransaction as BankDeposit,
-			previousTransactions: depositInfo.previousTransactions as BankDepositHistoryRecord[],
-		};
-	}
-
-	private async decompress(compressed: string): Promise<string> {
-		const compressedBuffer = Buffer.from(compressed, "base64");
-		const depositInfoBuffer = await inflateRawPromise(compressedBuffer);
-		return depositInfoBuffer.toString();
 	}
 }

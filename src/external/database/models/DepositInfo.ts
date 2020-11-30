@@ -1,5 +1,5 @@
 export type DepositInfo = {
-	latestTransaction: {
+	latestDeposit: {
 		player: {
 			name: string;
 			realm: string;
@@ -7,7 +7,7 @@ export type DepositInfo = {
 		copper: number;
 		timestamp: Date;
 	};
-	previousTransactions: {
+	previousDeposits: {
 		player: {
 			name: string;
 			realm: string;

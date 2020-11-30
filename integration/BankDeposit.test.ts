@@ -1,7 +1,8 @@
 import { BankDeposit } from "../src/external/database/models/BankDeposit";
 import { BankDepositHistoryRecord } from "../src/external/database/models/BankDepositHistoryRecord";
+import { DataStore } from "../src/external/DataStore";
 import { BankDepositValidityService } from "../src/modules/bank-deposit/validity-checking/BankDepositValidityService";
-import { dataStore } from "./DataStore";
+import { useDataStore, doneWithDataStore } from "./DataStore";
 
 function createData(
 	count: number,
@@ -50,18 +51,24 @@ describe("bank deposit test data generator", () => {
 });
 
 describe("bank deposits", () => {
+	let dataStore: DataStore;
+
 	beforeAll(async () => {
+		dataStore = useDataStore();
 		await dataStore.bankGuilds.addBankGuild("test", {
 			name: "name",
 			realm: "realm",
 		});
 	});
+
 	afterAll(async () => {
 		await dataStore.bankGuilds.removeBankGuild("test", {
 			name: "name",
 			realm: "realm",
 		});
+		doneWithDataStore();
 	});
+
 	it("validates good deposits", async () => {
 		const addDepositPromises = createData(20).map(([deposit, history]) => {
 			return dataStore.bankDeposits.addDeposit(

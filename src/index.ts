@@ -29,6 +29,7 @@ const client = new HuokanClient(db);
 client.login(process.env.DISCORD_TOKEN);
 
 const api = new HuokanAPI(db);
+api.listen();
 
 async function destroy() {
 	api.destroy();

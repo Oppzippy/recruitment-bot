@@ -52,6 +52,16 @@ export class ApiKeyRepository extends KnexRepository {
 		return rows.map((row) => row.guildId);
 	}
 
+	public async addGuildPermission(
+		apiKey: string,
+		guildId: string,
+	): Promise<void> {
+		await this.db("api_key_guild_permission").insert({
+			apiKeyId: this.db("api_key").select("id").where("key", "=", apiKey),
+			guildId,
+		});
+	}
+
 	public async deleteApiKey(apiKey: string): Promise<void> {
 		await this.db.where({ key: apiKey }).delete();
 	}

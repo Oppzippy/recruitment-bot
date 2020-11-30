@@ -14,6 +14,21 @@ const knexConfig = {
 	},
 };
 
-const knex = Knex(knexStringcase(knexConfig));
+let dataStore: KnexDataStore;
+let users = 0;
+export function useDataStore(): KnexDataStore {
+	if (!dataStore) {
+		const knex = Knex(knexStringcase(knexConfig));
+		dataStore = new KnexDataStore(knex);
+		users = 0;
+	}
+	users++;
+	return dataStore;
+}
 
-export const dataStore = new KnexDataStore(knex);
+export function doneWithDataStore(): void {
+	users--;
+	if (users <= 0 && dataStore) {
+		dataStore.destroy();
+	}
+}

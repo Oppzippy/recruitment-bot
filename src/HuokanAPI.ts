@@ -26,8 +26,10 @@ export class HuokanAPI {
 		this.server.register(DatabasePlugin, db);
 		this.server.register(ApiKeyPlugin);
 		this.server.register(BankDepositEndpoint);
+	}
 
-		this.server.listen(3000).catch(console.error);
+	public async listen(port = 3000): Promise<void> {
+		await this.server.listen(port);
 	}
 
 	public async destroy(): Promise<void> {
