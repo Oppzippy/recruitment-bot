@@ -4,6 +4,7 @@ services:
     volumes:
       - ../integration:/opt/huokanbot/integration
       - ../seeds:/opt/huokanbot/seeds
+      - ../coverage:/opt/huokanbot/coverage
     env_file:
       - .env
     depends_on:
