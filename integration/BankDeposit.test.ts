@@ -88,4 +88,12 @@ describe("bank deposits", () => {
 		expect(deposit.validity).toEqual("valid");
 	}, 10000);
 	// it("invalidates bad deposits", async () => {});
+
+	it("isn't case sensitive with guild names", async () => {
+		const exists = await dataStore.bankGuilds.bankGuildExists("test", {
+			name: "NaMe",
+			realm: "ReAlM",
+		});
+		expect(exists).toEqual(true);
+	});
 });
