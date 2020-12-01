@@ -48,4 +48,10 @@ describe("get cycle start date", () => {
 		const cycleStartDate = getCycleStartDate(startDate, interval, now);
 		expect(cycleStartDate).toEqual(new Date("2020-09-08T10:00:00Z"));
 	});
+
+	it("returns the start date when that's all that is provided", () => {
+		const startDate = new Date("2020-09-01");
+		const cycleStartDate = getCycleStartDate(startDate);
+		expect(cycleStartDate).toEqual(startDate);
+	});
 });
