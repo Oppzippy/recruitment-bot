@@ -98,12 +98,12 @@ export class InviteLinkRespository extends KnexRepository {
 		ownerId: string,
 	): Promise<RecruitmentInviteLink> {
 		return await this.db
-			.select<RecruitmentInviteLink>([
-				"invite_link",
-				"owner_discord_id",
-				"created_at",
-				"updated_at",
-			])
+			.select<RecruitmentInviteLink>({
+				inviteLink: "recruitment_invite_link.invite_link",
+				ownerDiscordID: "recruitment_invite_link.owner_discord_id",
+				createdAt: "recruitment_invite_link.created_at",
+				updatedAt: "recruitment_invite_link.updated_at",
+			})
 			.where({
 				"recruitment_invite_link.guild_id": guildId,
 				ownerDiscordId: ownerId,
