@@ -20,6 +20,20 @@ export const BankDepositEndpoint: FastifyPluginCallback = fp(
 		fastify
 			.route({
 				method: "GET",
+				url: "/v1/bank/deposit/:id",
+				schema: {
+					params: {
+						type: "object",
+						properties: {
+							id: { type: "string" },
+						},
+						required: ["id"],
+					},
+				},
+				handler: getBankDepositByIdHandler,
+			})
+			.route({
+				method: "GET",
 				url: "/v1/bank/deposit",
 				schema: {
 					querystring: {
@@ -48,6 +62,24 @@ export const BankDepositEndpoint: FastifyPluginCallback = fp(
 			});
 	},
 );
+
+async function getBankDepositByIdHandler(
+	this: FastifyInstance,
+	request: FastifyRequest,
+	reply: FastifyReply,
+): Promise<void> {
+	const id = request.params["id"];
+	const deposit = await this.db.bankDeposits.getDepositById(id);
+	if (deposit) {
+		reply.send(deposit);
+	} else {
+		reply.status(404).send({
+			statusCode: 404,
+			error: "Not Found",
+			message: "The requested bank deposit does not exist.",
+		});
+	}
+}
 
 async function getBankDepositHandler(
 	this: FastifyInstance,
