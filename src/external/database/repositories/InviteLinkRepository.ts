@@ -20,6 +20,34 @@ export class InviteLinkRespository extends KnexRepository {
 		});
 	}
 
+	public async getUserAcceptedInviteLinks(
+		guildId: string,
+		userId: string,
+	): Promise<
+		{
+			inviteLink: string;
+			timestamp: Date;
+		}[]
+	> {
+		return await this.db("accepted_recruitment_invite_link")
+			.innerJoin(
+				"recruitment_invite_link",
+				"recruitment_invite_link.invite_link",
+				"=",
+				"accepted_recruitment_invite_link.invite_link",
+			)
+			.select({
+				inviteLink: "recruitment_invite_link.invite_link",
+				timestamp: "accepted_recruitment_invite_link.created_at",
+			})
+			.where({
+				guildId,
+				accepteeDiscordId: userId,
+			})
+			.orderBy("accepted_recruitment_invite_link.created_at", "asc")
+			.orderBy("accepted_recruitment_invite_link.id", "asc");
+	}
+
 	public async hasUserJoinedBefore(userId: string): Promise<boolean> {
 		const row = await this.db("accepted_recruitment_invite_link")
 			.select({
@@ -47,12 +75,35 @@ export class InviteLinkRespository extends KnexRepository {
 		});
 	}
 
+	public async getInviteLink(
+		guildId: string,
+		inviteLink: string,
+	): Promise<RecruitmentInviteLink> {
+		return await this.db("recruitment_invite_link")
+			.select<RecruitmentInviteLink>([
+				"invite_link",
+				"owner_discord_id",
+				"created_at",
+				"updated_at",
+			])
+			.where({
+				guildId,
+				inviteLink,
+			})
+			.first();
+	}
+
 	public async getInviteLinkByOwner(
 		guildId: string,
 		ownerId: string,
 	): Promise<RecruitmentInviteLink> {
 		return await this.db
-			.select<RecruitmentInviteLink>("*")
+			.select<RecruitmentInviteLink>([
+				"invite_link",
+				"owner_discord_id",
+				"created_at",
+				"updated_at",
+			])
 			.where({
 				"recruitment_invite_link.guild_id": guildId,
 				ownerDiscordId: ownerId,

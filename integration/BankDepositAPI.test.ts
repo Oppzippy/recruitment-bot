@@ -5,7 +5,7 @@ import { useDataStore, doneWithDataStore } from "./DataStore";
 const testDepositString =
 	"zZSxCsIwEIZfRW5OIUlbCxlFcHTppDhEDRhM2pC2Qi19d6/gIOIiB9Zsae770jt+MsBRV9dNZ90Z1ACV9gYUbEPoFys8AAbRaOfxW3mJ2jkYGYRobrbumrUJdWPbBtR+gFMdgomgBMeFNU730/ZVebeo/WAc2b/gKQ1f5nM3T/h3au80PKPh8w5ezpo6Ii4kcfZEvCDyovh9cA8MnG5N0z6fwAn7RsDek9dajzbtAxZJLnkiRJLykucqKxTPdnjn4w==";
 
-describe("huokanbot HTTP api", () => {
+describe("huokanbot bank deposit HTTP api", () => {
 	let apiURL: string;
 	let apiKey: string;
 	beforeAll(async () => {

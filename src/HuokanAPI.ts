@@ -1,5 +1,6 @@
 import fastify, { FastifyInstance } from "fastify";
 import { BankDepositEndpoint } from "./api/endpoints/v1/BankDepositEndpoint";
+import { RecruitmentEndpoint } from "./api/endpoints/v1/RecruitmentEndpoint";
 import { ApiKeyPlugin } from "./api/plugins/ApiKeyPlugin";
 import { DatabasePlugin } from "./api/plugins/DatabasePlugin";
 import { DataStore } from "./external/DataStore";
@@ -26,6 +27,7 @@ export class HuokanAPI {
 		this.server.register(DatabasePlugin, db);
 		this.server.register(ApiKeyPlugin);
 		this.server.register(BankDepositEndpoint);
+		this.server.register(RecruitmentEndpoint);
 	}
 
 	public async listen(port = 3000): Promise<void> {
