@@ -71,6 +71,6 @@ describe("recruiter score", () => {
 	it("gets invite links by owner without erroring", async () => {
 		await expect(async () => {
 			await dataStore.inviteLinks.getInviteLinkByOwner("", "");
-		}).rejects.not.toThrow();
+		}).resolves.toBeUndefined();
 	});
 });
