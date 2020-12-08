@@ -35,7 +35,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: SSH Remote Commands
-        uses: appleboy/ssh-action@v0.0.7
+        uses: appleboy/ssh-action@v0.1.4
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
