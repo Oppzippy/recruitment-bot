@@ -4,6 +4,7 @@ import { DataStore } from "../../../external/DataStore";
 import { LeaderboardManager } from "../leaderboard/LeaderboardManager";
 import Multimap = require("multimap");
 import { MessageEmbed } from "discord.js";
+import { DiscordAPIError } from "discord.js";
 
 export class InviteLinkAcceptListener extends Listener {
 	private db: DataStore;
@@ -115,7 +116,15 @@ export class InviteLinkAcceptListener extends Listener {
 			}
 			message += "  Use `!setting quiet` to toggle these messages.";
 			embed.setDescription(message);
-			dmChannel.send(embed);
+			try {
+				await dmChannel.send(embed);
+			} catch (err) {
+				if (err instanceof DiscordAPIError && err.code == 50007) {
+					// User is blocking DMs
+				} else {
+					console.error(err);
+				}
+			}
 		}
 	}
 }

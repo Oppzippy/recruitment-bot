@@ -48,7 +48,8 @@ export class AddBankDepositCommand extends Command {
 			);
 			const dmChannel = await message.author.createDM();
 			const money = new WoWMoney(latestDeposit.copper);
-			await Promise.all([
+			// DM can fail if the user has the bot blocked
+			await Promise.allSettled([
 				dmChannel.send(
 					`Your guild deposit of ${money.toMinimalString()} has been registered. The transaction id is \`${transactionId}\`.`,
 				),
