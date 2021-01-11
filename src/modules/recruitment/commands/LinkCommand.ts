@@ -34,7 +34,7 @@ export class LinkCommand extends Command {
 		) {
 			if (!args.inviteLink) {
 				message.reply(
-					"An invite link must be provided. It must be unused and preferably set to never expire. Example usage: `!invitelink https://discord.gg/yourinvitecode`",
+					"You must create an invite link yourself, preferably set to never expire, and provide it to this command. Example usage: `!invitelink https://discord.gg/yourinvitecode`",
 				);
 				return;
 			}
