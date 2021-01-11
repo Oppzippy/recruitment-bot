@@ -7,6 +7,8 @@ import * as dotenv from "dotenv";
 import { HuokanClient } from "./HuokanClient";
 import { KnexDataStore } from "./external/database/KnexDataStore";
 import { HuokanAPI } from "./HuokanAPI";
+import { GuildChannel } from "discord.js";
+import { Guild } from "discord.js";
 
 dotenv.config();
 
@@ -45,12 +47,23 @@ const rl = readline.createInterface({
 	output: process.stdout,
 });
 
-rl.on("line", (line) => {
-	switch (line) {
+rl.on("line", async (line) => {
+	const args = line.split(" ");
+	switch (args[0]) {
 		case "stop":
 		case "exit":
-			destroy().then(() => process.exit(0));
 			console.log("Stopping bot...");
+			await destroy();
+			process.exit(0);
+			break;
+		case "channel-permission":
+			if (args.length == 2) {
+				const channel = await client.channels.fetch(args[1]);
+				if (channel instanceof GuildChannel) {
+					const permissions = channel.permissionsFor(client.user);
+					console.log(permissions.toArray());
+				}
+			}
 			break;
 	}
 });
