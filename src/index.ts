@@ -8,7 +8,6 @@ import { HuokanClient } from "./HuokanClient";
 import { KnexDataStore } from "./external/database/KnexDataStore";
 import { HuokanAPI } from "./HuokanAPI";
 import { GuildChannel } from "discord.js";
-import { Guild } from "discord.js";
 
 dotenv.config();
 
@@ -32,6 +31,8 @@ client.login(process.env.DISCORD_TOKEN);
 
 const api = new HuokanAPI(db);
 api.listen();
+
+console.log("Started bot.");
 
 async function destroy() {
 	api.destroy();
