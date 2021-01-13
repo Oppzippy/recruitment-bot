@@ -38,10 +38,7 @@ export class LinkCommand extends Command {
 				);
 				return;
 			}
-			if (
-				!args.inviteLink.inviter ||
-				!args.inviteLink.inviter.equals(message.author)
-			) {
+			if (args.inviteLink.inviter?.id != message.author.id) {
 				message.reply("You must create your own invite link.");
 				return;
 			}
