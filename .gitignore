@@ -3,3 +3,4 @@ out
 db.sqlite
 .env
 coverage
+*.log

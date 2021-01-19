@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import { Listener } from "discord-akairo";
 import { Invite, Guild, GuildMember, Collection } from "discord.js";
 import { DataStore } from "../../../external/DataStore";
@@ -36,7 +37,7 @@ export class InviteLinkAcceptListener extends Listener {
 			),
 		);
 		if (!inviteLink && usage.size >= 1) {
-			console.log(
+			console.warn(
 				"Unable to match invite links to users: ",
 				[...usage.keys()],
 				guildRecentJoins.map(
@@ -123,6 +124,7 @@ export class InviteLinkAcceptListener extends Listener {
 					// User is blocking DMs
 				} else {
 					console.error(err);
+					Sentry.captureException(err);
 				}
 			}
 		}

@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import { DiscordAPIError } from "discord.js";
 import { EventEmitter } from "events";
 import { DataStore } from "../../external/DataStore";
@@ -40,6 +41,7 @@ export class RecruitmentModule extends Module {
 						!(err instanceof DiscordAPIError && err.code == 10008)
 					) {
 						console.error(`Error updating guild ${guildId}: `, err);
+						Sentry.captureException(err);
 					}
 				}
 			}

@@ -10,7 +10,8 @@
 			"name": "Launch Program",
 			"skipFiles": ["<node_internals>/**"],
 			"program": "${workspaceFolder}\\out\\index.js",
-			"outFiles": ["${workspaceFolder}/out/**/*.js"]
+			"outFiles": ["${workspaceFolder}/out/**/*.js"],
+			"outputCapture": "std"
 		},
 		{
 			"type": "node",

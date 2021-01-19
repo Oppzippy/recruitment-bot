@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import { Command } from "discord-akairo";
 import { Message, TextChannel } from "discord.js";
 import { clamp } from "lodash";
@@ -82,6 +83,7 @@ export class LeaderboardCommand extends Command {
 			await this.deleteMessageIfPermissible(message);
 		} catch (err) {
 			console.error(err);
+			Sentry.captureException(err);
 		}
 	}
 

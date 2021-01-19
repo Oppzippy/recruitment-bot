@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import { AkairoClient } from "discord-akairo";
 import { Guild } from "discord.js";
 import { TextChannel, Message } from "discord.js";
@@ -71,6 +72,10 @@ export class LeaderboardManager {
 		leaderboard: RecruitmentInviteLinkLeaderboard,
 		isDynamic: boolean, // TODO put in RecruitmentInviteLinkLeaderboard
 	): Promise<void> {
+		const transaction = Sentry.startTransaction({
+			name: "Update leaderboards",
+			data: { leaderboard: leaderboard },
+		});
 		try {
 			// TODO delete messages from deleted channels
 			const channel = await this.client.channels.fetch(
@@ -94,8 +99,10 @@ export class LeaderboardManager {
 				);
 			} else {
 				console.error(err);
+				Sentry.captureException(err);
 			}
 		}
+		transaction.finish();
 	}
 
 	public async updateLeaderboardMessage(

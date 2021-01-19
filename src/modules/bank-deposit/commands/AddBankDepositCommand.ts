@@ -62,7 +62,7 @@ export class AddBankDepositCommand extends Command {
 					"We don't own the guild that the gold was deposited to. Please let us know if you believe this is an error.",
 				);
 			} else {
-				console.error(
+				console.info(
 					`Error parsing deposit info from ${message.author.username}`,
 					err,
 				);

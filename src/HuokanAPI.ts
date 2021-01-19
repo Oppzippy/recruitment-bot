@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import fastify, { FastifyInstance } from "fastify";
 import { BankDepositEndpoint } from "./api/endpoints/v1/BankDepositEndpoint";
 import { RecruitmentEndpoint } from "./api/endpoints/v1/RecruitmentEndpoint";
@@ -21,6 +22,7 @@ export class HuokanAPI {
 					.status(500)
 					.send({ statusCode: 500, error: "Internal Server Error" });
 				console.error(error);
+				Sentry.captureException(error);
 			}
 		});
 

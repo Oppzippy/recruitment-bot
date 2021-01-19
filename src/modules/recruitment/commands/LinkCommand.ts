@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import { Command } from "discord-akairo";
 import { Invite } from "discord.js";
 import { User, Guild, TextChannel, Message } from "discord.js";
@@ -148,6 +149,7 @@ export class LinkCommand extends Command {
 			} catch (err) {
 				if (!isDiscordNotFoundError(err)) {
 					console.error(err);
+					Sentry.captureException(err);
 				}
 			}
 		}
@@ -167,6 +169,7 @@ export class LinkCommand extends Command {
 		} catch (err) {
 			if (!isDiscordNotFoundError(err)) {
 				console.error(err);
+				Sentry.captureException(err);
 			}
 		}
 		return false;

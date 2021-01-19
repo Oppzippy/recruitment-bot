@@ -1,15 +1,23 @@
 import "source-map-support/register";
 import * as process from "process";
 import * as readline from "readline";
+import * as Sentry from "@sentry/node";
 import * as Knex from "knex";
 import * as knexStringcase from "knex-stringcase";
 import * as dotenv from "dotenv";
+import { GuildChannel } from "discord.js";
 import { HuokanClient } from "./HuokanClient";
 import { KnexDataStore } from "./external/database/KnexDataStore";
 import { HuokanAPI } from "./HuokanAPI";
-import { GuildChannel } from "discord.js";
 
 dotenv.config();
+
+Sentry.init({
+	environment: process.env.NODE_ENV ? "production" : "development",
+	dsn:
+		"https://9bd2ae20b748471da084e98b301fc351@o507151.ingest.sentry.io/5597846",
+	tracesSampleRate: 1,
+});
 
 const knexConfig: Knex.Config = {
 	client: process.env.DB_CLIENT,
@@ -32,7 +40,7 @@ client.login(process.env.DISCORD_TOKEN);
 const api = new HuokanAPI(db);
 api.listen();
 
-console.log("Started bot.");
+console.info("Started bot.");
 
 async function destroy() {
 	api.destroy();
@@ -53,7 +61,7 @@ rl.on("line", async (line) => {
 	switch (args[0]) {
 		case "stop":
 		case "exit":
-			console.log("Stopping bot...");
+			console.info("Stopping bot...");
 			await destroy();
 			process.exit(0);
 			break;
