@@ -69,8 +69,8 @@ describe("recruiter score", () => {
 
 	// TODO move to separate test suite
 	it("gets invite links by owner without erroring", async () => {
-		await expect(async () => {
-			await dataStore.inviteLinks.getInviteLinkByOwner("", "");
-		}).resolves.toBeUndefined();
+		await expect(
+			dataStore.inviteLinks.getInviteLinkByOwner("", ""),
+		).resolves.toBeUndefined();
 	});
 });
