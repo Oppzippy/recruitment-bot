@@ -13,7 +13,7 @@ import { HuokanAPI } from "./HuokanAPI";
 dotenv.config();
 
 Sentry.init({
-	environment: process.env.NODE_ENV ? "production" : "development",
+	environment: process.env.NODE_ENV ?? "development",
 	dsn:
 		"https://9bd2ae20b748471da084e98b301fc351@o507151.ingest.sentry.io/5597846",
 	tracesSampleRate: 1,
