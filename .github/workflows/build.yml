@@ -23,10 +23,12 @@ jobs:
         run: npm run build
       - name: unit test
         run: npm test -- -ci
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
       - name: build docker images
         run: docker-compose -f docker/integration.yml build
       - name: integration test
-        run: docker-compose -f docker/integraiton.yml up --abort-on-container-exit
+        run: docker-compose -f docker/integration.yml up --abort-on-container-exit
 
   deploy:
     needs: test
