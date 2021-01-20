@@ -5,6 +5,8 @@ services:
       - ../integration:/opt/huokanbot/integration
       - ../seeds:/opt/huokanbot/seeds
       - ../coverage:/opt/huokanbot/coverage
+      - ../src:/opt/huokanbot/src
+      - ../out:/opt/huokanbot/out
     env_file:
       - .env
     depends_on:
