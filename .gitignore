@@ -1,6 +1,5 @@
 node_modules
-out
-db.sqlite
-.env
-coverage
+/out
+/.env
+/coverage
 *.log
