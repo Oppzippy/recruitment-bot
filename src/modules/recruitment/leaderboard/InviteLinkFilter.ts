@@ -1,4 +1,5 @@
 export type InviteLinkFilter = {
+	guildId?: string;
 	userId?: string;
 	startDate?: Date;
 	resetIntervalInDays?: number;

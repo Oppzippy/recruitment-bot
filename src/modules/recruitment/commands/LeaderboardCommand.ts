@@ -6,13 +6,13 @@ import { DataStore } from "../../../external/DataStore";
 import { LeaderboardManager } from "../leaderboard/LeaderboardManager";
 import { LeaderboardOptions } from "../leaderboard/LeaderboardOptions";
 
-type LeaderboardArgs = {
+interface LeaderboardArgs {
 	size: number;
 	dynamic: boolean;
 	startDate?: Date;
 	resetIntervalInDays?: number;
 	endDate?: Date;
-};
+}
 
 export class LeaderboardCommand extends Command {
 	private db: DataStore;
