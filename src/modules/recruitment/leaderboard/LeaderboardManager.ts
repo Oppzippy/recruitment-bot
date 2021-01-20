@@ -72,10 +72,6 @@ export class LeaderboardManager {
 		leaderboard: RecruitmentInviteLinkLeaderboard,
 		isDynamic: boolean, // TODO put in RecruitmentInviteLinkLeaderboard
 	): Promise<void> {
-		const transaction = Sentry.startTransaction({
-			name: "Update leaderboards",
-			data: { leaderboard: leaderboard },
-		});
 		try {
 			// TODO delete messages from deleted channels
 			const channel = await this.client.channels.fetch(
@@ -102,7 +98,6 @@ export class LeaderboardManager {
 				Sentry.captureException(err);
 			}
 		}
-		transaction.finish();
 	}
 
 	public async updateLeaderboardMessage(

@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import { addDays } from "date-fns";
 import Knex = require("knex");
 import { InviteLinkFilter } from "../../../modules/recruitment/leaderboard/InviteLinkFilter";
@@ -15,8 +16,14 @@ export class RecruiterRepository extends KnexRepository {
 	public async getRecruiterScores(
 		filter?: InviteLinkFilter,
 	): Promise<RecruitmentScore[]> {
+		const transaction = Sentry.startTransaction({
+			name: "RecruiterRepository.getRecruiterScores",
+			data: { filter },
+		});
 		const query = this.getRecruiterScoreSelect(filter);
-		return await query;
+		const scores = await query;
+		transaction.finish();
+		return scores;
 	}
 
 	private getRecruiterScoreSelect(filter?: InviteLinkFilter) {
