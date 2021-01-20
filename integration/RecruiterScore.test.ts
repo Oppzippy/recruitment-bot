@@ -12,34 +12,58 @@ describe("recruiter score", () => {
 		doneWithDataStore();
 	});
 
+	it("gets scores with duplicates", async () => {
+		const scores = await dataStore.recruiters.getRecruiterScoresWithDuplicates(
+			"guild1",
+		);
+		expect(scores.get("owner1")).toEqual(8);
+	});
+
+	it("gets scores with duplicates in a range", async () => {
+		const scores = await dataStore.recruiters.getRecruiterScoresWithDuplicates(
+			"guild1",
+			{ endDate: new Date("2020-02-02") },
+		);
+		expect(scores.get("owner1")).toEqual(4);
+	});
+
+	it("gets duplicates", async () => {
+		const duplicates = await dataStore.recruiters.getRecruiterDuplicates(
+			"guild1",
+		);
+		expect(duplicates.get("owner1")).toEqual(5);
+	});
+
 	it("doesn't track duplicates with an end date", async () => {
-		const score = await dataStore.recruiters.getRecruiterScoreByUser({
-			guildId: "guild1",
+		const score = await dataStore.recruiters.getRecruiterScores("guild1", {
 			endDate: new Date("2020-02-04"),
 			userId: "owner1",
 		});
-		expect(score).toEqual({
-			guildId: "guild1",
-			recruiterDiscordId: "owner1",
-			count: 2,
-		});
+		expect(score).toEqual([
+			{
+				guildId: "guild1",
+				recruiterDiscordId: "owner1",
+				count: 2,
+			},
+		]);
 	});
 
 	it("doesn't subtract duplicates from before the start date", async () => {
-		const score = await dataStore.recruiters.getRecruiterScoreByUser({
-			guildId: "guild1",
+		const score = await dataStore.recruiters.getRecruiterScores("guild1", {
 			startDate: new Date("2020-02-02"),
 			userId: "owner1",
 		});
-		expect(score).toEqual({
-			guildId: "guild1",
-			recruiterDiscordId: "owner1",
-			count: 2,
-		});
+		expect(score).toEqual([
+			{
+				guildId: "guild1",
+				recruiterDiscordId: "owner1",
+				count: 2,
+			},
+		]);
 	});
 
 	it("filters duplicates with a start and end date", async () => {
-		const score = await dataStore.recruiters.getRecruiterScores({
+		const score = await dataStore.recruiters.getRecruiterScores("guild1", {
 			startDate: new Date("2020-02-02"),
 			endDate: new Date("2020-02-04"),
 		});
@@ -53,7 +77,7 @@ describe("recruiter score", () => {
 	});
 
 	it("retrieves all records with no filters", async () => {
-		const scores = await dataStore.recruiters.getRecruiterScores();
+		const scores = await dataStore.recruiters.getRecruiterScores("guild1");
 		expect(scores).toContainEqual({
 			guildId: "guild1",
 			recruiterDiscordId: "owner1",

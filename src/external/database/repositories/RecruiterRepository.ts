@@ -1,210 +1,185 @@
 import * as Sentry from "@sentry/node";
 import { addDays } from "date-fns";
-import Knex = require("knex");
 import { InviteLinkFilter } from "../../../modules/recruitment/leaderboard/InviteLinkFilter";
 import { getCycleStartDate } from "../../../util/Date";
 import { KnexRepository } from "../KnexRepository";
 import { RecruitmentScore } from "../models/RecruitmentScore";
 
 export class RecruiterRepository extends KnexRepository {
-	public async getRecruiterScoreByUser(
-		filter?: InviteLinkFilter,
-	): Promise<RecruitmentScore> {
-		return await this.getRecruiterScoreSelect(filter).first();
-	}
-
 	public async getRecruiterScores(
+		guildId: string,
 		filter?: InviteLinkFilter,
 	): Promise<RecruitmentScore[]> {
 		const transaction = Sentry.startTransaction({
 			name: "RecruiterRepository.getRecruiterScores",
 			data: { filter },
 		});
-		const query = this.getRecruiterScoreSelect(filter);
-		const scores = await query;
+
+		if (filter?.resetIntervalInDays && filter?.startDate) {
+			filter = {
+				...filter,
+				startDate: getCycleStartDate(
+					filter.startDate,
+					filter.resetIntervalInDays,
+					filter.now,
+				),
+			};
+			filter.endDate = addDays(
+				filter.startDate,
+				filter.resetIntervalInDays,
+			);
+		}
+
+		const scoresWithDuplicates = await this.getRecruiterScoresWithDuplicates(
+			guildId,
+			filter,
+		);
+		const duplicates = await this.getRecruiterDuplicates(guildId, filter);
+		const scores: RecruitmentScore[] = [];
+		scoresWithDuplicates.forEach((score, userId) => {
+			const count = score - (duplicates.get(userId) ?? 0);
+			if (count > 0) {
+				scores.push({
+					guildId,
+					count,
+					recruiterDiscordId: userId,
+				});
+			}
+		});
 		transaction.finish();
 		return scores;
 	}
 
-	private getRecruiterScoreSelect(filter?: InviteLinkFilter) {
-		return this.db
-			.select({
-				guildId: "recruitment_invite_link.guild_id",
-				recruiterDiscordId: "recruitment_invite_link.owner_discord_id",
-				count: this.db.raw(
-					"CAST(SUM(invite_link_count.usage) AS SIGNED)",
-				),
-			})
-			.from("recruitment_invite_link")
-			.innerJoin(
-				this.db.raw(
-					`(${this.getInviteLinkQuery(
-						filter,
-					).toString()}) AS invite_link_count`,
-				),
-				"recruitment_invite_link.invite_link",
-				"=",
-				"invite_link_count.invite_link",
-			)
-			.groupBy(
-				"recruitment_invite_link.guild_id",
-				"recruitment_invite_link.owner_discord_id",
-			)
-			.having("count", ">", "0");
-	}
-
-	private getInviteLinkQuery(filter?: InviteLinkFilter): Knex.QueryBuilder {
-		let startDate: Date = filter?.startDate;
-		let endDate: Date = filter?.endDate;
-		if (filter?.resetIntervalInDays) {
-			startDate = getCycleStartDate(
-				filter.startDate,
-				filter.resetIntervalInDays,
-				filter.now,
-			);
-			const cycleEndDate = addDays(startDate, filter.resetIntervalInDays);
-			if (!endDate || cycleEndDate < endDate) {
-				endDate = cycleEndDate;
-			}
-		}
-
-		if (startDate) {
-			return this.getFilteredInviteLinkQuery(startDate, endDate, filter);
-		}
-		return this.getUsageBefore(endDate, filter);
-	}
-
-	private getFilteredInviteLinkQuery(
-		startDate: Date,
-		endDate?: Date,
+	public async getRecruiterScoresWithDuplicates(
+		guildId: string,
 		filter?: InviteLinkFilter,
-	): Knex.QueryBuilder {
-		return this.db
-			.select({
-				inviteLink: "end_data.invite_link",
-				usage: this.db.raw(
-					"end_data.usage - COALESCE(start_data.usage, 0)",
-				),
-			})
-			.from(this.getUsageBefore(endDate, filter).as("end_data"))
-			.leftJoin(
-				this.db.raw(
-					`(${this.getUsageBefore(
-						startDate,
-						filter,
-					).toString()}) AS start_data`,
-				),
-				"end_data.invite_link",
-				"=",
-				"start_data.invite_link",
-			);
-	}
-
-	// Date filters are ignored. endDate argument is used instead.
-	private getUsageBefore(
-		endDate?: Date,
-		filter?: InviteLinkFilter,
-	): Knex.QueryBuilder {
-		const usageSubquery = this.db
-			.select("num_uses_table.num_uses")
-			.from({ num_uses_table: "recruitment_invite_link_usage_change" })
-			.where(
-				"num_uses_table.invite_link",
-				"=",
-				this.db.raw("num_uses_parent_table.invite_link"),
-			)
-			.orderBy("num_uses_table.created_at", "desc")
-			.orderBy("num_uses_table.id", "desc")
+	): Promise<Map<string, number>> {
+		const numUsesSubquery = this.db({
+			riluc: "recruitment_invite_link_usage_change",
+		})
+			.select("riluc.num_uses")
+			.whereRaw("riluc.invite_link = ril.invite_link")
+			.orderBy("riluc.created_at", "desc")
+			.orderBy("riluc.id", "desc")
 			.limit(1);
 
-		if (endDate) {
-			usageSubquery.where(
-				"num_uses_table.created_at",
+		if (filter?.endDate) {
+			numUsesSubquery.andWhere(
+				"riluc.created_at",
 				"<",
-				endDate.toISOString(),
+				filter.endDate.toISOString(),
 			);
 		}
 
-		const usageSubqueryString = `(${usageSubquery.toString()}) - COALESCE((${this.db
-			.select("duplicates")
-			.from(
-				this.getDuplicatesBefore(endDate, filter).as(
-					"duplicates_before",
-				),
-			)
-			.whereRaw(
-				"duplicates_before.invite_link = num_uses_parent_table.invite_link",
-			)
-			.toString()}), 0)`;
-		const query = this.db
+		const query = this.db({ ril: "recruitment_invite_link" })
 			.select({
-				inviteLink: "num_uses_parent_table.invite_link",
-				usage: this.db.raw(usageSubqueryString),
+				ownerDiscordId: "ril.owner_discord_id",
+				score: this.db.raw(
+					`CAST(SUM((${numUsesSubquery.toString()})) AS SIGNED)`,
+				),
 			})
-			.from({
-				num_uses_parent_table: "recruitment_invite_link_usage_change",
-			})
-			.innerJoin(
-				{ num_uses_parent_ril: "recruitment_invite_link" },
-				"num_uses_parent_table.invite_link",
-				"=",
-				"num_uses_parent_ril.invite_link",
-			)
-			.groupBy("num_uses_parent_table.invite_link");
+			.where("ril.guild_id", "=", guildId)
+			.groupBy("ril.owner_discord_id");
 
-		// Filter at the deepest part of the query for significant performance gains
-		if (filter?.guildId) {
-			query.where("num_uses_parent_ril.guild_id", "=", filter.guildId);
-		}
 		if (filter?.userId) {
-			query.where(
-				"num_uses_parent_ril.owner_discord_id",
-				"=",
-				filter.userId,
+			query.andWhere("ril.owner_discord_id", "=", filter.userId);
+		}
+		const rows = await query;
+		const scores = rows.reduce(
+			(map: Map<string, number>, score) =>
+				map.set(score.ownerDiscordId, score.score),
+			new Map<string, number>(),
+		);
+
+		if (filter?.startDate) {
+			const scoresBeforeStart = await this.getRecruiterScoresWithDuplicates(
+				guildId,
+				{
+					...filter,
+					endDate: filter.startDate,
+					startDate: undefined,
+				},
 			);
+			scores.forEach((score, userId) => {
+				scores.set(
+					userId,
+					score - (scoresBeforeStart.get(userId) ?? 0),
+				);
+			});
 		}
 
-		return query;
+		return scores;
 	}
 
-	private getDuplicatesBefore(
-		endDate: Date,
+	public async getRecruiterDuplicates(
+		guildId: string,
 		filter?: InviteLinkFilter,
-	): Knex.QueryBuilder {
-		const lastDuplicate = this.db
-			.select("duplicates")
-			.from({ rildc2: "recruitment_invite_link_duplicate_change" })
-			.whereRaw("rildc2.invite_link = rildc.invite_link")
+	): Promise<Map<string, number>> {
+		const duplicateCountSubquery = this.db({
+			rildc: "recruitment_invite_link_duplicate_change",
+		})
+			.select("rildc.duplicates")
+			.whereRaw("rildc.invite_link = rildc2.invite_link")
 			.andWhereRaw(
-				"rildc2.acceptee_discord_id = rildc.acceptee_discord_id",
+				"rildc.acceptee_discord_id = rildc2.acceptee_discord_id",
 			)
-			.orderBy("rildc2.created_at", "desc")
-			.orderBy("rildc2.id", "desc")
+			.orderBy("rildc.created_at", "desc")
+			.orderBy("rildc.id", "desc")
 			.limit(1);
-		if (endDate) {
-			lastDuplicate.andWhere(
-				"rildc2.created_at",
+
+		const duplicatesSubquery = this.db({
+			rildc2: "recruitment_invite_link_duplicate_change",
+		})
+			.select({
+				duplicates: duplicateCountSubquery,
+			})
+			.whereRaw("ril.invite_Link = rildc2.invite_link")
+			.groupBy("rildc2.acceptee_discord_id");
+
+		if (filter?.endDate) {
+			duplicateCountSubquery.where(
+				"rildc.created_at",
 				"<",
-				endDate.toISOString(),
+				filter.endDate.toISOString(),
 			);
 		}
 
-		const byLinkAndUser = this.db
+		const query = this.db({ ril: "recruitment_invite_link" })
 			.select({
-				invite_link: "invite_link",
-				duplicates: lastDuplicate,
+				ownerDiscordId: "ril.owner_discord_id",
+				duplicates: this.db.raw(
+					`CAST(SUM((${duplicatesSubquery.toString()})) AS SIGNED)`,
+				),
 			})
-			.from({ rildc: "recruitment_invite_link_duplicate_change" })
-			.whereRaw("rildc.invite_link = num_uses_parent_table.invite_link")
-			.groupBy(["invite_link", "acceptee_discord_id"]);
+			.where("ril.guild_id", "=", guildId)
+			.groupBy("ril.owner_discord_id");
 
-		const byLink = this.db
-			.select({ invite_link: "invite_link" })
-			.sum({ duplicates: "duplicates" })
-			.from(byLinkAndUser.as("invite_link_user_duplicates"))
+		if (filter?.userId) {
+			query.where("ril.owner_discord_id", "=", filter.userId);
+		}
+		const rows = await query;
+		const scores = rows.reduce(
+			(map: Map<string, number>, score) =>
+				map.set(score.ownerDiscordId, score.duplicates),
+			new Map<string, number>(),
+		);
 
-			.groupBy("invite_link");
-
-		return byLink;
+		if (filter?.startDate) {
+			const scoresBeforeStart = await this.getRecruiterDuplicates(
+				guildId,
+				{
+					...filter,
+					endDate: filter.startDate,
+					startDate: undefined,
+				},
+			);
+			scores.forEach((score, userId) => {
+				scores.set(
+					userId,
+					score - (scoresBeforeStart.get(userId) ?? 0),
+				);
+			});
+		}
+		return scores;
 	}
 }

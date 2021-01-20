@@ -34,9 +34,8 @@ export class LeaderboardUpdater {
 	public async getMessageGenerator(
 		guildId: string,
 	): Promise<LeaderboardMessageGenerator> {
-		const scores = await this.db.recruiters.getRecruiterScores({
+		const scores = await this.db.recruiters.getRecruiterScores(guildId, {
 			...this.options.filter,
-			guildId,
 		});
 		return new LeaderboardMessageGenerator(scores, this.options);
 	}
