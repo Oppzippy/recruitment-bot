@@ -195,6 +195,7 @@ export class RecruiterRepository extends KnexRepository {
 				duplicates: lastDuplicate,
 			})
 			.from({ rildc: "recruitment_invite_link_duplicate_change" })
+			.whereRaw("rildc.invite_link = num_uses_parent_table.invite_link")
 			.groupBy(["invite_link", "acceptee_discord_id"]);
 
 		const byLink = this.db
