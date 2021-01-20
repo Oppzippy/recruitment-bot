@@ -55,6 +55,13 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 
 	await addAcceptee(knex, {
 		acceptee: "acceptee2",
+		createdAt: `2020-02-03 00:00:01`,
+		inviteLink: "invite1",
+		uses: 7,
+	});
+
+	await addAcceptee(knex, {
+		acceptee: "acceptee2",
 		createdAt: `2020-02-03 01:00:00`,
 		inviteLink: "invite2",
 		uses: 1,

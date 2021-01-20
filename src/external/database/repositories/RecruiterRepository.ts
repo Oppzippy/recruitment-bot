@@ -148,7 +148,11 @@ export class RecruiterRepository extends KnexRepository {
 			.select({
 				ownerDiscordId: "ril.owner_discord_id",
 				duplicates: this.db.raw(
-					`CAST(SUM((${duplicatesSubquery.toString()})) AS SIGNED)`,
+					`CAST(
+						SUM(
+							(SELECT SUM(rildc3.duplicates) from (${duplicatesSubquery.toString()}) as rildc3)
+						) AS SIGNED
+					)`,
 				),
 			})
 			.where("ril.guild_id", "=", guildId)
