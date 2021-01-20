@@ -3,8 +3,11 @@ name: Run Tests
 on: [push]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+
+    env:
+      CI: true
 
     steps:
       - uses: actions/checkout@v2
@@ -14,20 +17,16 @@ jobs:
           node-version: 14.x
       - name: npm install
         run: npm ci
-        env:
-          CI: true
       - name: lint
         run: npx eslint .
-        env:
-          CI: true
-      # - name: build
-      #   run: npm run build
-      #   env:
-      #     CI: true
-      - name: test
+      - name: build
+        run: npm run build
+      - name: unit test
         run: npm test -- -ci
-        env:
-          CI: true
+      - name: build docker images
+        run: docker-compose -f docker/integration.yml build
+      - name: integration test
+        run: docker-compose -f docker/integraiton.yml up --abort-on-container-exit
 
   deploy:
     needs: build
