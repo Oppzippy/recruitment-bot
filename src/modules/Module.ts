@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import {
 	CommandHandler,
 	InhibitorHandler,
@@ -21,6 +22,14 @@ export abstract class Module {
 		});
 		this.listenerHandler = new ListenerHandler(client, {});
 		this.inhibitorHandler = new InhibitorHandler(client, {});
+
+		this.commandHandler.on("error", async (err, message) => {
+			console.error(err);
+			Sentry.captureException(err);
+			await message.reply(
+				`An error has occurred while executing the command. The developer has been notified.`,
+			);
+		});
 
 		this.commandHandler.useListenerHandler(this.listenerHandler);
 		this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
