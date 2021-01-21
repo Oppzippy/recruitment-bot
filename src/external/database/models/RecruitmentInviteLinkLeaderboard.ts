@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { InviteLinkFilter } from "../../../modules/recruitment/leaderboard/InviteLinkFilter";
 
-export interface RecruitmentInviteLinkLeaderboard {
+export type RecruitmentInviteLinkLeaderboard = {
 	id: number;
 	guildId: string;
 	channelId: string;
@@ -12,7 +12,7 @@ export interface RecruitmentInviteLinkLeaderboard {
 	createdAt: Date;
 	updatedAt?: Date;
 	filter?: InviteLinkFilter;
-}
+};
 
 export function parseFilter(filter: any): InviteLinkFilter {
 	if (filter.startDate) {
