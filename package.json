@@ -16,8 +16,8 @@
 	"author": "Oppzippy",
 	"license": "UNLICENSED",
 	"dependencies": {
-		"@sentry/node": "^6.0.0",
-		"@sentry/tracing": "^6.0.0",
+		"@sentry/node": "^6.0.1",
+		"@sentry/tracing": "^6.0.1",
 		"@types/multimap": "^1.1.2",
 		"axios": "^0.21.1",
 		"date-fns": "^2.16.1",
