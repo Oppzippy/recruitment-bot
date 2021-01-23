@@ -45,14 +45,18 @@ export class InviteLinkAcceptListener extends Listener {
 			[...invites.values()].filter((invite) => usage.has(invite.code)),
 		);
 
-		const inviteLink = usage.size == 1 ? usage.keys().next().value : null;
+		const usedInvites = [...usage.keys()].filter(
+			(inviteLink) => invites.get(inviteLink).uses > 0,
+		);
+
+		const inviteLink = usedInvites.length == 1 ? usedInvites[0] : null;
 		await Promise.all(
 			guildRecentJoins.map((member) =>
 				this.logInviteLinkUse(inviteLink, member),
 			),
 		);
 
-		if (!inviteLink && usage.size >= 1) {
+		if (!inviteLink && usedInvites.length >= 1) {
 			console.warn(
 				"Unable to match invite links to users: ",
 				[...usage.keys()],
