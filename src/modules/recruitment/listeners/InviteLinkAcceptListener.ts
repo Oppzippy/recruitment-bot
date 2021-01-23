@@ -151,7 +151,7 @@ export class InviteLinkAcceptListener extends Listener {
 			const dmChannel = owner.dmChannel ?? (await owner.createDM());
 			const embed = new MessageEmbed();
 			embed.setTitle(
-				`Your invite link ${inviteLink} was used by ${guildMember.user.username}#${guildMember.user.discriminator}`,
+				`Your invite link ${inviteLink} was used by ${guildMember.user.tag}`,
 			);
 			embed.setThumbnail(guildMember.user.avatarURL());
 			let message = `<@!${guildMember.user.id}> accepted your invite.`;
