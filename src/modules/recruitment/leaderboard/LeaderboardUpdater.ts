@@ -14,13 +14,6 @@ export class LeaderboardUpdater {
 	}
 
 	public async updateLeaderboard(message: Message): Promise<void> {
-		const transaction = Sentry.startTransaction({
-			name: "LeaderboardUpdater.updateLeaderboard",
-			data: {
-				guildId: message.guild.id,
-				leaderboardOptions: this.options,
-			},
-		});
 		const messageGenerator = await this.getMessageGenerator(
 			message.guild.id,
 		);
@@ -28,7 +21,6 @@ export class LeaderboardUpdater {
 			messageGenerator.buildText(),
 			messageGenerator.buildEmbed(),
 		);
-		transaction.finish();
 	}
 
 	public async getMessageGenerator(

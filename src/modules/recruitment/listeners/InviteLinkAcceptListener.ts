@@ -26,6 +26,9 @@ export class InviteLinkAcceptListener extends Listener {
 	}
 
 	public async exec(member: GuildMember): Promise<void> {
+		const transaction = Sentry.startTransaction({
+			name: "InviteAcceptListener.exec",
+		});
 		this.recentJoins.set(member.guild.id, member);
 		try {
 			await this.updateInvites(member.guild);
@@ -33,6 +36,7 @@ export class InviteLinkAcceptListener extends Listener {
 			console.error(err);
 			Sentry.captureException(err);
 		}
+		transaction.finish();
 	}
 
 	public async updateInvites(guild: Guild): Promise<void> {
