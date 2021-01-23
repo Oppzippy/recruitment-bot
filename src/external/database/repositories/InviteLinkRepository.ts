@@ -75,6 +75,19 @@ export class InviteLinkRespository extends KnexRepository {
 		});
 	}
 
+	public async addInviteLinks(
+		inviteLinks: ReadonlyArray<{
+			guildId: string;
+			inviteLink: string;
+			ownerDiscordId: string;
+		}>,
+	): Promise<void> {
+		await this.db("recruitment_invite_link")
+			.insert(inviteLinks)
+			.onConflict("invite_link")
+			.ignore();
+	}
+
 	public async getInviteLink(
 		guildId: string,
 		inviteLink: string,

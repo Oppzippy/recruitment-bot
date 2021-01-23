@@ -23,19 +23,31 @@ export class InviteLinkAcceptListener extends Listener {
 
 	public async exec(member: GuildMember): Promise<void> {
 		this.recentJoins.set(member.guild.id, member);
-		await this.updateLeaderboardsIfNecessary(member.guild);
+		try {
+			await this.updateInvites(member.guild);
+		} catch (err) {
+			console.error(err);
+			Sentry.captureException(err);
+		}
 	}
 
-	public async updateLeaderboardsIfNecessary(guild: Guild): Promise<void> {
-		const usage = await this.getUsageDifference(guild);
+	public async updateInvites(guild: Guild): Promise<void> {
+		const invites = await guild.fetchInvites();
+		const usage = await this.getUsageDifference(guild, invites);
 		const guildRecentJoins = this.recentJoins.get(guild.id) ?? [];
 		this.recentJoins.delete(guild.id);
+
+		await this.addInviteLinks(
+			[...invites.values()].filter((invite) => usage.has(invite.code)),
+		);
+
 		const inviteLink = usage.size == 1 ? usage.keys().next().value : null;
 		await Promise.all(
 			guildRecentJoins.map((member) =>
 				this.logInviteLinkUse(inviteLink, member),
 			),
 		);
+
 		if (!inviteLink && usage.size >= 1) {
 			console.warn(
 				"Unable to match invite links to users: ",
@@ -46,14 +58,28 @@ export class InviteLinkAcceptListener extends Listener {
 				),
 			);
 		}
+
 		await this.updateInviteUsageAndLeaderboards(guild, usage);
+	}
+
+	private async addInviteLinks(
+		invites: ReadonlyArray<Invite>,
+	): Promise<void> {
+		await this.db.inviteLinks.addInviteLinks(
+			invites.map((invite) => ({
+				guildId: invite.guild.id,
+				inviteLink: invite.code,
+				ownerDiscordId: invite.inviter.id,
+			})),
+		);
 	}
 
 	private async getUsageDifference(
 		guild: Guild,
+		invites: Collection<string, Invite>,
 	): Promise<Map<string, number>> {
 		const oldUsage = await this.db.inviteLinks.getInviteLinkUsage(guild.id);
-		const usage = this.getInviteUsage(await guild.fetchInvites());
+		const usage = this.getInviteUsage(invites);
 		const usageMinusOldUsage = this.getInviteUsageDifference(
 			usage,
 			oldUsage,
@@ -83,7 +109,7 @@ export class InviteLinkAcceptListener extends Listener {
 	): Map<string, number> {
 		const changes = new Map<string, number>();
 		invites.forEach((uses, code) => {
-			if (oldInvites.has(code) && oldInvites.get(code) != uses) {
+			if (oldInvites.get(code) != uses) {
 				changes.set(code, uses);
 			}
 		});
