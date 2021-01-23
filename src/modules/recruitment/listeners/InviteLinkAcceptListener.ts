@@ -64,10 +64,7 @@ export class InviteLinkAcceptListener extends Listener {
 			console.warn(
 				"Unable to match invite links to users: ",
 				[...usage.keys()],
-				guildRecentJoins.map(
-					(member) =>
-						`${member.user.username}#${member.user.discriminator}`,
-				),
+				guildRecentJoins.map((member) => `${member.user.tag}`),
 			);
 		}
 
