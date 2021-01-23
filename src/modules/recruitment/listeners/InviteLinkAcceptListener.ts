@@ -49,9 +49,10 @@ export class InviteLinkAcceptListener extends Listener {
 			[...invites.values()].filter((invite) => usage.has(invite.code)),
 		);
 
-		const usedInvites = [...usage.keys()].filter(
-			(inviteLink) => invites.get(inviteLink).uses > 0,
-		);
+		const usedInvites = [...usage.keys()].filter((inviteLink) => {
+			const invite = invites.get(inviteLink);
+			return isInviteEligible(invite) && invite.uses > 0;
+		});
 
 		const inviteLink = usedInvites.length == 1 ? usedInvites[0] : null;
 		await Promise.all(
@@ -96,12 +97,6 @@ export class InviteLinkAcceptListener extends Listener {
 			usage,
 			oldUsage,
 		);
-		// Remove ineligible invites
-		usageMinusOldUsage.forEach((_, inviteLink) => {
-			if (!isInviteEligible(invites.get(inviteLink))) {
-				usageMinusOldUsage.delete(inviteLink);
-			}
-		});
 		return usageMinusOldUsage;
 	}
 
