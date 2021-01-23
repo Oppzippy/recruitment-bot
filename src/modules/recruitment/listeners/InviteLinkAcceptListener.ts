@@ -69,7 +69,7 @@ export class InviteLinkAcceptListener extends Listener {
 		// to avoid a sudden jump if the invite has been used before
 		const invitesAfterRelease = invites.filter(
 			(invite) =>
-				invite.createdAt > new Date("2020-01-23T03:37Z") ||
+				invite.createdAt > new Date("2021-01-23T03:37Z") ||
 				invite.uses <= 1,
 		);
 		await this.db.inviteLinks.addInviteLinks(
