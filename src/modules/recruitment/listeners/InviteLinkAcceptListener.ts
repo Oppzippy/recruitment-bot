@@ -56,7 +56,7 @@ export class InviteLinkAcceptListener extends Listener {
 			),
 		);
 
-		if (!inviteLink && usedInvites.length >= 1) {
+		if (!inviteLink) {
 			console.warn(
 				"Unable to match invite links to users: ",
 				[...usage.keys()],
