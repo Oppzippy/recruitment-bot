@@ -65,8 +65,15 @@ export class InviteLinkAcceptListener extends Listener {
 	private async addInviteLinks(
 		invites: ReadonlyArray<Invite>,
 	): Promise<void> {
+		// Disqualify invite links created before the release that added this function
+		// to avoid a sudden jump if the invite has been used before
+		const invitesAfterRelease = invites.filter(
+			(invite) =>
+				invite.createdAt > new Date("2020-01-23T03:37Z") ||
+				invite.uses <= 1,
+		);
 		await this.db.inviteLinks.addInviteLinks(
-			invites.map((invite) => ({
+			invitesAfterRelease.map((invite) => ({
 				guildId: invite.guild.id,
 				inviteLink: invite.code,
 				ownerDiscordId: invite.inviter.id,
