@@ -7,6 +7,10 @@ import Multimap = require("multimap");
 import { MessageEmbed } from "discord.js";
 import { DiscordAPIError } from "discord.js";
 
+function isInviteEligible(invite: Invite) {
+	return invite.createdAt > new Date("2021-01-23T03:37Z") || invite.uses <= 1;
+}
+
 export class InviteLinkAcceptListener extends Listener {
 	private db: DataStore;
 	private leaderboardManager: LeaderboardManager;
@@ -67,11 +71,7 @@ export class InviteLinkAcceptListener extends Listener {
 	): Promise<void> {
 		// Disqualify invite links created before the release that added this function
 		// to avoid a sudden jump if the invite has been used before
-		const invitesAfterRelease = invites.filter(
-			(invite) =>
-				invite.createdAt > new Date("2021-01-23T03:37Z") ||
-				invite.uses <= 1,
-		);
+		const invitesAfterRelease = invites.filter(isInviteEligible);
 		await this.db.inviteLinks.addInviteLinks(
 			invitesAfterRelease.map((invite) => ({
 				guildId: invite.guild.id,
@@ -91,6 +91,12 @@ export class InviteLinkAcceptListener extends Listener {
 			usage,
 			oldUsage,
 		);
+		// Remove ineligible invites
+		usageMinusOldUsage.forEach((_, inviteLink) => {
+			if (!isInviteEligible(invites.get(inviteLink))) {
+				usageMinusOldUsage.delete(inviteLink);
+			}
+		});
 		return usageMinusOldUsage;
 	}
 
