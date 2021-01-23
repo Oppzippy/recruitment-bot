@@ -33,9 +33,7 @@ export class RecruitmentModule extends Module {
 			for (const guildId of guilds) {
 				try {
 					const guild = await this.client.guilds.fetch(guildId);
-					await this.inviteAcceptListener.updateLeaderboardsIfNecessary(
-						guild,
-					);
+					await this.inviteAcceptListener.updateInvites(guild);
 				} catch (err) {
 					if (
 						!(err instanceof DiscordAPIError && err.code == 10008)
