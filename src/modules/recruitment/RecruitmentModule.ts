@@ -47,7 +47,7 @@ export class RecruitmentModule extends Module {
 	}
 
 	private registerCommands() {
-		this.commandHandler.register(new LinkCommand(this.db));
+		this.commandHandler.register(new LinkCommand());
 		this.commandHandler.register(
 			new LeaderboardCommand(this.db, this.leaderboardManager),
 		);
