@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/node";
 import { Message } from "discord.js";
 import { DataStore } from "../../../external/DataStore";
 import { LeaderboardMessageGenerator } from "./LeaderboardMessageGenerator";
