@@ -80,11 +80,19 @@ export class InviteLinkAcceptListener extends Listener {
 		// to avoid a sudden jump if the invite has been used before
 		const invitesAfterRelease = invites.filter(isInviteEligible);
 		await this.db.inviteLinks.addInviteLinks(
-			invitesAfterRelease.map((invite) => ({
-				guildId: invite.guild.id,
-				inviteLink: invite.code,
-				ownerDiscordId: invite.inviter.id,
-			})),
+			invitesAfterRelease.map((invite) => {
+				if (!invite.inviter) {
+					Sentry.captureMessage(
+						`Invite link ${invite.code} doesn't have an inviter.`,
+					);
+					return;
+				}
+				return {
+					guildId: invite.guild.id,
+					inviteLink: invite.code,
+					ownerDiscordId: invite.inviter.id,
+				};
+			}),
 		);
 	}
 
