@@ -9,6 +9,7 @@ import { GuildChannel } from "discord.js";
 import { HuokanClient } from "./HuokanClient";
 import { KnexDataStore } from "./external/database/KnexDataStore";
 import { HuokanAPI } from "./HuokanAPI";
+import { pick } from "lodash";
 
 dotenv.config();
 
@@ -74,5 +75,35 @@ rl.on("line", async (line) => {
 				}
 			}
 			break;
+		case "invite-info":
+			if (args.length == 2) {
+				const guild = await client.guilds.fetch(args[1]);
+				const inviteCollection = await guild.fetchInvites();
+				const invites = [...inviteCollection.values()];
+
+				const allowedProps = [
+					"code",
+					"createdAt",
+					"createdTimestamp",
+					"expiresAt",
+					"maxAge",
+					"maxUses",
+					"memberCount",
+					"presenceCount",
+					"temporary",
+					"url",
+					"uses",
+				];
+				const invitesInfo = invites
+					.filter(
+						(invite) => args.length == 2 || args[2] == invite.code,
+					)
+					.map((invite) => ({
+						...pick(invite, allowedProps),
+						inviter: invite.inviter.id,
+						inviterTag: invite.inviter.tag,
+					}));
+				console.log(invitesInfo);
+			}
 	}
 });
