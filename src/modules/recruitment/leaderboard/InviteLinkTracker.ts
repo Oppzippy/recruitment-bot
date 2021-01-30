@@ -37,7 +37,12 @@ export class InviteLinkTracker {
 			this.prevUsage,
 			currentUsage,
 		);
+		this.insertInvites(
+			invites.filter((invite) => usageDifference.has(invite.code)),
+		);
 		this.updateStoredUsage(currentUsage, new Set(usageDifference.keys()));
+
+		this.prevUsage = currentUsage;
 		return usageDifference;
 	}
 
@@ -90,5 +95,15 @@ export class InviteLinkTracker {
 			updates.set(inviteLink, currentUsage.get(inviteLink));
 		});
 		await this.db.inviteLinks.setInviteLinkUsage(updates);
+	}
+
+	private async insertInvites(invites: ReadonlyArray<Invite>) {
+		await this.db.inviteLinks.addInviteLinks(
+			invites.map((invite) => ({
+				guildId: this.guildId,
+				inviteLink: invite.code,
+				ownerDiscordId: invite.inviter.id,
+			})),
+		);
 	}
 }

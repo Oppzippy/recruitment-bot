@@ -62,6 +62,27 @@ describe("invite link tracker", () => {
 			]),
 		);
 	});
+
+	it("persists forced eligible links", async () => {
+		const tracker = getInviteLinkTracker(new Map([["invite2", 1]]));
+		let createInvite = createInviteFactory();
+		await tracker.addState([
+			createInvite({ uses: 1 }),
+			createInvite({ uses: 1, createdAt: new Date("2000-01-01") }),
+		]);
+		createInvite = createInviteFactory();
+		await tracker.addState([
+			createInvite({ uses: 2 }),
+			createInvite({ uses: 1, createdAt: new Date("2000-01-01") }),
+		]);
+		createInvite = createInviteFactory();
+		const diff = await tracker.addState([
+			createInvite({ uses: 2 }),
+			createInvite({ uses: 2, createdAt: new Date("2000-01-01") }),
+		]);
+
+		expect(diff).toEqual(new Map([["invite2", 1]]));
+	});
 });
 
 function getInviteLinkTracker(
@@ -71,6 +92,7 @@ function getInviteLinkTracker(
 		inviteLinks: {
 			getInviteLinkUsage: jest.fn(async () => prevInvites),
 			setInviteLinkUsage: jest.fn(),
+			addInviteLinks: jest.fn(),
 		},
 	};
 	return new InviteLinkTracker((mockDS as unknown) as DataStore, "test");
