@@ -3,7 +3,7 @@ import { Invite, InviteLinkTracker } from "./InviteLinkTracker";
 
 describe("invite link tracker", () => {
 	it("calculates differences with no previous links", async () => {
-		const tracker = getInviteLinkTracker();
+		const [tracker] = getInviteLinkTracker();
 		const createInvite = createInviteFactory();
 		const diff = await tracker.addState([
 			createInvite(),
@@ -13,7 +13,7 @@ describe("invite link tracker", () => {
 	});
 
 	it("calculates differences with previous invite links", async () => {
-		const tracker = getInviteLinkTracker(
+		const [tracker] = getInviteLinkTracker(
 			new Map([
 				["invite1", 1],
 				["invite2", 2],
@@ -39,7 +39,7 @@ describe("invite link tracker", () => {
 	});
 
 	it("calculates difference with some ineligible links", async () => {
-		const tracker = getInviteLinkTracker();
+		const [tracker] = getInviteLinkTracker();
 		const createInvite = createInviteFactory();
 		const diff = await tracker.addState([
 			createInvite({ uses: 1, createdAt: new Date("2000-01-01") }),
@@ -49,7 +49,7 @@ describe("invite link tracker", () => {
 	});
 
 	it("counts forced eligible links that would otherwise be ineligible", async () => {
-		const tracker = getInviteLinkTracker(new Map([["invite1", 1]]));
+		const [tracker] = getInviteLinkTracker(new Map([["invite1", 1]]));
 		const createInvite = createInviteFactory();
 		const diff = await tracker.addState([
 			createInvite({ uses: 2, createdAt: new Date("2000-01-01") }),
@@ -64,7 +64,7 @@ describe("invite link tracker", () => {
 	});
 
 	it("persists forced eligible links", async () => {
-		const tracker = getInviteLinkTracker(new Map([["invite2", 1]]));
+		const [tracker] = getInviteLinkTracker(new Map([["invite2", 1]]));
 		let createInvite = createInviteFactory();
 		await tracker.addState([
 			createInvite({ uses: 1 }),
@@ -83,19 +83,32 @@ describe("invite link tracker", () => {
 
 		expect(diff).toEqual(new Map([["invite2", 1]]));
 	});
+
+	it("only inserts modified invite links", async () => {
+		const [tracker, mockDS] = getInviteLinkTracker();
+		const createInvite = createInviteFactory();
+		await tracker.addState([createInvite(), createInvite({ uses: 1 })]);
+		expect(mockDS.inviteLinks.addInviteLinks).toHaveBeenCalledWith([
+			{
+				guildId: "test",
+				inviteLink: "invite2",
+				ownerDiscordId: "testInviter",
+			},
+		]);
+	});
 });
 
 function getInviteLinkTracker(
 	prevInvites = new Map<string, number>(),
-): InviteLinkTracker {
-	const mockDS = {
+): [InviteLinkTracker, DataStore] {
+	const mockDS = ({
 		inviteLinks: {
 			getInviteLinkUsage: jest.fn(async () => prevInvites),
 			setInviteLinkUsage: jest.fn(),
 			addInviteLinks: jest.fn(),
 		},
-	};
-	return new InviteLinkTracker((mockDS as unknown) as DataStore, "test");
+	} as unknown) as DataStore;
+	return [new InviteLinkTracker(mockDS, "test"), mockDS];
 }
 
 function createInviteFactory() {
