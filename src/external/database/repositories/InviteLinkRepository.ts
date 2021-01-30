@@ -152,6 +152,7 @@ export class InviteLinkRespository extends KnexRepository {
 
 	public async getInviteLinkUsage(
 		guildId: string,
+		filterInviteLinks?: ReadonlyArray<string>,
 	): Promise<Map<string, number>> {
 		const query = this.db
 			.select({
@@ -162,6 +163,9 @@ export class InviteLinkRespository extends KnexRepository {
 			})
 			.where("guild_id", "=", guildId)
 			.from("recruitment_invite_link");
+		if (filterInviteLinks) {
+			query.whereIn("invite_link", filterInviteLinks);
+		}
 		const links = await query;
 		const usageByLink = new Map<string, number>();
 		links.forEach((link) => usageByLink.set(link.inviteLink, link.numUses));
