@@ -76,7 +76,7 @@ rl.on("line", async (line) => {
 			}
 			break;
 		case "invite-info":
-			if (args.length == 2) {
+			if (args.length >= 2) {
 				const guild = await client.guilds.fetch(args[1]);
 				const inviteCollection = await guild.fetchInvites();
 				const invites = [...inviteCollection.values()];
