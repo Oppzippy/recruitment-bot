@@ -77,14 +77,14 @@ export class InviteLinkAcceptListener extends Listener {
 		inviteLink: string | null,
 		guildMember: GuildMember,
 	) {
-		const isDuplicate = await this.db.inviteLinks.hasUserJoinedBefore(
-			guildMember.user.id,
-		);
-		await this.db.inviteLinks.logInviteLinkUse(
-			guildMember.user.id,
-			inviteLink,
-		);
-		const ownerId = await this.db.inviteLinks.getOwnerId(inviteLink);
+		const [isDuplicate, ownerId] = await Promise.all([
+			this.db.inviteLinks.hasUserJoinedBefore(guildMember.user.id),
+			this.db.inviteLinks.getOwnerId(inviteLink),
+			this.db.inviteLinks.logInviteLinkUse(
+				guildMember.user.id,
+				inviteLink,
+			),
+		]);
 		if (ownerId && !(await this.db.userSettings.get(ownerId, "quiet"))) {
 			const owner = await this.client.users.fetch(ownerId);
 			const dmChannel = owner.dmChannel ?? (await owner.createDM());

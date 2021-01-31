@@ -30,11 +30,10 @@ export class RecruiterRepository extends KnexRepository {
 			);
 		}
 
-		const scoresWithDuplicates = await this.getRecruiterScoresWithDuplicates(
-			guildId,
-			filter,
-		);
-		const duplicates = await this.getRecruiterDuplicates(guildId, filter);
+		const [scoresWithDuplicates, duplicates] = await Promise.all([
+			this.getRecruiterScoresWithDuplicates(guildId, filter),
+			this.getRecruiterDuplicates(guildId, filter),
+		]);
 		const scores: RecruitmentScore[] = [];
 		scoresWithDuplicates.forEach((score, userId) => {
 			const count = score - (duplicates.get(userId) ?? 0);
