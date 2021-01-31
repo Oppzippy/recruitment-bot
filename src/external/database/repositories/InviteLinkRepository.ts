@@ -2,6 +2,13 @@ import { RecruitmentInviteLink } from "../models/RecruitmentInviteLink";
 import { KnexRepository } from "../KnexRepository";
 
 export class InviteLinkRespository extends KnexRepository {
+	public async getGuildIds(): Promise<string[]> {
+		const rows = await this.db("recruitment_invite_link")
+			.select("guild_id")
+			.distinct();
+		return rows.map((row) => row.guildId);
+	}
+
 	public async getOwnerId(inviteLink: string): Promise<string> {
 		const row = await this.db("recruitment_invite_link")
 			.select<RecruitmentInviteLink>("owner_discord_id")

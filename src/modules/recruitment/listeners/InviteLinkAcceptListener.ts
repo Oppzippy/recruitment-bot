@@ -1,20 +1,19 @@
 import * as Sentry from "@sentry/node";
 import { Listener } from "discord-akairo";
-import { Invite, Guild, GuildMember, Collection } from "discord.js";
+import { Guild, GuildMember } from "discord.js";
 import { DataStore } from "../../../external/DataStore";
 import { LeaderboardManager } from "../leaderboard/LeaderboardManager";
 import Multimap = require("multimap");
 import { MessageEmbed } from "discord.js";
 import { DiscordAPIError } from "discord.js";
-
-function isInviteEligible(invite: Invite) {
-	return invite.createdAt > new Date("2021-01-23T03:37Z") || invite.uses <= 1;
-}
+import { InviteLinkTracker } from "../leaderboard/InviteLinkTracker";
+import { Constants } from "discord.js";
 
 export class InviteLinkAcceptListener extends Listener {
 	private db: DataStore;
 	private leaderboardManager: LeaderboardManager;
-	private recentJoins: Multimap<string, GuildMember> = new Multimap();
+	private recentJoins = new Multimap<string, GuildMember>();
+	private trackers = new Map<string, InviteLinkTracker>();
 
 	public constructor(db: DataStore, leaderboardManager: LeaderboardManager) {
 		super("inviteAccept", {
@@ -40,102 +39,38 @@ export class InviteLinkAcceptListener extends Listener {
 	}
 
 	public async updateInvites(guild: Guild): Promise<void> {
+		if (!this.trackers.has(guild.id)) {
+			this.trackers.set(
+				guild.id,
+				new InviteLinkTracker(this.db, guild.id),
+			);
+		}
+		const tracker = this.trackers.get(guild.id);
 		const invites = await guild.fetchInvites();
-		const usage = await this.getUsageDifference(guild, invites);
+		const usageDifference = await tracker.addState([...invites.values()]);
+
 		const guildRecentJoins = this.recentJoins.get(guild.id) ?? [];
 		this.recentJoins.delete(guild.id);
 
-		await this.addInviteLinks(
-			[...invites.values()].filter((invite) => usage.has(invite.code)),
-		);
-
-		const usedInvites = [...usage.keys()].filter((inviteLink) => {
-			const invite = invites.get(inviteLink);
-			return isInviteEligible(invite) && invite.uses > 0;
-		});
-
-		const inviteLink = usedInvites.length == 1 ? usedInvites[0] : null;
+		const inviteLink =
+			usageDifference.size == 1
+				? usageDifference.keys().next().value
+				: null;
 		await Promise.all(
 			guildRecentJoins.map((member) =>
 				this.logInviteLinkUse(inviteLink, member),
 			),
 		);
 
-		if (!inviteLink) {
+		if (!inviteLink && usageDifference.size > 0) {
 			console.warn(
 				"Unable to match invite links to users: ",
-				usedInvites,
-				[...usage.keys()],
+				[...usageDifference.keys()],
 				guildRecentJoins.map((member) => `${member.user.tag}`),
 			);
 		}
 
-		await this.updateInviteUsageAndLeaderboards(guild, usage);
-	}
-
-	private async addInviteLinks(
-		invites: ReadonlyArray<Invite>,
-	): Promise<void> {
-		// Disqualify invite links created before the release that added this function
-		// to avoid a sudden jump if the invite has been used before
-		const invitesAfterRelease = invites.filter(isInviteEligible);
-		await this.db.inviteLinks.addInviteLinks(
-			invitesAfterRelease.map((invite) => {
-				if (!invite.inviter) {
-					Sentry.captureMessage(
-						`Invite link ${invite.code} doesn't have an inviter.`,
-					);
-					return;
-				}
-				return {
-					guildId: invite.guild.id,
-					inviteLink: invite.code,
-					ownerDiscordId: invite.inviter.id,
-				};
-			}),
-		);
-	}
-
-	private async getUsageDifference(
-		guild: Guild,
-		invites: Collection<string, Invite>,
-	): Promise<Map<string, number>> {
-		const oldUsage = await this.db.inviteLinks.getInviteLinkUsage(guild.id);
-		const usage = this.getInviteUsage(invites);
-		const usageMinusOldUsage = this.getInviteUsageDifference(
-			usage,
-			oldUsage,
-		);
-		return usageMinusOldUsage;
-	}
-
-	private async updateInviteUsageAndLeaderboards(
-		guild: Guild,
-		usage: Map<string, number>,
-	): Promise<void> {
-		await this.db.inviteLinks.setInviteLinkUsage(usage);
 		await this.leaderboardManager.updateLeaderboardsForGuild(guild);
-	}
-
-	private getInviteUsage(
-		invites: Collection<string, Invite>,
-	): Map<string, number> {
-		const usage = new Map<string, number>();
-		invites.forEach((invite, code) => usage.set(code, invite.uses));
-		return usage;
-	}
-
-	private getInviteUsageDifference(
-		invites: Map<string, number>,
-		oldInvites: Map<string, number>,
-	): Map<string, number> {
-		const changes = new Map<string, number>();
-		invites.forEach((uses, code) => {
-			if (oldInvites.get(code) != uses) {
-				changes.set(code, uses);
-			}
-		});
-		return changes;
 	}
 
 	private async logInviteLinkUse(
@@ -168,7 +103,10 @@ export class InviteLinkAcceptListener extends Listener {
 			try {
 				await dmChannel.send(embed);
 			} catch (err) {
-				if (err instanceof DiscordAPIError && err.code == 50007) {
+				if (
+					err instanceof DiscordAPIError &&
+					err.code == Constants.APIErrors.CANNOT_MESSAGE_USER
+				) {
 					// User is blocking DMs
 				} else {
 					console.error(err);

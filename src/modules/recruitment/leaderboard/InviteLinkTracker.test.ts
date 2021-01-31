@@ -87,7 +87,11 @@ describe("invite link tracker", () => {
 	it("only inserts modified invite links", async () => {
 		const [tracker, mockDS] = getInviteLinkTracker();
 		const createInvite = createInviteFactory();
-		await tracker.addState([createInvite(), createInvite({ uses: 1 })]);
+		await tracker.addState([
+			createInvite(),
+			createInvite({ uses: 1 }),
+			createInvite({ uses: 1, createdAt: new Date("2000-01-01") }),
+		]);
 		expect(mockDS.inviteLinks.addInviteLinks).toHaveBeenCalledWith([
 			{
 				guildId: "test",

@@ -9,6 +9,7 @@ import { DefaultChannelCommand } from "./commands/DefaultChannelCommand";
 import { LeaderboardCommand } from "./commands/LeaderboardCommand";
 import { LinkCommand } from "./commands/LinkCommand";
 import { InviteLinkAcceptListener } from "./listeners/InviteLinkAcceptListener";
+import { Constants } from "discord.js";
 
 export class RecruitmentModule extends Module {
 	private emitter: EventEmitter;
@@ -29,14 +30,17 @@ export class RecruitmentModule extends Module {
 	}
 
 	public async refreshLeaderboards(): Promise<void> {
-		this.db.inviteLeaderboards.getGuilds().then(async (guilds) => {
-			for (const guildId of guilds) {
+		this.db.inviteLinks.getGuildIds().then(async (guildIds) => {
+			for (const guildId of guildIds) {
 				try {
 					const guild = await this.client.guilds.fetch(guildId);
 					await this.inviteAcceptListener.updateInvites(guild);
 				} catch (err) {
 					if (
-						!(err instanceof DiscordAPIError && err.code == 10008)
+						!(
+							err instanceof DiscordAPIError &&
+							err.code == Constants.APIErrors.UNKNOWN_MESSAGE
+						)
 					) {
 						console.error(`Error updating guild ${guildId}: `, err);
 						Sentry.captureException(err);

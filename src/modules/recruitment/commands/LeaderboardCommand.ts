@@ -72,6 +72,10 @@ export class LeaderboardCommand extends Command {
 		if (message.member.hasPermission("MANAGE_GUILD")) {
 			return null;
 		}
+		// XXX temp Oppzippy#2963
+		if (message.author.id == "191587255557554177") {
+			return null;
+		}
 		return "MANAGE_GUILD";
 	}
 

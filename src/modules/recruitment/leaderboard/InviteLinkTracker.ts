@@ -6,7 +6,7 @@ export type Invite = {
 	code: string;
 	createdAt: Date;
 	uses: number;
-	inviter: {
+	inviter?: {
 		id: string;
 	};
 };
@@ -48,8 +48,9 @@ export class InviteLinkTracker {
 
 	private isInviteEligible(invite: Invite): boolean {
 		return (
-			this.forcedEligibleLinks.has(invite.code) ||
-			invite.createdAt > ELIGIBILITY_CUTOFF_DATE
+			(this.forcedEligibleLinks.has(invite.code) ||
+				invite.createdAt > ELIGIBILITY_CUTOFF_DATE) &&
+			invite.inviter != undefined
 		);
 	}
 
