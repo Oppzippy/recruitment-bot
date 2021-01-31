@@ -96,7 +96,7 @@ export class InviteLinkAcceptListener extends Listener {
 			let message = `<@!${guildMember.user.id}> accepted your invite.`;
 			if (isDuplicate) {
 				message +=
-					"  This user has been on the server before, so they will not be counted towards your score on the invite leaderboard.";
+					"  This user has been on the server before, so they will not count towards your score on the invite leaderboard.";
 			}
 			message += "  Use `!setting quiet` to toggle these messages.";
 			embed.setDescription(message);
