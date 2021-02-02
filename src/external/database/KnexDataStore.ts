@@ -1,4 +1,4 @@
-import * as Knex from "knex";
+import Knex from "knex";
 import { InviteLinkRespository } from "./repositories/InviteLinkRepository";
 import { InviteLeaderboardRepository } from "./repositories/InviteLeaderboardRepository";
 import { SettingRepository } from "./repositories/SettingRepository";

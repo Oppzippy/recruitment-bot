@@ -1,10 +1,10 @@
 import "source-map-support/register";
-import * as process from "process";
-import * as readline from "readline";
+import process from "process";
+import readline from "readline";
 import * as Sentry from "@sentry/node";
-import * as Knex from "knex";
-import * as knexStringcase from "knex-stringcase";
-import * as dotenv from "dotenv";
+import Knex from "knex";
+import knexStringcase from "knex-stringcase";
+import dotenv from "dotenv";
 import { GuildChannel } from "discord.js";
 import { HuokanClient } from "./HuokanClient";
 import { KnexDataStore } from "./external/database/KnexDataStore";

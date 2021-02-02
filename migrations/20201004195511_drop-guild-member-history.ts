@@ -1,4 +1,4 @@
-import * as Knex from "knex";
+import Knex from "knex";
 import { createUpdatedAtTrigger } from "../migration-helpers";
 
 export async function up(knex: Knex): Promise<void> {

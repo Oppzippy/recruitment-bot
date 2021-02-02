@@ -1,4 +1,4 @@
-import * as myzod from "myzod";
+import myzod from "myzod";
 
 export const bankDepositAddonSchema = myzod.object({
 	latestDeposit: myzod.object({

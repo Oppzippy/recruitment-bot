@@ -1,5 +1,5 @@
 import Knex = require("knex");
-import * as knexStringcase from "knex-stringcase";
+import knexStringcase from "knex-stringcase";
 import { KnexDataStore } from "../src/external/database/KnexDataStore";
 
 const knexConfig = {

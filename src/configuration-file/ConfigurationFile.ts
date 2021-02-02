@@ -1,4 +1,4 @@
-import * as jsonfile from "jsonfile";
+import jsonfile from "jsonfile";
 import { ConfigurationFileInterface } from "./ConfigurationFileInterface";
 
 export class ConfigurationFile {
