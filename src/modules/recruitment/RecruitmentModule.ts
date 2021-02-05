@@ -10,6 +10,7 @@ import { LeaderboardCommand } from "./commands/LeaderboardCommand";
 import { LinkCommand } from "./commands/LinkCommand";
 import { InviteLinkAcceptListener } from "./listeners/InviteLinkAcceptListener";
 import { Constants } from "discord.js";
+import { CheckInvitesCommand } from "./commands/CheckInvitesCommand";
 
 export class RecruitmentModule extends Module {
 	private emitter: EventEmitter;
@@ -56,6 +57,7 @@ export class RecruitmentModule extends Module {
 			new LeaderboardCommand(this.db, this.leaderboardManager),
 		);
 		this.commandHandler.register(new DefaultChannelCommand(this.db));
+		this.commandHandler.register(new CheckInvitesCommand(this.db));
 	}
 
 	private registerListeners() {

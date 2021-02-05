@@ -9,6 +9,14 @@ export class InviteLinkRespository extends KnexRepository {
 		return rows.map((row) => row.guildId);
 	}
 
+	public async getGuildIdsOfUser(userId: string): Promise<string[]> {
+		const rows = await this.db("recruitment_invite_link")
+			.select("guild_id")
+			.distinct()
+			.where("owner_discord_id", "=", userId);
+		return rows.map((row) => row.guildId);
+	}
+
 	public async getOwnerId(inviteLink: string): Promise<string> {
 		const row = await this.db("recruitment_invite_link")
 			.select<RecruitmentInviteLink>("owner_discord_id")
