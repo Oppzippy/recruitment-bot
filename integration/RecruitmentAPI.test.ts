@@ -47,6 +47,7 @@ describe("huokanbot bank deposit HTTP api", () => {
 		);
 		for (let i = 0; i < 5; i++) {
 			await dataStore.inviteLinks.logInviteLinkUse(
+				"test",
 				"testUser2",
 				"testLink2",
 			);

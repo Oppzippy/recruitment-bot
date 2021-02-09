@@ -27,6 +27,11 @@ async function seedInviteLinks(knex: Knex): Promise<void> {
 			invite_link: "invite4",
 			owner_discord_id: "owner3",
 		},
+		{
+			guild_id: "guild3",
+			invite_link: "invite5",
+			owner_discord_id: "owner4",
+		},
 	]);
 }
 
@@ -39,6 +44,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 			uses: i,
 		});
 	}
+
 	await addAcceptee(knex, {
 		acceptee: "acceptee1",
 		createdAt: `2020-02-03 00:00:00`,
@@ -87,27 +93,65 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 		inviteLink: "invite3",
 		uses: 2,
 	});
+
+	await addAcceptee(knex, {
+		guildId: "guild3",
+		acceptee: "acceptee6",
+		createdAt: "2020-02-07 00:00:00",
+	});
+
+	await addAcceptee(knex, {
+		inviteLink: "invite5",
+		acceptee: "acceptee6",
+		createdAt: "2020-02-07 00:00:00",
+		uses: 1,
+	});
+
+	await addAcceptee(knex, {
+		inviteLink: "invite5",
+		acceptee: "acceptee7",
+		createdAt: "2020-02-07 01:00:00",
+		uses: 2,
+	});
 }
 
 async function addAcceptee(
 	knex: Knex,
-	acceptee: {
-		inviteLink: string;
-		acceptee: string;
-		createdAt: string;
-		uses: number;
-	},
+	acceptee:
+		| {
+				guildId: string;
+				acceptee: string;
+				createdAt: string;
+				uses?: never;
+				inviteLink?: never;
+		  }
+		| {
+				inviteLink: string;
+				uses: number;
+				acceptee: string;
+				createdAt: string;
+				guildId?: never;
+		  },
 ) {
-	await knex("accepted_recruitment_invite_link").insert({
-		invite_link: acceptee.inviteLink,
-		acceptee_discord_id: acceptee.acceptee,
-		created_at: acceptee.createdAt,
-		updated_at: acceptee.createdAt,
-	});
-	await knex("recruitment_invite_link_usage_change").insert({
-		invite_link: acceptee.inviteLink,
-		num_uses: acceptee.uses,
-		created_at: acceptee.createdAt,
-		updated_at: acceptee.createdAt,
-	});
+	if ("guildId" in acceptee) {
+		await knex("accepted_recruitment_invite_link").insert({
+			guild_id: acceptee.guildId,
+			acceptee_discord_id: acceptee.acceptee,
+			created_at: acceptee.createdAt,
+			updated_at: acceptee.createdAt,
+		});
+	} else {
+		await knex("accepted_recruitment_invite_link").insert({
+			invite_link: acceptee.inviteLink,
+			acceptee_discord_id: acceptee.acceptee,
+			created_at: acceptee.createdAt,
+			updated_at: acceptee.createdAt,
+		});
+		await knex("recruitment_invite_link_usage_change").insert({
+			invite_link: acceptee.inviteLink,
+			num_uses: acceptee.uses,
+			created_at: acceptee.createdAt,
+			updated_at: acceptee.createdAt,
+		});
+	}
 }

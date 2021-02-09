@@ -81,6 +81,7 @@ export class InviteLinkAcceptListener extends Listener {
 			this.db.inviteLinks.hasUserJoinedBefore(guildMember.user.id),
 			this.db.inviteLinks.getOwnerId(inviteLink),
 			this.db.inviteLinks.logInviteLinkUse(
+				guildMember.guild.id,
 				guildMember.user.id,
 				inviteLink,
 			),

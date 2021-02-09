@@ -91,6 +91,15 @@ describe("recruiter score", () => {
 		expect(scores).toHaveLength(2);
 	});
 
+	it("doesn't count users that have joined before without an invite link", async () => {
+		const scores = await dataStore.recruiters.getRecruiterScores("guild3");
+		expect(scores).toContainEqual({
+			guildId: "guild3",
+			recruiterDiscordId: "owner4",
+			count: 1,
+		});
+	});
+
 	// TODO move to separate test suite
 	it("gets invite links by owner without erroring", async () => {
 		await expect(

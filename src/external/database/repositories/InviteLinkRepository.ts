@@ -26,12 +26,14 @@ export class InviteLinkRespository extends KnexRepository {
 	}
 
 	public async logInviteLinkUse(
+		guildId: string,
 		userId: string,
 		inviteLink?: string,
 	): Promise<void> {
 		await this.db("accepted_recruitment_invite_link").insert({
 			accepteeDiscordId: userId,
 			inviteLink: inviteLink,
+			guildId: inviteLink ? null : guildId,
 		});
 	}
 
@@ -44,23 +46,22 @@ export class InviteLinkRespository extends KnexRepository {
 			timestamp: Date;
 		}[]
 	> {
-		return await this.db("accepted_recruitment_invite_link")
+		const query = this.db({ aril: "accepted_recruitment_invite_link" })
 			.innerJoin(
-				"recruitment_invite_link",
-				"recruitment_invite_link.invite_link",
+				{ ril: "recruitment_invite_link" },
+				"ril.invite_link",
 				"=",
-				"accepted_recruitment_invite_link.invite_link",
+				"aril.invite_link",
 			)
 			.select({
-				inviteLink: "recruitment_invite_link.invite_link",
-				timestamp: "accepted_recruitment_invite_link.created_at",
+				inviteLink: "ril.invite_link",
+				timestamp: "aril.created_at",
 			})
-			.where({
-				guildId,
-				accepteeDiscordId: userId,
-			})
-			.orderBy("accepted_recruitment_invite_link.created_at", "asc")
-			.orderBy("accepted_recruitment_invite_link.id", "asc");
+			.where("ril.guild_id", "=", guildId)
+			.andWhere("aril.acceptee_discord_id", "=", userId)
+			.orderBy("aril.created_at", "asc")
+			.orderBy("aril.id", "asc");
+		return await query;
 	}
 
 	public async hasUserJoinedBefore(userId: string): Promise<boolean> {
