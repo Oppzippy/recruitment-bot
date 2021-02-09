@@ -3,6 +3,7 @@ services:
     build: ..
     volumes:
       - ../integration:/opt/huokanbot/integration
+      - ../migrations:/opt/huokanbot/migrations
       - ../seeds:/opt/huokanbot/seeds
       - ../coverage:/opt/huokanbot/coverage
       - ../src:/opt/huokanbot/src
