@@ -48,7 +48,11 @@ export class CheckInvitesCommand extends Command {
 			return embed;
 		});
 		const embeds = await Promise.all(embedPromises);
-		await Promise.all(embeds.map((embed) => message.reply(embed)));
+		if (embeds.some((embed) => embed.fields.length > 0)) {
+			await Promise.all(embeds.map((embed) => message.reply(embed)));
+		} else {
+			await message.reply("You don't appear on any invite leaderboards.");
+		}
 	}
 
 	private async buildEmbedField(leaderboardScore: {
