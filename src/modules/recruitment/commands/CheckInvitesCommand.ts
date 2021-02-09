@@ -66,7 +66,9 @@ export class CheckInvitesCommand extends Command {
 			if (channel instanceof TextChannel) {
 				return {
 					name: `Leaderboard in #${channel.name}`,
-					value: `${leaderboardScore.score ?? 0} invites`,
+					value: `${leaderboardScore.score ?? 0} invite${
+						leaderboardScore.score == 1 ? "" : "s"
+					}`,
 					inline: false,
 				};
 			}
