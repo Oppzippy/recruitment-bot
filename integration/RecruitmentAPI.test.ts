@@ -65,6 +65,7 @@ describe("huokanbot bank deposit HTTP api", () => {
 	});
 
 	it("gets a user's recruiter", async () => {
+		// TODO test with only one invite link use
 		await dataStore.inviteLinks.addInviteLink(
 			"test",
 			"testLink3",
@@ -94,10 +95,12 @@ describe("huokanbot bank deposit HTTP api", () => {
 				},
 			},
 		);
-		expect(response.data).toEqual({
+		expect(response.data).toMatchObject({
 			inviteLink: "testLink3",
 			inviter: "ownerId3",
 		});
+		// TODO test timestamp
+		expect(response.data).toHaveProperty("timestamp");
 	});
 
 	it("404s when a user hasn't accepted an invite link", async () => {

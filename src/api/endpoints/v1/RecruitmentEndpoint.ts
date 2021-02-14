@@ -76,13 +76,14 @@ async function getAccepteeRecruiter(
 		request.params["id"],
 	);
 	if (acceptedInvites.length >= 1) {
-		const [firstInvite] = acceptedInvites;
+		const [firstAcceptedInvite] = acceptedInvites;
 		const ownerId = await this.db.inviteLinks.getOwnerId(
-			firstInvite.inviteLink,
+			firstAcceptedInvite.inviteLink,
 		);
 		reply.send({
-			inviteLink: firstInvite.inviteLink,
+			inviteLink: firstAcceptedInvite.inviteLink,
 			inviter: ownerId,
+			timestamp: firstAcceptedInvite.timestamp,
 		});
 	} else {
 		reply.code(404);
