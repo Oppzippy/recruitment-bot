@@ -97,7 +97,7 @@ describe("huokanbot bank deposit HTTP api", () => {
 		);
 		expect(response.data).toMatchObject({
 			inviteLink: "testLink3",
-			inviter: "ownerId3",
+			inviterDiscordId: "ownerId3",
 		});
 		// TODO test timestamp
 		expect(response.data).toHaveProperty("timestamp");

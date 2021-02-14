@@ -82,7 +82,7 @@ async function getAccepteeRecruiter(
 		);
 		reply.send({
 			inviteLink: firstAcceptedInvite.inviteLink,
-			inviter: ownerId,
+			inviterDiscordId: ownerId,
 			timestamp: firstAcceptedInvite.timestamp,
 		});
 	} else {
