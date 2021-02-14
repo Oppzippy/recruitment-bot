@@ -25,6 +25,20 @@ export const RecruitmentEndpoint: FastifyPluginCallback = fp(
 			})
 			.route({
 				method: "GET",
+				url: "/v1/recruitment/user/:id/recruiter",
+				schema: {
+					params: {
+						type: "object",
+						properties: {
+							id: { type: "string" },
+						},
+						required: ["id"],
+					},
+				},
+				handler: getAccepteeRecruiter,
+			})
+			.route({
+				method: "GET",
 				url: "/v1/recruitment/inviteLink/:id",
 				schema: {
 					params: {
@@ -50,6 +64,34 @@ async function getAccepteeById(
 		request.params["id"],
 	);
 	reply.send(acceptedInviteLinks);
+}
+
+async function getAccepteeRecruiter(
+	this: FastifyInstance,
+	request: FastifyRequest,
+	reply: FastifyReply,
+) {
+	const acceptedInvites = await this.db.inviteLinks.getUserAcceptedInviteLinks(
+		request.guildId,
+		request.params["id"],
+	);
+	if (acceptedInvites.length >= 1) {
+		const [firstInvite] = acceptedInvites;
+		const ownerId = await this.db.inviteLinks.getOwnerId(
+			firstInvite.inviteLink,
+		);
+		reply.send({
+			inviteLink: firstInvite.inviteLink,
+			inviter: ownerId,
+		});
+	} else {
+		reply.code(404);
+		reply.send({
+			statusCode: 404,
+			error: "Not Found",
+			message: "The requested user has not been invited to the server.",
+		});
+	}
 }
 
 async function getInviteLink(

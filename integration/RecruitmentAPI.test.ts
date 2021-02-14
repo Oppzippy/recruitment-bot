@@ -39,7 +39,7 @@ describe("huokanbot bank deposit HTTP api", () => {
 		});
 	});
 
-	it("gets the recruiters of a user", async () => {
+	it("gets the invite links used by a user", async () => {
 		await dataStore.inviteLinks.addInviteLink(
 			"test",
 			"testLink2",
@@ -62,5 +62,57 @@ describe("huokanbot bank deposit HTTP api", () => {
 		);
 
 		expect(response.data).toHaveLength(5);
+	});
+
+	it("gets a user's recruiter", async () => {
+		await dataStore.inviteLinks.addInviteLink(
+			"test",
+			"testLink3",
+			"ownerId3",
+		);
+		await dataStore.inviteLinks.logInviteLinkUse(
+			"test",
+			"testUser3",
+			"testLink3",
+		);
+		const response = await Axios.get(
+			`${apiURL}/v1/recruitment/user/testUser3/recruiter`,
+			{
+				headers: {
+					Authorization: `Bearer ${apiKey}`,
+				},
+			},
+		);
+		expect(response.data).toEqual({
+			inviteLink: "testLink3",
+			inviter: "ownerId3",
+		});
+	});
+
+	it("404s when a user hasn't accepted an invite link", async () => {
+		await dataStore.inviteLinks.logInviteLinkUse("test", "testUser5");
+		const response = await Axios.get(
+			`${apiURL}/v1/recruitment/user/testUser5/recruiter`,
+			{
+				headers: {
+					Authorization: `Bearer ${apiKey}`,
+				},
+				validateStatus: () => true,
+			},
+		);
+		expect(response.status).toEqual(404);
+	});
+
+	it("404s for unknown users", async () => {
+		const response = await Axios.get(
+			`${apiURL}/v1/recruitment/user/unknownTestUser/recruiter`,
+			{
+				headers: {
+					Authorization: `Bearer ${apiKey}`,
+				},
+				validateStatus: () => true,
+			},
+		);
+		expect(response.status).toEqual(404);
 	});
 });
