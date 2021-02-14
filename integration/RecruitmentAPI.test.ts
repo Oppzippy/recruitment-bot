@@ -70,10 +70,21 @@ describe("huokanbot bank deposit HTTP api", () => {
 			"testLink3",
 			"ownerId3",
 		);
+		await dataStore.inviteLinks.addInviteLink(
+			"test",
+			"testLink4",
+			"ownerId4",
+		);
 		await dataStore.inviteLinks.logInviteLinkUse(
 			"test",
 			"testUser3",
 			"testLink3",
+		);
+		await dataStore.inviteLinks.logInviteLinkUse("test", "testUser3");
+		await dataStore.inviteLinks.logInviteLinkUse(
+			"test",
+			"testUser3",
+			"testLink4",
 		);
 		const response = await Axios.get(
 			`${apiURL}/v1/recruitment/user/testUser3/recruiter`,
