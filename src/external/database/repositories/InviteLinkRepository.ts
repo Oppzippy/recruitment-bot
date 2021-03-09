@@ -45,6 +45,8 @@ export class InviteLinkRespository extends KnexRepository {
 				);
 				await new Promise((resolve) => setTimeout(resolve, 2000));
 				await this.logInviteLinkUse(guildId, userId, inviteLink);
+			} else {
+				throw err;
 			}
 		}
 	}
