@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import { RecruitmentInviteLink } from "../models/RecruitmentInviteLink";
 import { KnexRepository } from "../KnexRepository";
 
@@ -30,11 +31,22 @@ export class InviteLinkRespository extends KnexRepository {
 		userId: string,
 		inviteLink?: string,
 	): Promise<void> {
-		await this.db("accepted_recruitment_invite_link").insert({
-			accepteeDiscordId: userId,
-			inviteLink: inviteLink,
-			guildId: inviteLink ? null : guildId,
-		});
+		try {
+			await this.db("accepted_recruitment_invite_link").insert({
+				accepteeDiscordId: userId,
+				inviteLink: inviteLink,
+				guildId: inviteLink ? null : guildId,
+			});
+		} catch (err) {
+			if (err.sqlState == 40001) {
+				// XXX deadlock, retry
+				Sentry.captureMessage(
+					"Deadlock occurred in logInviteLinkUse, retrying.",
+				);
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+				await this.logInviteLinkUse(guildId, userId, inviteLink);
+			}
+		}
 	}
 
 	public async getUserAcceptedInviteLinks(
