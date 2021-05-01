@@ -84,31 +84,11 @@ export class LeaderboardCommand extends Command {
 		const channel = <TextChannel>message.channel;
 		try {
 			this.leaderboardManager.postLeaderboard(channel, options);
-			await this.deleteMessageIfPermissible(message);
 		} catch (err) {
 			console.error(err);
 			Sentry.captureException(err);
 		}
 	}
-
-	private async deleteMessageIfPermissible(message: Message) {
-		try {
-			if (message.author == this.client.user) {
-				await message.delete();
-			} else if (message.channel instanceof TextChannel) {
-				if (
-					message.channel
-						.permissionsFor(this.client.user)
-						.has("MANAGE_MESSAGES")
-				) {
-					await message.delete();
-				}
-			}
-		} catch (err) {
-			// XXX do nothing
-		}
-	}
-
 	private getOptionsFromArgs(args: LeaderboardArgs): LeaderboardOptions {
 		const size = clamp(args.size, 1, 50);
 		const options: LeaderboardOptions = {
