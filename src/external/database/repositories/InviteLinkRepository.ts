@@ -112,10 +112,12 @@ export class InviteLinkRespository extends KnexRepository {
 			ownerDiscordId: string;
 		}>,
 	): Promise<void> {
-		await this.db("recruitment_invite_link")
-			.insert(inviteLinks)
-			.onConflict("invite_link")
-			.ignore();
+		if (inviteLinks.length > 0) {
+			await this.db("recruitment_invite_link")
+				.insert(inviteLinks)
+				.onConflict("invite_link")
+				.ignore();
+		}
 	}
 
 	public async getInviteLink(
@@ -170,14 +172,18 @@ export class InviteLinkRespository extends KnexRepository {
 	}
 
 	public async setInviteLinkUsage(usage: Map<string, number>): Promise<void> {
-		const insert = [];
-		usage.forEach((numUses, inviteLink) => {
-			insert.push({
-				inviteLink,
-				numUses,
+		if (usage.size > 0) {
+			const insert = [];
+			usage.forEach((numUses, inviteLink) => {
+				insert.push({
+					inviteLink,
+					numUses,
+				});
 			});
-		});
-		await this.db("recruitment_invite_link_usage_change").insert(insert);
+			await this.db("recruitment_invite_link_usage_change").insert(
+				insert,
+			);
+		}
 	}
 
 	public async getInviteLinkUsage(
