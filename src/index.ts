@@ -2,7 +2,7 @@ import "source-map-support/register";
 import process from "process";
 import readline from "readline";
 import * as Sentry from "@sentry/node";
-import Knex from "knex";
+import { knex, Knex } from "knex";
 import knexStringcase from "knex-stringcase";
 import dotenv from "dotenv";
 import { GuildChannel } from "discord.js";
@@ -32,8 +32,8 @@ const knexConfig: Knex.Config = {
 	},
 };
 
-const knex = Knex(knexStringcase(knexConfig));
-const db = new KnexDataStore(knex);
+const knexInstance = knex(knexStringcase(knexConfig));
+const db = new KnexDataStore(knexInstance);
 
 const client = new HuokanClient(db);
 client.login(process.env.DISCORD_TOKEN);
@@ -46,7 +46,7 @@ console.info("Started bot.");
 async function destroy() {
 	api.destroy();
 	client.destroy();
-	await knex.destroy();
+	await knexInstance.destroy();
 }
 
 process.on("SIGINT", destroy);

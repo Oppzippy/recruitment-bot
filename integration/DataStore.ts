@@ -1,4 +1,4 @@
-import Knex = require("knex");
+import { knex } from "knex";
 import knexStringcase from "knex-stringcase";
 import { KnexDataStore } from "../src/external/database/KnexDataStore";
 
@@ -18,8 +18,8 @@ let dataStore: KnexDataStore;
 let users = 0;
 export function useDataStore(): KnexDataStore {
 	if (!dataStore) {
-		const knex = Knex(knexStringcase(knexConfig));
-		dataStore = new KnexDataStore(knex);
+		const knexInstance = knex(knexStringcase(knexConfig));
+		dataStore = new KnexDataStore(knexInstance);
 		users = 0;
 	}
 	users++;

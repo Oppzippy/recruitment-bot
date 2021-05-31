@@ -1,4 +1,4 @@
-import Knex = require("knex");
+import { Knex } from "knex";
 import NodeCache = require("node-cache");
 import { v4 as uuidv4 } from "uuid";
 import { BankGuildNotFoundError } from "../errors/BankGuildNotFoundError";
@@ -67,15 +67,17 @@ export class BankDepositRepository extends KnexRepository {
 				screenshotUrl: deposit.screenshotUrl,
 			});
 
-			await trx("bank_deposit_history").insert(
-				history.map((deposit, i) => ({
-					bankDepositId,
-					playerName: deposit.player.name,
-					playerRealm: deposit.player.realm,
-					copper: deposit.copper,
-					order: i,
-				})),
-			);
+			if (history.length > 0) {
+				await trx("bank_deposit_history").insert(
+					history.map((deposit, i) => ({
+						bankDepositId,
+						playerName: deposit.player.name,
+						playerRealm: deposit.player.realm,
+						copper: deposit.copper,
+						order: i,
+					})),
+				);
+			}
 		});
 		return id;
 	}
