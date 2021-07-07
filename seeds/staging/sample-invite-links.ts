@@ -41,6 +41,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 			acceptee: "acceptee1",
 			createdAt: `2020-02-01 0${i}:00:00`,
 			inviteLink: "invite1",
+			guildId: "guild1",
 			uses: i,
 		});
 	}
@@ -49,6 +50,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 		acceptee: "acceptee1",
 		createdAt: `2020-02-03 00:00:00`,
 		inviteLink: "invite1",
+		guildId: "guild1",
 		uses: 5,
 	});
 
@@ -56,6 +58,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 		acceptee: "acceptee2",
 		createdAt: `2020-02-03 00:00:00`,
 		inviteLink: "invite1",
+		guildId: "guild1",
 		uses: 6,
 	});
 
@@ -63,6 +66,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 		acceptee: "acceptee2",
 		createdAt: `2020-02-03 00:00:01`,
 		inviteLink: "invite1",
+		guildId: "guild1",
 		uses: 7,
 	});
 
@@ -70,6 +74,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 		acceptee: "acceptee2",
 		createdAt: `2020-02-03 01:00:00`,
 		inviteLink: "invite2",
+		guildId: "guild1",
 		uses: 1,
 	});
 
@@ -77,6 +82,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 		acceptee: "acceptee3",
 		createdAt: `2020-02-05 00:00:00`,
 		inviteLink: "invite2",
+		guildId: "guild1",
 		uses: 2,
 	});
 
@@ -84,6 +90,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 		acceptee: "acceptee4",
 		createdAt: `2020-02-05 00:00:00`,
 		inviteLink: "invite3",
+		guildId: "guild1",
 		uses: 1,
 	});
 
@@ -91,6 +98,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 		acceptee: "acceptee5",
 		createdAt: `2020-02-05 00:00:00`,
 		inviteLink: "invite3",
+		guildId: "guild1",
 		uses: 2,
 	});
 
@@ -103,6 +111,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 	await addAcceptee(knex, {
 		inviteLink: "invite5",
 		acceptee: "acceptee6",
+		guildId: "guild3",
 		createdAt: "2020-02-07 00:00:01", // TODO revert this to 00:00:00 to test duplicate invites that occur at the same time
 		uses: 1,
 	});
@@ -110,6 +119,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 	await addAcceptee(knex, {
 		inviteLink: "invite5",
 		acceptee: "acceptee7",
+		guildId: "guild3",
 		createdAt: "2020-02-07 01:00:00",
 		uses: 2,
 	});
@@ -117,23 +127,15 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 
 async function addAcceptee(
 	knex: Knex,
-	acceptee:
-		| {
-				guildId: string;
-				acceptee: string;
-				createdAt: string;
-				uses?: never;
-				inviteLink?: never;
-		  }
-		| {
-				inviteLink: string;
-				uses: number;
-				acceptee: string;
-				createdAt: string;
-				guildId?: never;
-		  },
+	acceptee: {
+		inviteLink?: string;
+		uses?: number;
+		acceptee: string;
+		createdAt: string;
+		guildId: string;
+	},
 ) {
-	if ("guildId" in acceptee) {
+	if (!acceptee.inviteLink) {
 		await knex("accepted_recruitment_invite_link").insert({
 			guild_id: acceptee.guildId,
 			acceptee_discord_id: acceptee.acceptee,
@@ -142,6 +144,7 @@ async function addAcceptee(
 		});
 	} else {
 		await knex("accepted_recruitment_invite_link").insert({
+			guild_id: acceptee.guildId,
 			invite_link: acceptee.inviteLink,
 			acceptee_discord_id: acceptee.acceptee,
 			created_at: acceptee.createdAt,

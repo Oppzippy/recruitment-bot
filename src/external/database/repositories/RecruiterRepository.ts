@@ -33,24 +33,24 @@ export class RecruiterRepository extends KnexRepository {
 		const scoresWithDuplicates =
 			await this.getRecruiterScoresWithDuplicates(guildId, filter);
 		const scores: RecruitmentScore[] = [];
-		const promises = [...scoresWithDuplicates.entries()].map(
-			async ([userId, score]) => {
-				const duplicates = await this.getRecruiterDuplicates(
+		let i = 0;
+		for (const [userId, score] of [...scoresWithDuplicates.entries()]) {
+			// TODO cache duplicates
+			const duplicates = await this.getRecruiterDuplicates(
+				guildId,
+				userId,
+				filter,
+			);
+			console.log(++i, userId);
+			const count = score - (duplicates ?? 0);
+			if (count > 0) {
+				scores.push({
 					guildId,
-					userId,
-					filter,
-				);
-				const count = score - (duplicates ?? 0);
-				if (count > 0) {
-					scores.push({
-						guildId,
-						count,
-						recruiterDiscordId: userId,
-					});
-				}
-			},
-		);
-		await Promise.all(promises);
+					count,
+					recruiterDiscordId: userId,
+				});
+			}
+		}
 		transaction.finish();
 		return scores;
 	}
@@ -84,7 +84,29 @@ export class RecruiterRepository extends KnexRepository {
 				),
 			})
 			.where("ril.guild_id", "=", guildId)
-			.groupBy("ril.owner_discord_id");
+			.groupBy("ril.owner_discord_id")
+			.having("score", ">", 0);
+
+		if (filter.startDate || filter.endDate) {
+			const filteredInviteLinkQuery = this.db({
+				filtered_riluc: "recruitment_invite_link_usage_change",
+			}).distinct("filtered_riluc.invite_link");
+			if (filter?.endDate) {
+				filteredInviteLinkQuery.where(
+					"filtered_riluc.created_at",
+					"<",
+					filter.endDate,
+				);
+			}
+			if (filter?.startDate) {
+				filteredInviteLinkQuery.where(
+					"filtered_riluc.created_at",
+					">=",
+					filter.startDate,
+				);
+			}
+			query.whereIn("ril.invite_link", filteredInviteLinkQuery);
+		}
 
 		if (filter?.userId) {
 			query.andWhere("ril.owner_discord_id", "=", filter.userId);
@@ -142,9 +164,7 @@ export class RecruiterRepository extends KnexRepository {
 						"exists_aril.invite_link",
 					)
 					.count("*")
-					.whereRaw(
-						"(count_ril.guild_id = exists_ril.guild_id OR count_ril.guild_id = exists_aril.guild_id)",
-					)
+					.whereRaw("count_ril.guild_id = exists_aril.guild_id")
 					.andWhereRaw(
 						"count_aril.acceptee_discord_id = exists_aril.acceptee_discord_id",
 					)

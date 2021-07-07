@@ -35,7 +35,7 @@ export class InviteLinkRespository extends KnexRepository {
 			await this.db("accepted_recruitment_invite_link").insert({
 				accepteeDiscordId: userId,
 				inviteLink: inviteLink,
-				guildId: inviteLink ? null : guildId,
+				guildId: guildId,
 			});
 		} catch (err) {
 			if (err.sqlState == 40001) {
