@@ -33,7 +33,6 @@ export class RecruiterRepository extends KnexRepository {
 		const scoresWithDuplicates =
 			await this.getRecruiterScoresWithDuplicates(guildId, filter);
 		const scores: RecruitmentScore[] = [];
-		let i = 0;
 		for (const [userId, score] of [...scoresWithDuplicates.entries()]) {
 			// TODO cache duplicates
 			const duplicates = await this.getRecruiterDuplicates(
