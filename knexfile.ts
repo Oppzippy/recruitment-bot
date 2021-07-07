@@ -18,6 +18,9 @@ export default {
 		migrations: {
 			tableName: "knex_migrations",
 		},
+		seeds: {
+			directory: "./seeds/development",
+		},
 	},
 
 	staging: {
@@ -35,6 +38,9 @@ export default {
 		},
 		migrations: {
 			tableName: "knex_migrations",
+		},
+		seeds: {
+			directory: "./seeds/staging",
 		},
 	},
 

@@ -11,13 +11,14 @@
 		"start": "node out/index.js",
 		"migrate": "knex migrate:latest",
 		"lint": "eslint src",
-		"integration": "knex seed:run && jest --config=jest-integration.config.mjs --runInBand"
+		"integration": "knex seed:run --env staging && jest --config=jest-integration.config.mjs --runInBand"
 	},
 	"author": "Oppzippy",
 	"license": "UNLICENSED",
 	"dependencies": {
 		"@sentry/node": "^6.8.0",
 		"@sentry/tracing": "^6.8.0",
+		"@types/keyv": "^3.1.1",
 		"axios": "^0.21.1",
 		"date-fns": "^2.22.1",
 		"discord-akairo": "^8.1.0",
@@ -26,6 +27,7 @@
 		"fastify": "^3.18.1",
 		"fastify-plugin": "^3.0.0",
 		"jsonfile": "^6.1.0",
+		"keyv": "^4.0.3",
 		"knex": "^0.95.6",
 		"knex-stringcase": "^1.4.5",
 		"lodash": "^4.17.21",
