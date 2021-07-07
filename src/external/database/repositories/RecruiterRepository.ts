@@ -41,7 +41,6 @@ export class RecruiterRepository extends KnexRepository {
 				userId,
 				filter,
 			);
-			console.log(++i, userId);
 			const count = score - (duplicates ?? 0);
 			if (count > 0) {
 				scores.push({
