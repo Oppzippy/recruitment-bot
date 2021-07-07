@@ -103,7 +103,7 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 	await addAcceptee(knex, {
 		inviteLink: "invite5",
 		acceptee: "acceptee6",
-		createdAt: "2020-02-07 00:00:00",
+		createdAt: "2020-02-07 00:00:01", // TODO revert this to 00:00:00 to test duplicate invites that occur at the same time
 		uses: 1,
 	});
 

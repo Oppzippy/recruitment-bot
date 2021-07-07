@@ -13,25 +13,28 @@ describe("recruiter score", () => {
 	});
 
 	it("gets scores with duplicates", async () => {
-		const scores = await dataStore.recruiters.getRecruiterScoresWithDuplicates(
-			"guild1",
-		);
+		const scores =
+			await dataStore.recruiters.getRecruiterScoresWithDuplicates(
+				"guild1",
+			);
 		expect(scores.get("owner1")).toEqual(9);
 	});
 
 	it("gets scores with duplicates in a range", async () => {
-		const scores = await dataStore.recruiters.getRecruiterScoresWithDuplicates(
-			"guild1",
-			{ endDate: new Date("2020-02-02") },
-		);
+		const scores =
+			await dataStore.recruiters.getRecruiterScoresWithDuplicates(
+				"guild1",
+				{ endDate: new Date("2020-02-02") },
+			);
 		expect(scores.get("owner1")).toEqual(4);
 	});
 
 	it("gets duplicates", async () => {
 		const duplicates = await dataStore.recruiters.getRecruiterDuplicates(
 			"guild1",
+			"owner1",
 		);
-		expect(duplicates.get("owner1")).toEqual(6);
+		expect(duplicates).toEqual(6);
 	});
 
 	it("doesn't track duplicates with an end date", async () => {

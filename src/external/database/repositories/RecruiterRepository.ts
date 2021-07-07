@@ -30,21 +30,27 @@ export class RecruiterRepository extends KnexRepository {
 			);
 		}
 
-		const [scoresWithDuplicates, duplicates] = await Promise.all([
-			this.getRecruiterScoresWithDuplicates(guildId, filter),
-			this.getRecruiterDuplicates(guildId, filter),
-		]);
+		const scoresWithDuplicates =
+			await this.getRecruiterScoresWithDuplicates(guildId, filter);
 		const scores: RecruitmentScore[] = [];
-		scoresWithDuplicates.forEach((score, userId) => {
-			const count = score - (duplicates.get(userId) ?? 0);
-			if (count > 0) {
-				scores.push({
+		const promises = [...scoresWithDuplicates.entries()].map(
+			async ([userId, score]) => {
+				const duplicates = await this.getRecruiterDuplicates(
 					guildId,
-					count,
-					recruiterDiscordId: userId,
-				});
-			}
-		});
+					userId,
+					filter,
+				);
+				const count = score - (duplicates ?? 0);
+				if (count > 0) {
+					scores.push({
+						guildId,
+						count,
+						recruiterDiscordId: userId,
+					});
+				}
+			},
+		);
+		await Promise.all(promises);
 		transaction.finish();
 		return scores;
 	}
@@ -91,14 +97,12 @@ export class RecruiterRepository extends KnexRepository {
 		);
 
 		if (filter?.startDate) {
-			const scoresBeforeStart = await this.getRecruiterScoresWithDuplicates(
-				guildId,
-				{
+			const scoresBeforeStart =
+				await this.getRecruiterScoresWithDuplicates(guildId, {
 					...filter,
 					endDate: filter.startDate,
 					startDate: undefined,
-				},
-			);
+				});
 			scores.forEach((score, userId) => {
 				scores.set(
 					userId,
@@ -112,77 +116,63 @@ export class RecruiterRepository extends KnexRepository {
 
 	public async getRecruiterDuplicates(
 		guildId: string,
+		recruiterId: string,
 		filter?: InviteLinkFilter,
-	): Promise<Map<string, number>> {
-		const duplicateCountSubquery = this.db({
-			rildc: "recruitment_invite_link_duplicate_change",
+	): Promise<number> {
+		const query = this.db({
+			count_aril: "accepted_recruitment_invite_link",
 		})
-			.select("rildc.duplicates")
-			.whereRaw("rildc.invite_link = rildc2.invite_link")
-			.andWhereRaw(
-				"rildc.acceptee_discord_id = rildc2.acceptee_discord_id",
+			.innerJoin(
+				{ count_ril: "recruitment_invite_link" },
+				"count_aril.invite_link",
+				"=",
+				"count_ril.invite_link",
 			)
-			.orderBy("rildc.created_at", "desc")
-			.orderBy("rildc.id", "desc")
-			.limit(1);
-
-		const duplicatesSubquery = this.db({
-			rildc2: "recruitment_invite_link_duplicate_change",
-		})
-			.select({
-				duplicates: duplicateCountSubquery,
-			})
-			.whereRaw("ril.invite_Link = rildc2.invite_link")
-			.groupBy("rildc2.acceptee_discord_id");
-
+			.count("*", { as: "duplicates" })
+			.where("count_ril.guild_id", "=", guildId)
+			.andWhere("count_ril.owner_discord_id", "=", recruiterId)
+			.andWhereRaw(
+				`(${this.db({
+					exists_aril: "accepted_recruitment_invite_link",
+				})
+					.leftJoin(
+						{ exists_ril: "recruitment_invite_link" },
+						"exists_ril.invite_link",
+						"=",
+						"exists_aril.invite_link",
+					)
+					.count("*")
+					.whereRaw(
+						"(count_ril.guild_id = exists_ril.guild_id OR count_ril.guild_id = exists_aril.guild_id)",
+					)
+					.andWhereRaw(
+						"count_aril.acceptee_discord_id = exists_aril.acceptee_discord_id",
+					)
+					.andWhereRaw(
+						"exists_aril.created_at < count_aril.created_at",
+					)
+					.toString()}) >= 1`,
+			);
+		if (filter?.startDate) {
+			query.andWhere(
+				"count_aril.created_at",
+				">=",
+				filter.startDate.toISOString(),
+			);
+		}
 		if (filter?.endDate) {
-			duplicateCountSubquery.where(
-				"rildc.created_at",
+			query.andWhere(
+				"count_aril.created_at",
 				"<",
 				filter.endDate.toISOString(),
 			);
 		}
-
-		const query = this.db({ ril: "recruitment_invite_link" })
-			.select({
-				ownerDiscordId: "ril.owner_discord_id",
-				duplicates: this.db.raw(
-					`CAST(
-						SUM(
-							(SELECT SUM(rildc3.duplicates) from (${duplicatesSubquery.toString()}) as rildc3)
-						) AS SIGNED
-					)`,
-				),
-			})
-			.where("ril.guild_id", "=", guildId)
-			.groupBy("ril.owner_discord_id");
-
-		if (filter?.userId) {
-			query.where("ril.owner_discord_id", "=", filter.userId);
-		}
-		const rows = await query;
-		const scores = rows.reduce(
-			(map: Map<string, number>, score) =>
-				map.set(score.ownerDiscordId, score.duplicates),
-			new Map<string, number>(),
-		);
-
-		if (filter?.startDate) {
-			const scoresBeforeStart = await this.getRecruiterDuplicates(
-				guildId,
-				{
-					...filter,
-					endDate: filter.startDate,
-					startDate: undefined,
-				},
+		const results = await query.first();
+		if (typeof results.duplicates != "number") {
+			throw new Error(
+				"expected number, got " + typeof results.duplicates,
 			);
-			scores.forEach((score, userId) => {
-				scores.set(
-					userId,
-					score - (scoresBeforeStart.get(userId) ?? 0),
-				);
-			});
 		}
-		return scores;
+		return results.duplicates;
 	}
 }
