@@ -1,4 +1,6 @@
-FROM node:14
+FROM node:14-alpine
+
+RUN apk add --no-cache bash git
 
 WORKDIR /opt/huokanbot
 COPY . .
