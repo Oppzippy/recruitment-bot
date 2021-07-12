@@ -33,7 +33,7 @@ jobs:
       - name: integration test
         run: docker-compose -f docker/integration.yml up --abort-on-container-exit
       - name: push docker image
-        with:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo $GITHUB_TOKEN | docker login ghcr.io -u Oppzippy --password-stdin
