@@ -34,7 +34,7 @@ jobs:
       - name: integration test
         run: docker-compose -f docker/integration.yml up --abort-on-container-exit
       - name: build docker image
-        run: docker build --tag huokanbot .
+        run: docker build --tag ghcr.io/oppzippy/huokanbot:latest .
       - name: push docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
