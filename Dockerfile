@@ -14,4 +14,4 @@ USER huokanbot
 
 RUN npm ci
 RUN npm run build
-CMD ./docker/wait-for-it.sh "$DB_HOST:$DB_PORT" -- /opt/huokanbot/docker/integration-entrypoint.sh
+CMD ./docker/wait-for-it.sh "$DB_HOST:$DB_PORT" -- npm run migrate --production && npm start

@@ -12,6 +12,7 @@ services:
       - .env
     depends_on:
       - integration_db
+    command: ./docker/wait-for-it.sh "$DB_HOST:$DB_PORT" -- /opt/huokanbot/docker/integration-entrypoint.sh
   integration_db:
     image: mysql:latest
     command: --default-authentication-plugin=mysql_native_password
