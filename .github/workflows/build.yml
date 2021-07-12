@@ -38,7 +38,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo $GITHUB_TOKEN | docker login ghcr.io -u Oppzippy --password-stdin
-          docker push ghcr.io/Oppzippy/huokanbot:latest
+          docker push ghcr.io/oppzippy/huokanbot:latest
 
   deploy:
     needs: build
