@@ -27,6 +27,7 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v2
       - name: build docker images for integration test
