@@ -186,6 +186,7 @@ export class RecruiterRepository extends KnexRepository {
 				filter.endDate.toISOString(),
 			);
 		}
+		console.log(query.toString());
 		const results = await query;
 		const map = new Map<string, number>();
 		for (const result of results) {
