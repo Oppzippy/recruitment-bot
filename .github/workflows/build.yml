@@ -28,6 +28,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: build docker image
         run: docker-compose -f docker/integration.yml build
       - name: integration test
