@@ -1,5 +1,5 @@
 FROM node:14-alpine
-
+EXPOSE 80/tcp
 USER root
 
 RUN apk add --no-cache bash git python3 build-base
