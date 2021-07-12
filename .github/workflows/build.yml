@@ -29,10 +29,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: build docker image
+      - name: build docker images for integration test
         run: docker-compose -f docker/integration.yml build
       - name: integration test
         run: docker-compose -f docker/integration.yml up --abort-on-container-exit
+      - name: build docker image
+        run: docker build --tag huokanbot .
       - name: push docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
