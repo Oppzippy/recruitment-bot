@@ -1,6 +1,6 @@
 FROM node:14-alpine
 
-RUN apk add --no-cache bash git python3 make
+RUN apk add --no-cache bash git python3 build-base
 
 WORKDIR /opt/huokanbot
 COPY . .
