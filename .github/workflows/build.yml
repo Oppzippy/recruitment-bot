@@ -36,12 +36,14 @@ jobs:
         run: docker-compose -f docker/integration.yml up --abort-on-container-exit
       - name: build docker image
         run: docker build --tag ghcr.io/oppzippy/huokanbot:latest .
-      - name: push docker image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo $GITHUB_TOKEN | docker login ghcr.io -u Oppzippy --password-stdin
-          docker push ghcr.io/oppzippy/huokanbot:latest
+      - name: Log in to Github Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push docker image
+        run: docker push ghcr.io/oppzippy/huokanbot:latest
 
   deploy:
     needs: build
