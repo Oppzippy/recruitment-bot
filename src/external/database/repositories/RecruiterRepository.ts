@@ -33,13 +33,12 @@ export class RecruiterRepository extends KnexRepository {
 		const scoresWithDuplicates =
 			await this.getRecruiterScoresWithDuplicates(guildId, filter);
 		const scores: RecruitmentScore[] = [];
+		const duplicatesByRecruiter = await this.getRecruiterDuplicates(
+			guildId,
+			filter,
+		);
 		for (const [userId, score] of [...scoresWithDuplicates.entries()]) {
-			// TODO cache duplicates
-			const duplicates = await this.getRecruiterDuplicates(
-				guildId,
-				userId,
-				filter,
-			);
+			const duplicates = duplicatesByRecruiter.get(userId);
 			const count = score - (duplicates ?? 0);
 			if (count > 0) {
 				scores.push({
@@ -85,24 +84,11 @@ export class RecruiterRepository extends KnexRepository {
 			.groupBy("ril.owner_discord_id")
 			.having("score", ">", 0);
 
-		if (filter.startDate || filter.endDate) {
-			const filteredInviteLinkQuery = this.db({
-				filtered_riluc: "recruitment_invite_link_usage_change",
-			}).distinct("filtered_riluc.invite_link");
-			if (filter?.endDate) {
-				filteredInviteLinkQuery.where(
-					"filtered_riluc.created_at",
-					"<",
-					filter.endDate,
-				);
-			}
-			if (filter?.startDate) {
-				filteredInviteLinkQuery.where(
-					"filtered_riluc.created_at",
-					">=",
-					filter.startDate,
-				);
-			}
+		if (filter?.startDate || filter?.endDate) {
+			const filteredInviteLinkQuery = this.getDistinctInviteLinks(
+				guildId,
+				filter,
+			);
 			query.whereIn("ril.invite_link", filteredInviteLinkQuery);
 		}
 
@@ -136,9 +122,8 @@ export class RecruiterRepository extends KnexRepository {
 
 	public async getRecruiterDuplicates(
 		guildId: string,
-		recruiterId: string,
 		filter?: InviteLinkFilter,
-	): Promise<number> {
+	): Promise<Map<string, number>> {
 		const query = this.db({
 			count_aril: "accepted_recruitment_invite_link",
 		})
@@ -148,9 +133,12 @@ export class RecruiterRepository extends KnexRepository {
 				"=",
 				"count_ril.invite_link",
 			)
+			.select({
+				ownerDiscordId: "count_ril.owner_discord_id",
+			})
 			.count("*", { as: "duplicates" })
+			.groupBy("count_ril.owner_discord_id")
 			.where("count_ril.guild_id", "=", guildId)
-			.andWhere("count_ril.owner_discord_id", "=", recruiterId)
 			.andWhereRaw(
 				`(${this.db({
 					exists_aril: "accepted_recruitment_invite_link",
@@ -171,6 +159,12 @@ export class RecruiterRepository extends KnexRepository {
 					)
 					.toString()}) >= 1`,
 			);
+
+		const filteredInviteLinkQuery = this.getDistinctInviteLinks(
+			guildId,
+			filter,
+		);
+		query.whereIn("count_ril.invite_link", filteredInviteLinkQuery);
 		if (filter?.startDate) {
 			query.andWhere(
 				"count_aril.created_at",
@@ -185,12 +179,43 @@ export class RecruiterRepository extends KnexRepository {
 				filter.endDate.toISOString(),
 			);
 		}
-		const results = await query.first();
-		if (typeof results.duplicates != "number") {
-			throw new Error(
-				"expected number, got " + typeof results.duplicates,
+		const results = await query;
+		const map = new Map<string, number>();
+		for (const result of results) {
+			map.set(
+				result.ownerDiscordId,
+				typeof result.duplicates == "number" ? result.duplicates : 0,
 			);
 		}
-		return results.duplicates;
+		return map;
+	}
+
+	private getDistinctInviteLinks(guildId: string, filter: InviteLinkFilter) {
+		const filteredInviteLinkQuery = this.db({
+			distinct_riluc: "recruitment_invite_link_usage_change",
+		})
+			.innerJoin(
+				{ distinct_ril: "recruitment_invite_link" },
+				"distinct_riluc.invite_link",
+				"=",
+				"distinct_ril.invite_link",
+			)
+			.distinct("distinct_riluc.invite_link")
+			.where("distinct_ril.guild_id", "=", guildId);
+		if (filter?.endDate) {
+			filteredInviteLinkQuery.where(
+				"distinct_riluc.created_at",
+				"<",
+				filter.endDate,
+			);
+		}
+		if (filter?.startDate) {
+			filteredInviteLinkQuery.where(
+				"distinct_riluc.created_at",
+				">=",
+				filter.startDate,
+			);
+		}
+		return filteredInviteLinkQuery;
 	}
 }

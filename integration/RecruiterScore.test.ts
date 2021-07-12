@@ -32,9 +32,8 @@ describe("recruiter score", () => {
 	it("gets duplicates", async () => {
 		const duplicates = await dataStore.recruiters.getRecruiterDuplicates(
 			"guild1",
-			"owner1",
 		);
-		expect(duplicates).toEqual(6);
+		expect(duplicates.get("owner1")).toEqual(6);
 	});
 
 	it("doesn't track duplicates with an end date", async () => {
