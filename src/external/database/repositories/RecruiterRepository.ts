@@ -95,6 +95,7 @@ export class RecruiterRepository extends KnexRepository {
 			const filteredInviteLinkQuery = this.getDistinctInviteLinks(
 				guildId,
 				filter,
+				"recruitment_invite_link_usage_change",
 			);
 			query.whereIn("ril.invite_link", filteredInviteLinkQuery);
 		}
@@ -170,6 +171,7 @@ export class RecruiterRepository extends KnexRepository {
 		const filteredInviteLinkQuery = this.getDistinctInviteLinks(
 			guildId,
 			filter,
+			"accepted_recruitment_invite_link",
 		);
 		query.whereIn("count_ril.invite_link", filteredInviteLinkQuery);
 		if (filter?.startDate) {
@@ -198,9 +200,15 @@ export class RecruiterRepository extends KnexRepository {
 		return map;
 	}
 
-	private getDistinctInviteLinks(guildId: string, filter: InviteLinkFilter) {
+	private getDistinctInviteLinks(
+		guildId: string,
+		filter: InviteLinkFilter,
+		table:
+			| "recruitment_invite_link_usage_change"
+			| "accepted_recruitment_invite_link",
+	) {
 		const filteredInviteLinkQuery = this.db({
-			distinct_riluc: "recruitment_invite_link_usage_change",
+			distinct_riluc: table,
 		})
 			.innerJoin(
 				{ distinct_ril: "recruitment_invite_link" },
