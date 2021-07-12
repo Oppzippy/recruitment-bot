@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/node";
+import { SpanStatus } from "@sentry/tracing";
 import { addDays } from "date-fns";
 import { InviteLinkFilter } from "../../../modules/recruitment/leaderboard/InviteLinkFilter";
 import { getCycleStartDate } from "../../../util/Date";
@@ -12,7 +13,7 @@ export class RecruiterRepository extends KnexRepository {
 	): Promise<RecruitmentScore[]> {
 		const transaction = Sentry.startTransaction({
 			name: "RecruiterRepository.getRecruiterScores",
-			data: { filter },
+			data: { guildId, filter },
 		});
 
 		if (filter?.resetIntervalInDays && filter?.startDate) {
@@ -30,13 +31,18 @@ export class RecruiterRepository extends KnexRepository {
 			);
 		}
 
+		const scoreTransaction = transaction.startChild();
 		const scoresWithDuplicates =
 			await this.getRecruiterScoresWithDuplicates(guildId, filter);
-		const scores: RecruitmentScore[] = [];
+		scoreTransaction.finish();
+		const duplicateTransaction = transaction.startChild();
 		const duplicatesByRecruiter = await this.getRecruiterDuplicates(
 			guildId,
 			filter,
 		);
+		duplicateTransaction.finish();
+
+		const scores: RecruitmentScore[] = [];
 		for (const [userId, score] of [...scoresWithDuplicates.entries()]) {
 			const duplicates = duplicatesByRecruiter.get(userId);
 			const count = score - (duplicates ?? 0);
@@ -48,6 +54,7 @@ export class RecruiterRepository extends KnexRepository {
 				});
 			}
 		}
+		transaction.setStatus(SpanStatus.Ok);
 		transaction.finish();
 		return scores;
 	}
