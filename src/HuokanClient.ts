@@ -18,7 +18,15 @@ export class HuokanClient extends AkairoClient {
 			{
 				ownerID: "191587255557554177",
 			},
-			{},
+			{
+				intents: [
+					"GUILD_INVITES",
+					"GUILD_MESSAGES",
+					"GUILD_MEMBERS",
+					"DIRECT_MESSAGES",
+					"GUILDS",
+				],
+			},
 		);
 		this.db = db;
 		this.recruitmentModule = new RecruitmentModule(this, db);

@@ -29,10 +29,10 @@ export class LeaderboardManager {
 		}
 		const updater = new LeaderboardUpdater(this.db, options);
 		const generator = await updater.getMessageGenerator(channel.guild.id);
-		const message = await channel.send(
-			generator.buildText(),
-			generator.buildEmbed(),
-		);
+		const message = await channel.send({
+			content: generator.buildText(),
+			embeds: [generator.buildEmbed()],
+		});
 		if (options.isDynamic) {
 			await this.db.inviteLeaderboards.addLeaderboardMessage(
 				channel.guild.id,
@@ -45,11 +45,10 @@ export class LeaderboardManager {
 	}
 
 	private async staticifyOldLeaderboards(channel: TextChannel) {
-		const leaderboards = await this.db.inviteLeaderboards.getLeaderboardMessages(
-			{
+		const leaderboards =
+			await this.db.inviteLeaderboards.getLeaderboardMessages({
 				channelId: channel.id,
-			},
-		);
+			});
 		const promises = leaderboards.map((leaderboard) =>
 			this.updateLeaderboard(leaderboard, false),
 		);
@@ -57,11 +56,10 @@ export class LeaderboardManager {
 	}
 
 	public async updateLeaderboardsForGuild(guild: Guild): Promise<void> {
-		const leaderboards = await this.db.inviteLeaderboards.getLeaderboardMessages(
-			{
+		const leaderboards =
+			await this.db.inviteLeaderboards.getLeaderboardMessages({
 				guildId: guild.id,
-			},
-		);
+			});
 		const messagePromises = leaderboards.map((leaderboard) =>
 			this.updateLeaderboard(leaderboard, true),
 		);

@@ -15,8 +15,7 @@ dotenv.config();
 
 Sentry.init({
 	environment: process.env.NODE_ENV ?? "development",
-	dsn:
-		"https://9bd2ae20b748471da084e98b301fc351@o507151.ingest.sentry.io/5597846",
+	dsn: "https://9bd2ae20b748471da084e98b301fc351@o507151.ingest.sentry.io/5597846",
 	tracesSampleRate: 0.4,
 });
 
@@ -78,7 +77,7 @@ rl.on("line", async (line) => {
 		case "invite-info":
 			if (args.length >= 2) {
 				const guild = await client.guilds.fetch(args[1]);
-				const inviteCollection = await guild.fetchInvites();
+				const inviteCollection = await guild.invites.fetch();
 				const invites = [...inviteCollection.values()];
 
 				const allowedProps = [

@@ -69,7 +69,7 @@ export class LeaderboardCommand extends Command {
 		) {
 			return null;
 		}
-		if (message.member.hasPermission("MANAGE_GUILD")) {
+		if (message.member.permissions.has("MANAGE_GUILD")) {
 			return null;
 		}
 		// XXX temp Oppzippy#2963

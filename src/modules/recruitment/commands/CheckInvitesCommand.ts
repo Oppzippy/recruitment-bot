@@ -49,7 +49,13 @@ export class CheckInvitesCommand extends Command {
 		});
 		const embeds = await Promise.all(embedPromises);
 		if (embeds.some((embed) => embed.fields.length > 0)) {
-			await Promise.all(embeds.map((embed) => message.reply(embed)));
+			await Promise.all(
+				embeds.map((embed) =>
+					message.reply({
+						embeds: [embed],
+					}),
+				),
+			);
 		} else {
 			await message.reply("You don't appear on any invite leaderboards.");
 		}
@@ -88,11 +94,10 @@ export class CheckInvitesCommand extends Command {
 			score: number;
 		}[]
 	> {
-		const leaderboards = await this.db.inviteLeaderboards.getLeaderboardMessages(
-			{
+		const leaderboards =
+			await this.db.inviteLeaderboards.getLeaderboardMessages({
 				guildId,
-			},
-		);
+			});
 		const promises = leaderboards.map(async (leaderboard) => {
 			return {
 				leaderboard,

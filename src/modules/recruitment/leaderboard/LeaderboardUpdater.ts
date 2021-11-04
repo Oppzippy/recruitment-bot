@@ -16,10 +16,10 @@ export class LeaderboardUpdater {
 		const messageGenerator = await this.getMessageGenerator(
 			message.guild.id,
 		);
-		await message.edit(
-			messageGenerator.buildText(),
-			messageGenerator.buildEmbed(),
-		);
+		await message.edit({
+			content: messageGenerator.buildText(),
+			embeds: [messageGenerator.buildEmbed()],
+		});
 	}
 
 	public async getMessageGenerator(

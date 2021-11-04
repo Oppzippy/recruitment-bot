@@ -46,7 +46,7 @@ export class InviteLinkAcceptListener extends Listener {
 			);
 		}
 		const tracker = this.trackers.get(guild.id);
-		const invites = await guild.fetchInvites();
+		const invites = await guild.invites.fetch();
 		const usageDifference = await tracker.addState([...invites.values()]);
 
 		const guildRecentJoins = this.recentJoins.get(guild.id) ?? [];
@@ -102,7 +102,9 @@ export class InviteLinkAcceptListener extends Listener {
 			message += "  Use `!setting quiet` to toggle these messages.";
 			embed.setDescription(message);
 			try {
-				await dmChannel.send(embed);
+				await dmChannel.send({
+					embeds: [embed],
+				});
 			} catch (err) {
 				if (
 					err instanceof DiscordAPIError &&
