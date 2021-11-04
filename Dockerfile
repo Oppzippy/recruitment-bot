@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:17-alpine
 EXPOSE 80/tcp
 USER root
 
