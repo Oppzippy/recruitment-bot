@@ -7,7 +7,7 @@
 		"moduleResolution": "node",
 		"target": "ES2021",
 		"incremental": true,
-		"isolatedModules": true,
+		"isolatedModules": false,
 		"esModuleInterop": true
 	},
 	"include": ["src/**/*"]
