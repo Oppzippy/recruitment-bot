@@ -10,6 +10,8 @@ import { HuokanClient } from "./HuokanClient";
 import { KnexDataStore } from "./external/database/KnexDataStore";
 import { HuokanAPI } from "./HuokanAPI";
 import { pick } from "lodash";
+import { getHeapSnapshot } from "v8";
+import { createWriteStream, existsSync, mkdirSync } from "fs";
 
 dotenv.config();
 
@@ -104,5 +106,19 @@ rl.on("line", async (line) => {
 					}));
 				console.log(invitesInfo);
 			}
+			break;
+		case "heapsnapshot": {
+			const snapshot = getHeapSnapshot();
+			if (!existsSync("heapsnapshots")) {
+				mkdirSync("heapsnapshots");
+			}
+			const stream = createWriteStream(
+				`heapsnapshots/${Date.now()}.heapsnapshot`,
+			);
+			snapshot
+				.pipe(stream)
+				.on("close", () => console.log("dump complete"));
+			break;
+		}
 	}
 });
