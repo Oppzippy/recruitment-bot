@@ -44,17 +44,3 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push docker image
         run: docker push ghcr.io/oppzippy/huokanbot:latest
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - name: SSH Remote Commands
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          script: screen -dm bash -c "./update.sh"
