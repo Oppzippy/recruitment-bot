@@ -31,9 +31,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build docker images for integration test
-        run: docker-compose -f docker/integration.yml build
+        run: docker-compose -f docker/docker-compose-integration.yml build
       - name: Integration test
-        run: docker-compose -f docker/integration.yml up --abort-on-container-exit
+        run: docker-compose -f docker/docker-compose-integration.yml up --abort-on-container-exit
       - name: Build docker image
         run: docker build --tag ghcr.io/oppzippy/huokanbot:latest .
       - name: Log in to Github Container Registry

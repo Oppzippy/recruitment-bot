@@ -1,1 +1,1 @@
-docker-compose -f .\docker\integration.yml up --abort-on-container-exit
+docker-compose -f .\docker\docker-compose-integration.yml up --abort-on-container-exit
