@@ -1,4 +1,5 @@
 import { AkairoClient } from "discord-akairo";
+import { Intents } from "discord.js";
 import { ConfigurationFile } from "./configuration-file/ConfigurationFile";
 import { DataStore } from "./external/DataStore";
 import { BankDepositModule } from "./modules/bank-deposit/BankDepositModule";
@@ -19,12 +20,13 @@ export class HuokanClient extends AkairoClient {
 				ownerID: "191587255557554177",
 			},
 			{
+				partials: ["CHANNEL"],
 				intents: [
-					"GUILD_INVITES",
-					"GUILD_MESSAGES",
-					"GUILD_MEMBERS",
-					"DIRECT_MESSAGES",
-					"GUILDS",
+					Intents.FLAGS.GUILDS,
+					Intents.FLAGS.GUILD_INVITES,
+					Intents.FLAGS.GUILD_MESSAGES,
+					Intents.FLAGS.GUILD_MEMBERS,
+					Intents.FLAGS.DIRECT_MESSAGES,
 				],
 			},
 		);
