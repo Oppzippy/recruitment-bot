@@ -11,7 +11,8 @@ import { KnexDataStore } from "./external/database/KnexDataStore";
 import { HuokanAPI } from "./HuokanAPI";
 import { pick } from "lodash";
 import { getHeapSnapshot } from "v8";
-import { createWriteStream, existsSync, mkdirSync } from "fs";
+import { createWriteStream } from "fs";
+import { mkdir } from "fs/promises";
 
 dotenv.config();
 
@@ -108,16 +109,24 @@ rl.on("line", async (line) => {
 			}
 			break;
 		case "heapsnapshot": {
-			const snapshot = getHeapSnapshot();
-			if (!existsSync("heapsnapshots")) {
-				mkdirSync("heapsnapshots");
+			try {
+				try {
+					await mkdir("heapsnapshots");
+				} catch (err) {
+					if (err.code != "EEXIST") {
+						throw err;
+					}
+				}
+				const snapshot = getHeapSnapshot();
+				const stream = createWriteStream(
+					`heapsnapshots/${Date.now()}.heapsnapshot`,
+				);
+				snapshot
+					.pipe(stream)
+					.on("close", () => console.log("dump complete"));
+			} catch (err) {
+				console.error(err);
 			}
-			const stream = createWriteStream(
-				`heapsnapshots/${Date.now()}.heapsnapshot`,
-			);
-			snapshot
-				.pipe(stream)
-				.on("close", () => console.log("dump complete"));
 			break;
 		}
 	}
