@@ -1,6 +1,5 @@
 import * as Sentry from "@sentry/node";
 import fastify, { FastifyInstance } from "fastify";
-import { BankDepositEndpoint } from "./api/endpoints/v1/BankDepositEndpoint";
 import { RecruitmentEndpoint } from "./api/endpoints/v1/RecruitmentEndpoint";
 import { ApiKeyPlugin } from "./api/plugins/ApiKeyPlugin";
 import { DatabasePlugin } from "./api/plugins/DatabasePlugin";
@@ -28,7 +27,6 @@ export class HuokanAPI {
 
 		this.server.register(DatabasePlugin, db);
 		this.server.register(ApiKeyPlugin);
-		this.server.register(BankDepositEndpoint);
 		this.server.register(RecruitmentEndpoint);
 	}
 
