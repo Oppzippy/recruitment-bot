@@ -1,6 +1,5 @@
 import * as Sentry from "@sentry/node";
-import { AkairoClient } from "discord-akairo";
-import { Guild } from "discord.js";
+import { Guild, Client } from "discord.js";
 import { TextChannel, Message } from "discord.js";
 import { DataStore } from "../../../external/DataStore";
 import { RecruitmentInviteLinkLeaderboard } from "../../../external/database/models/RecruitmentInviteLinkLeaderboard";
@@ -9,10 +8,10 @@ import { LeaderboardOptions } from "./LeaderboardOptions";
 import { LeaderboardUpdater } from "./LeaderboardUpdater";
 
 export class LeaderboardManager {
-	private client: AkairoClient;
+	private client: Client;
 	private db: DataStore;
 
-	public constructor(client: AkairoClient, db: DataStore) {
+	public constructor(client: Client, db: DataStore) {
 		this.client = client;
 		this.db = db;
 	}

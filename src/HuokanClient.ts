@@ -1,35 +1,41 @@
-import { AkairoClient } from "discord-akairo";
+import { SapphireClient } from "@sapphire/framework";
 import { Intents } from "discord.js";
 import { ConfigurationFile } from "./configuration-file/ConfigurationFile";
 import { DataStore } from "./external/DataStore";
 import { RecruitmentModule } from "./modules/recruitment/RecruitmentModule";
 import { SettingModule } from "./modules/settings/SettingsModule";
 
-export class HuokanClient extends AkairoClient {
+export class HuokanClient extends SapphireClient {
 	public readonly configFile: ConfigurationFile;
-	public readonly db: DataStore;
+	public readonly dataStore: DataStore;
 
-	private recruitmentModule: RecruitmentModule;
-	private settingModule: SettingModule;
+	public readonly recruitmentModule: RecruitmentModule;
+	public readonly settingModule: SettingModule;
 
-	public constructor(db: DataStore) {
-		super(
-			{
-				ownerID: "191587255557554177",
-			},
-			{
-				partials: ["CHANNEL"],
-				intents: [
-					Intents.FLAGS.GUILDS,
-					Intents.FLAGS.GUILD_INVITES,
-					Intents.FLAGS.GUILD_MESSAGES,
-					Intents.FLAGS.GUILD_MEMBERS,
-					Intents.FLAGS.DIRECT_MESSAGES,
-				],
-			},
-		);
-		this.db = db;
-		this.recruitmentModule = new RecruitmentModule(this, db);
-		this.settingModule = new SettingModule(this, this.db);
+	public constructor(dataStore: DataStore) {
+		super({
+			intents: [
+				Intents.FLAGS.GUILDS,
+				Intents.FLAGS.GUILD_INVITES,
+				Intents.FLAGS.GUILD_MESSAGES,
+				Intents.FLAGS.GUILD_MEMBERS,
+				Intents.FLAGS.DIRECT_MESSAGES,
+			],
+			partials: ["CHANNEL"],
+			caseInsensitivePrefixes: true,
+			caseInsensitiveCommands: true,
+			defaultPrefix: "!",
+		});
+		this.dataStore = dataStore;
+		this.recruitmentModule = new RecruitmentModule(this, dataStore);
+		this.settingModule = new SettingModule(this, dataStore);
+	}
+}
+
+declare module "@sapphire/framework" {
+	export interface SapphireClient {
+		readonly dataStore: DataStore;
+		readonly recruitmentModule: RecruitmentModule;
+		readonly settingModule: SettingModule;
 	}
 }

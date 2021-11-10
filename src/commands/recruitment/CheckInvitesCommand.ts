@@ -1,27 +1,19 @@
-import { Command } from "discord-akairo";
-import { TextChannel } from "discord.js";
-import { EmbedField } from "discord.js";
-import { MessageEmbed } from "discord.js";
-import { Message } from "discord.js";
-import { RecruitmentInviteLinkLeaderboard } from "../../../external/database/models/RecruitmentInviteLinkLeaderboard";
-import { DataStore } from "../../../external/DataStore";
-import { isDiscordNotFoundError } from "../../../util/DiscordUtils";
+import { ApplyOptions } from "@sapphire/decorators";
+import { Command, CommandOptions } from "@sapphire/framework";
+import { EmbedField, Message, MessageEmbed, TextChannel } from "discord.js";
+import { RecruitmentInviteLinkLeaderboard } from "../../external/database/models/RecruitmentInviteLinkLeaderboard";
+import { isDiscordNotFoundError } from "../../util/DiscordUtils";
 
+@ApplyOptions<CommandOptions>({
+	name: "checkinvites",
+	runIn: "DM",
+	cooldownDelay: 120000,
+	requiredClientPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+})
 export class CheckInvitesCommand extends Command {
-	private db: DataStore;
-
-	public constructor(db: DataStore) {
-		super("checkInvites", {
-			aliases: ["checkinvites"],
-			channel: "dm",
-			cooldown: 120000,
-			ratelimit: 2,
-		});
-		this.db = db;
-	}
-
-	public async exec(message: Message): Promise<void> {
-		const guildIds = await this.db.inviteLinks.getGuildIdsOfUser(
+	public async messageRun(message: Message) {
+		const dataStore = this.container.client.dataStore;
+		const guildIds = await dataStore.inviteLinks.getGuildIdsOfUser(
 			message.author.id,
 		);
 		const scoresByGuild = await Promise.all(
@@ -34,7 +26,7 @@ export class CheckInvitesCommand extends Command {
 			})),
 		);
 		const embedPromises = scoresByGuild.map(async (guildLeaderboards) => {
-			const guild = await this.client.guilds.fetch(
+			const guild = await this.container.client.guilds.fetch(
 				guildLeaderboards.guildId,
 			);
 			const embed = new MessageEmbed();
@@ -66,7 +58,7 @@ export class CheckInvitesCommand extends Command {
 		score: number;
 	}): Promise<EmbedField> {
 		try {
-			const channel = await this.client.channels.fetch(
+			const channel = await this.container.client.channels.fetch(
 				leaderboardScore.leaderboard.channelId,
 			);
 			if (channel instanceof TextChannel) {
@@ -95,9 +87,11 @@ export class CheckInvitesCommand extends Command {
 		}[]
 	> {
 		const leaderboards =
-			await this.db.inviteLeaderboards.getLeaderboardMessages({
-				guildId,
-			});
+			await this.container.client.dataStore.inviteLeaderboards.getLeaderboardMessages(
+				{
+					guildId,
+				},
+			);
 		const promises = leaderboards.map(async (leaderboard) => {
 			return {
 				leaderboard,
@@ -111,13 +105,14 @@ export class CheckInvitesCommand extends Command {
 		leaderboard: RecruitmentInviteLinkLeaderboard,
 		userId: string,
 	): Promise<number> {
-		const scores = await this.db.recruiters.getRecruiterScores(
-			leaderboard.guildId,
-			{
-				...leaderboard.filter,
-				userId,
-			},
-		);
+		const scores =
+			await this.container.client.dataStore.recruiters.getRecruiterScores(
+				leaderboard.guildId,
+				{
+					...leaderboard.filter,
+					userId,
+				},
+			);
 		return scores[0]?.count;
 	}
 }
