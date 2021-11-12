@@ -3,16 +3,15 @@ import { Intents } from "discord.js";
 import { ConfigurationFile } from "./configuration-file/ConfigurationFile";
 import { DataStore } from "./external/DataStore";
 import { RecruitmentModule } from "./modules/recruitment/RecruitmentModule";
-import { SettingModule } from "./modules/settings/SettingsModule";
 
 export class HuokanClient extends SapphireClient {
 	public readonly configFile: ConfigurationFile;
 	public readonly dataStore: DataStore;
 
 	public readonly recruitmentModule: RecruitmentModule;
-	public readonly settingModule: SettingModule;
 
 	public constructor(dataStore: DataStore) {
+		const defaultPrefix = "!recruitment";
 		super({
 			intents: [
 				Intents.FLAGS.GUILDS,
@@ -24,11 +23,16 @@ export class HuokanClient extends SapphireClient {
 			partials: ["CHANNEL"],
 			caseInsensitivePrefixes: true,
 			caseInsensitiveCommands: true,
-			defaultPrefix: "!",
+			defaultPrefix,
+			fetchPrefix: async (message) => {
+				// No prefix in DMs
+				return message.guildId == null
+					? [defaultPrefix, "!", ""]
+					: [defaultPrefix];
+			},
 		});
 		this.dataStore = dataStore;
 		this.recruitmentModule = new RecruitmentModule(this, dataStore);
-		this.settingModule = new SettingModule(this, dataStore);
 	}
 }
 
@@ -36,6 +40,5 @@ declare module "@sapphire/framework" {
 	export interface SapphireClient {
 		readonly dataStore: DataStore;
 		readonly recruitmentModule: RecruitmentModule;
-		readonly settingModule: SettingModule;
 	}
 }
