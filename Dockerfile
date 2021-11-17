@@ -10,7 +10,7 @@ COPY . .
 RUN chmod 755 docker/integration-entrypoint.sh docker/wait-for-it.sh
 RUN chown -R huokanbot:huokanbot .
 
-USER huokanbot
+USER huokanbot:huokanbot
 
 RUN npm ci
 RUN npm run build
