@@ -1,0 +1,16 @@
+services:
+  recruitment_bot_app:
+    build: ..
+    env_file:
+      - .env
+    depends_on:
+      - recruitment_bot_db
+    entrypoint: bash -c "sleep 10 && npm run migrate --production && npm start --production"
+  recruitment_bot_db:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    tmpfs:
+      - /var/lib/mysql/:rw
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
