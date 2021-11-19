@@ -10,7 +10,6 @@ services:
       - ../coverage:/opt/recruitment-bot/coverage
       - ../src:/opt/recruitment-bot/src
       - ../out:/opt/recruitment-bot/out
-      - .:/opt/recruitment-bot/docker
     env_file:
       - .env
     depends_on:
