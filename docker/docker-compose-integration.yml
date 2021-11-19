@@ -4,18 +4,17 @@ services:
       context: ..
       dockerfile: Integration.Dockerfile
     volumes:
-      - ../integration:/opt/huokanbot/integration
-      - ../migrations:/opt/huokanbot/migrations
-      - ../seeds:/opt/huokanbot/seeds
-      - ../coverage:/opt/huokanbot/coverage
-      - ../src:/opt/huokanbot/src
-      - ../out:/opt/huokanbot/out
-      - .:/opt/huokanbot/docker
+      - ../integration:/opt/recruitment-bot/integration
+      - ../migrations:/opt/recruitment-bot/migrations
+      - ../seeds:/opt/recruitment-bot/seeds
+      - ../coverage:/opt/recruitment-bot/coverage
+      - ../src:/opt/recruitment-bot/src
+      - ../out:/opt/recruitment-bot/out
+      - .:/opt/recruitment-bot/docker
     env_file:
       - .env
     depends_on:
       - integration_db
-    entrypoint: bash ./docker/wait-for-it.sh "$DB_HOST:$DB_PORT" -- /opt/huokanbot/docker/integration-entrypoint.sh
   integration_db:
     image: mysql:latest
     command: --default-authentication-plugin=mysql_native_password

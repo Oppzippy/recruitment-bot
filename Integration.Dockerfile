@@ -14,4 +14,4 @@ USER recruitment-bot:recruitment-bot
 
 RUN npm ci
 RUN npm run build
-ENTRYPOINT bash ./docker/wait-for-it.sh "$DB_HOST:$DB_PORT" -- npm run migrate --production && npm start
+ENTRYPOINT ./docker/wait-for-it.sh "$DB_HOST:$DB_PORT" -- /opt/recruitment-bot/docker/integration-entrypoint.sh
