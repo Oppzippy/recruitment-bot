@@ -108,4 +108,10 @@ describe("recruiter score", () => {
 			dataStore.inviteLinks.getInviteLinkByOwner("", ""),
 		).resolves.toBeUndefined();
 	});
+
+	it("excludes only banned invite links", async () => {
+		const scores = await dataStore.recruiters.getRecruiterScores("guild4");
+		expect(scores.length).toEqual(1);
+		expect(scores[0].count).toEqual(1);
+	});
 });

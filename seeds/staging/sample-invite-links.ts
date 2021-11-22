@@ -32,6 +32,17 @@ async function seedInviteLinks(knex: Knex): Promise<void> {
 			invite_link: "invite5",
 			owner_discord_id: "owner4",
 		},
+		{
+			guild_id: "guild4",
+			invite_link: "invite6",
+			owner_discord_id: "owner5",
+		},
+		{
+			guild_id: "guild4",
+			invite_link: "invite7",
+			owner_discord_id: "owner5",
+			banned_at: "2020-02-10 00:00:00",
+		},
 	]);
 }
 
@@ -122,6 +133,21 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 		guildId: "guild3",
 		createdAt: "2020-02-07 01:00:00",
 		uses: 2,
+	});
+
+	await addAcceptee(knex, {
+		inviteLink: "invite6",
+		acceptee: "acceptee8",
+		guildId: "guild4",
+		createdAt: "2020-02-08 00:00:00",
+		uses: 1,
+	});
+	await addAcceptee(knex, {
+		inviteLink: "invite7",
+		acceptee: "acceptee9",
+		guildId: "guild4",
+		createdAt: "2020-02-08 00:00:01",
+		uses: 1,
 	});
 }
 

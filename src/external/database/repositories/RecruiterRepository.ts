@@ -88,6 +88,7 @@ export class RecruiterRepository extends KnexRepository {
 				),
 			})
 			.where("ril.guild_id", "=", guildId)
+			.whereNull("ril.banned_at")
 			.groupBy("ril.owner_discord_id")
 			.having("score", ">", 0);
 
@@ -216,7 +217,8 @@ export class RecruiterRepository extends KnexRepository {
 				"distinct_ril.invite_link",
 			)
 			.distinct("distinct_riluc.invite_link")
-			.where("distinct_ril.guild_id", "=", guildId);
+			.where("distinct_ril.guild_id", "=", guildId)
+			.whereNull("distinct_ril.banned_at");
 		if (filter?.endDate) {
 			filteredInviteLinkQuery.where(
 				"distinct_riluc.created_at",
