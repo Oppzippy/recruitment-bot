@@ -73,11 +73,7 @@ export class RecruiterRepository extends KnexRepository {
 			.limit(1);
 
 		if (filter?.endDate) {
-			numUsesSubquery.andWhere(
-				"riluc.created_at",
-				"<",
-				filter.endDate.toISOString(),
-			);
+			numUsesSubquery.andWhere("riluc.created_at", "<", filter.endDate);
 		}
 
 		const query = this.db({ ril: "recruitment_invite_link" })
@@ -176,18 +172,10 @@ export class RecruiterRepository extends KnexRepository {
 		);
 		query.whereIn("count_ril.invite_link", filteredInviteLinkQuery);
 		if (filter?.startDate) {
-			query.andWhere(
-				"count_aril.created_at",
-				">=",
-				filter.startDate.toISOString(),
-			);
+			query.andWhere("count_aril.created_at", ">=", filter.startDate);
 		}
 		if (filter?.endDate) {
-			query.andWhere(
-				"count_aril.created_at",
-				"<",
-				filter.endDate.toISOString(),
-			);
+			query.andWhere("count_aril.created_at", "<", filter.endDate);
 		}
 		const results = await query;
 		const map = new Map<string, number>();
