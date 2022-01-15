@@ -81,7 +81,9 @@ export class LeaderboardMessageGenerator {
 		}
 		embed.setDescription(messageContent.join("\n"));
 		if (this.options.isDynamic) {
-			embed.setFooter("This message will update automatically.");
+			embed.footer = {
+				text: "This message will update automatically.",
+			};
 		}
 		embed.setTimestamp(new Date());
 		return embed;
