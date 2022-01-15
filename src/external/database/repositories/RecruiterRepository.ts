@@ -88,15 +88,6 @@ export class RecruiterRepository extends KnexRepository {
 			.groupBy("ril.owner_discord_id")
 			.having("score", ">", 0);
 
-		if (filter?.startDate || filter?.endDate) {
-			const filteredInviteLinkQuery = this.getDistinctInviteLinks(
-				guildId,
-				filter,
-				"recruitment_invite_link_usage_change",
-			);
-			query.whereIn("ril.invite_link", filteredInviteLinkQuery);
-		}
-
 		if (filter?.userId) {
 			query.andWhere("ril.owner_discord_id", "=", filter.userId);
 		}
@@ -115,10 +106,8 @@ export class RecruiterRepository extends KnexRepository {
 					startDate: undefined,
 				});
 			scores.forEach((score, userId) => {
-				scores.set(
-					userId,
-					score - (scoresBeforeStart.get(userId) ?? 0),
-				);
+				const scoreBeforeStart = scoresBeforeStart.get(userId);
+				scores.set(userId, score - scoreBeforeStart ?? 0);
 			});
 		}
 
@@ -165,12 +154,6 @@ export class RecruiterRepository extends KnexRepository {
 					.toString()}) >= 1`,
 			);
 
-		const filteredInviteLinkQuery = this.getDistinctInviteLinks(
-			guildId,
-			filter,
-			"accepted_recruitment_invite_link",
-		);
-		query.whereIn("count_ril.invite_link", filteredInviteLinkQuery);
 		if (filter?.startDate) {
 			query.andWhere("count_aril.created_at", ">=", filter.startDate);
 		}
@@ -186,41 +169,5 @@ export class RecruiterRepository extends KnexRepository {
 			);
 		}
 		return map;
-	}
-
-	private getDistinctInviteLinks(
-		guildId: string,
-		filter: InviteLinkFilter,
-		table:
-			| "recruitment_invite_link_usage_change"
-			| "accepted_recruitment_invite_link",
-	) {
-		const filteredInviteLinkQuery = this.db({
-			distinct_riluc: table,
-		})
-			.innerJoin(
-				{ distinct_ril: "recruitment_invite_link" },
-				"distinct_riluc.invite_link",
-				"=",
-				"distinct_ril.invite_link",
-			)
-			.distinct("distinct_riluc.invite_link")
-			.where("distinct_ril.guild_id", "=", guildId)
-			.whereNull("distinct_ril.banned_at");
-		if (filter?.endDate) {
-			filteredInviteLinkQuery.where(
-				"distinct_riluc.created_at",
-				"<",
-				filter.endDate,
-			);
-		}
-		if (filter?.startDate) {
-			filteredInviteLinkQuery.where(
-				"distinct_riluc.created_at",
-				">=",
-				filter.startDate,
-			);
-		}
-		return filteredInviteLinkQuery;
 	}
 }

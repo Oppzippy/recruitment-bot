@@ -114,4 +114,12 @@ describe("recruiter score", () => {
 		expect(scores.length).toEqual(1);
 		expect(scores[0].count).toEqual(1);
 	});
+
+	it("doesn't subtract invites that weren't counted to begin with", async () => {
+		const scores = await dataStore.recruiters.getRecruiterScores("guild1", {
+			startDate: new Date("2020-02-04"),
+			userId: "owner1",
+		});
+		expect(scores[0].count).toEqual(1);
+	});
 });
