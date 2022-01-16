@@ -18,10 +18,7 @@ export class LeaderboardUpdater {
 		);
 		await message.edit({
 			content: messageGenerator.buildText(),
-			allowedMentions: {
-				users: [],
-				roles: [],
-			},
+			embeds: [messageGenerator.buildEmbed()],
 		});
 	}
 

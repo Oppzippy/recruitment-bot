@@ -31,10 +31,7 @@ export class LeaderboardManager {
 		const generator = await updater.getMessageGenerator(channel.guild.id);
 		const message = await channel.send({
 			content: generator.buildText(),
-			allowedMentions: {
-				users: [],
-				roles: [],
-			},
+			embeds: [generator.buildEmbed()],
 		});
 		if (options.isDynamic) {
 			await this.db.inviteLeaderboards.addLeaderboardMessage(
