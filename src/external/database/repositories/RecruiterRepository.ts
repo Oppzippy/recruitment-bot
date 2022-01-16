@@ -106,8 +106,8 @@ export class RecruiterRepository extends KnexRepository {
 					startDate: undefined,
 				});
 			scores.forEach((score, userId) => {
-				const scoreBeforeStart = scoresBeforeStart.get(userId);
-				scores.set(userId, score - scoreBeforeStart ?? 0);
+				const scoreBeforeStart = scoresBeforeStart.get(userId) ?? 0;
+				scores.set(userId, score - scoreBeforeStart);
 			});
 		}
 
