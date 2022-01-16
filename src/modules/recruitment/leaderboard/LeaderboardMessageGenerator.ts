@@ -1,5 +1,4 @@
 import { addDays } from "date-fns";
-import { MessageEmbed } from "discord.js";
 import { RecruitmentScore } from "../../../external/database/models/RecruitmentScore";
 import { getCycleStartDate } from "../../../util/Date";
 import { LeaderboardOptions } from "./LeaderboardOptions";
@@ -13,7 +12,9 @@ export class LeaderboardMessageGenerator {
 		recruitmentScores: RecruitmentScore[],
 		options: LeaderboardOptions,
 	) {
-		this.recruitmentScores = recruitmentScores;
+		this.recruitmentScores = [...recruitmentScores].sort(
+			(a, b) => b.count - a.count,
+		);
 		this.options = options;
 		this.dateFormat = new Intl.DateTimeFormat(undefined, {
 			year: "numeric",
@@ -26,6 +27,11 @@ export class LeaderboardMessageGenerator {
 	}
 
 	public buildText(): string {
+		const totalInvites = this.recruitmentScores.reduce(
+			(acc, curr) => acc + curr.count,
+			0,
+		);
+
 		let message = "";
 		const filter = this.options.filter;
 		if (filter?.startDate) {
@@ -33,7 +39,7 @@ export class LeaderboardMessageGenerator {
 				filter.startDate,
 				filter.resetIntervalInDays,
 			);
-			message += `This leaderboard started on ${this.dateFormat.format(
+			message += `The leaderboard started on ${this.dateFormat.format(
 				startDate,
 			)}`;
 			if (filter.resetIntervalInDays) {
@@ -48,44 +54,29 @@ export class LeaderboardMessageGenerator {
 			message += ".";
 		}
 		if (filter?.endDate) {
-			message += `  The leaderboard will end on ${this.dateFormat.format(
+			message += ` The leaderboard will end on ${this.dateFormat.format(
 				filter.endDate,
 			)}`;
 		}
-		return message.length == 0 ? null : message;
-	}
-
-	public buildEmbed(): MessageEmbed {
-		const sortedLeaderboard = [...this.recruitmentScores].sort(
-			(a, b) => b.count - a.count,
-		);
-		const total = sortedLeaderboard.reduce(
-			(acc, curr) => acc + curr.count,
-			0,
-		);
-
-		const embed = new MessageEmbed();
-		embed.setTitle(
-			`**Recruitment Leaderboard Top ${this.options.size}** (${total} total invites)`,
-		);
-		const messageContent = sortedLeaderboard
+		if (this.options.isDynamic) {
+			message += " This message will update automatically.";
+		}
+		message += `\n\n**Recruitment Leaderboard Top ${this.options.size}** (${totalInvites} total invites)`;
+		let leaderboard = this.recruitmentScores
 			.slice(0, this.options.size)
 			.map(
 				(recruitmentCount, i) =>
 					`${i + 1}. <@${recruitmentCount.recruiterDiscordId}>: ${
 						recruitmentCount.count
 					}`,
-			);
-		if (sortedLeaderboard.length == 0) {
-			messageContent.push("The leaderboard is empty.");
+			)
+			.join("\n");
+		if (this.recruitmentScores.length == 0) {
+			leaderboard = "The leaderboard is empty.";
 		}
-		embed.setDescription(messageContent.join("\n"));
-		if (this.options.isDynamic) {
-			embed.footer = {
-				text: "This message will update automatically.",
-			};
-		}
-		embed.setTimestamp(new Date());
-		return embed;
+
+		message += `\n${leaderboard}`;
+
+		return message.length == 0 ? null : message;
 	}
 }
