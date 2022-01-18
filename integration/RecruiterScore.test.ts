@@ -93,6 +93,18 @@ describe("recruiter score", () => {
 		expect(scores).toHaveLength(2);
 	});
 
+	it("retrieves all records with date filter extremities", async () => {
+		const scores = await dataStore.recruiters.getRecruiterScores("guild1", {
+			startDate: new Date(0),
+			endDate: new Date("2100-01-01"),
+		});
+		expect(scores).toContainEqual({
+			guildId: "guild1",
+			recruiterDiscordId: "owner1",
+			count: 3,
+		});
+	});
+
 	it("doesn't count users that have joined before without an invite link", async () => {
 		const scores = await dataStore.recruiters.getRecruiterScores("guild3");
 		expect(scores).toContainEqual({
