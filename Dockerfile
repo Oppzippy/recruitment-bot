@@ -1,4 +1,4 @@
-FROM node:17-alpine AS build
+FROM node:18-alpine AS build
 USER root
 
 RUN apk add --no-cache bash git python3 build-base
@@ -11,7 +11,7 @@ RUN npm ci
 RUN npm run build
 RUN npm prune --production
 
-FROM node:17-alpine
+FROM node:18-alpine
 EXPOSE 80/tcp
 
 RUN apk add --no-cache bash
