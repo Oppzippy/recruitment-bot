@@ -12,6 +12,9 @@ services:
       - ../out:/opt/recruitment-bot/out
     env_file:
       - .env
+    environment:
+      # override DB_USER from .env
+      DB_USER: root
     depends_on:
       - integration_db
   integration_db:
@@ -22,3 +25,5 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
