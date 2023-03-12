@@ -1,5 +1,5 @@
 import { addDays } from "date-fns";
-import { MessageEmbed } from "discord.js";
+import { Embed, EmbedBuilder } from "discord.js";
 import { RecruitmentScore } from "../../../external/database/models/RecruitmentScore";
 import { getCycleStartDate } from "../../../util/Date";
 import { LeaderboardOptions } from "./LeaderboardOptions";
@@ -55,7 +55,7 @@ export class LeaderboardMessageGenerator {
 		return message.length == 0 ? null : message;
 	}
 
-	public buildEmbed(): MessageEmbed {
+	public buildEmbed(): EmbedBuilder {
 		const sortedLeaderboard = [...this.recruitmentScores].sort(
 			(a, b) => b.count - a.count,
 		);
@@ -64,7 +64,7 @@ export class LeaderboardMessageGenerator {
 			0,
 		);
 
-		const embed = new MessageEmbed();
+		const embed = new EmbedBuilder();
 		embed.setTitle(
 			`**Recruitment Leaderboard Top ${this.options.size}** (${total} total invites)`,
 		);
@@ -81,9 +81,9 @@ export class LeaderboardMessageGenerator {
 		}
 		embed.setDescription(messageContent.join("\n"));
 		if (this.options.isDynamic) {
-			embed.footer = {
+			embed.setFooter({
 				text: "This message will update automatically.",
-			};
+			});
 		}
 		embed.setTimestamp(new Date());
 		return embed;

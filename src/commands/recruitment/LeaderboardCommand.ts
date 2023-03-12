@@ -11,8 +11,8 @@ import { LeaderboardOptions } from "../../modules/recruitment/leaderboard/Leader
 	cooldownDelay: 120000,
 	options: ["size", "startDate", "endDate", "resetIntervalInDays"],
 	flags: ["dynamic"],
-	requiredClientPermissions: ["MANAGE_GUILD", "SEND_MESSAGES", "EMBED_LINKS"],
-	requiredUserPermissions: ["MANAGE_GUILD"],
+	requiredClientPermissions: ["ManageGuild", "SendMessages", "EmbedLinks"],
+	requiredUserPermissions: ["ManageGuild"],
 })
 export class LeaderboardCommand extends Command {
 	public async messageRun(message: Message, args: Args) {

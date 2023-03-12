@@ -1,11 +1,11 @@
 import * as Sentry from "@sentry/node";
 import {
-	Constants,
 	DiscordAPIError,
+	EmbedBuilder,
 	Guild,
 	GuildMember,
-	MessageEmbed,
 } from "discord.js";
+import { RESTJSONErrorCodes } from "discord-api-types/v10";
 import Multimap from "multimap";
 import { DataStore } from "../../external/DataStore";
 import { HuokanClient } from "../../HuokanClient";
@@ -39,7 +39,7 @@ export class RecruitmentModule extends Module {
 					if (
 						!(
 							err instanceof DiscordAPIError &&
-							err.code == Constants.APIErrors.UNKNOWN_MESSAGE
+							err.code == RESTJSONErrorCodes.UnknownMessage
 						)
 					) {
 						console.error(`Error updating guild ${guildId}: `, err);
@@ -110,7 +110,7 @@ export class RecruitmentModule extends Module {
 					"  This user has been on the server before, so they will not count towards your score on the invite leaderboard.";
 			}
 			message += "  Use `!setting quiet` to toggle these messages.";
-			const embed = new MessageEmbed()
+			const embed = new EmbedBuilder()
 				.setTitle(
 					`Your invite link ${inviteLink} was used by ${guildMember.user.tag}`,
 				)
@@ -123,7 +123,7 @@ export class RecruitmentModule extends Module {
 			} catch (err) {
 				if (
 					err instanceof DiscordAPIError &&
-					err.code == Constants.APIErrors.CANNOT_MESSAGE_USER
+					err.code == RESTJSONErrorCodes.CannotSendMessagesToThisUser
 				) {
 					// User is blocking DMs
 				} else {

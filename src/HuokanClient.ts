@@ -1,5 +1,5 @@
 import { SapphireClient } from "@sapphire/framework";
-import { Intents } from "discord.js";
+import { Partials } from "discord.js";
 import { ConfigurationFile } from "./configuration-file/ConfigurationFile";
 import { DataStore } from "./external/DataStore";
 import { RecruitmentModule } from "./modules/recruitment/RecruitmentModule";
@@ -14,13 +14,13 @@ export class HuokanClient extends SapphireClient {
 		const defaultPrefix = "!recruitment";
 		super({
 			intents: [
-				Intents.FLAGS.GUILDS,
-				Intents.FLAGS.GUILD_INVITES,
-				Intents.FLAGS.GUILD_MESSAGES,
-				Intents.FLAGS.GUILD_MEMBERS,
-				Intents.FLAGS.DIRECT_MESSAGES,
+				"Guilds",
+				"GuildInvites",
+				"GuildMessages",
+				"GuildMembers",
+				"DirectMessages",
 			],
-			partials: ["CHANNEL"],
+			partials: [Partials.Channel],
 			caseInsensitivePrefixes: true,
 			caseInsensitiveCommands: true,
 			defaultPrefix,
