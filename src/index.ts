@@ -16,11 +16,13 @@ import { HuokanClient } from "./HuokanClient";
 
 dotenv.config();
 
-// Sentry.init({
-// 	environment: process.env.NODE_ENV ?? "development",
-// 	dsn: "https://9bd2ae20b748471da084e98b301fc351@o507151.ingest.sentry.io/5597846",
-// 	tracesSampleRate: 0.4,
-// });
+if (process.env.SENTRY_DSN) {
+	Sentry.init({
+		environment: process.env.NODE_ENV ?? "development",
+		dsn: process.env.SENTRY_DSN,
+		tracesSampleRate: 0.4,
+	});
+}
 
 const knexConfig: Knex.Config = {
 	client: process.env.DB_CLIENT,
