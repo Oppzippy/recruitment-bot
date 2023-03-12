@@ -1,27 +1,39 @@
-import { ApplyOptions } from "@sapphire/decorators";
-import { Args, Command, CommandOptions } from "@sapphire/framework";
-import { Message } from "discord.js";
+import { Command } from "@sapphire/framework";
 
-@ApplyOptions<CommandOptions>({
-	name: "notifications",
-	runIn: "DM",
-})
 export class UserSettingCommand extends Command {
-	public async messageRun(message: Message, args: Args) {
-		const dataStore = this.container.client.dataStore;
-		let quietMode: boolean;
-		if (!args.finished) {
-			quietMode = (await args.pick("string")).toLowerCase() == "off";
-		} else {
-			quietMode = !(await dataStore.userSettings.get(
-				message.author.id,
-				"quiet",
-			));
-		}
+	public constructor(context: Command.Context, options: Command.Options) {
+		super(context, {
+			...options,
+			name: "notifications",
+			description: "Toggle notifications",
+		});
+	}
 
-		await dataStore.userSettings.set(message.author.id, "quiet", quietMode);
-		await message.reply(
-			`Notifications have been ${quietMode ? "disabled" : "enabled"}.`,
+	public override registerApplicationCommands(registry: Command.Registry) {
+		registry.registerChatInputCommand((builder) =>
+			builder.setName(this.name).setDescription(this.description),
 		);
+	}
+
+	public override async chatInputRun(
+		interaction: Command.ChatInputCommandInteraction,
+	) {
+		const dataStore = this.container.client.dataStore;
+		const quietMode = !(await dataStore.userSettings.get(
+			interaction.user.id,
+			"quiet",
+		));
+
+		await dataStore.userSettings.set(
+			interaction.user.id,
+			"quiet",
+			quietMode,
+		);
+		await interaction.reply({
+			content: `Notifications have been ${
+				quietMode ? "disabled" : "enabled"
+			}.`,
+			ephemeral: true,
+		});
 	}
 }

@@ -1,23 +1,81 @@
-import { ApplyOptions } from "@sapphire/decorators";
-import { Args, Command, CommandOptions } from "@sapphire/framework";
+import { Command } from "@sapphire/framework";
 import * as Sentry from "@sentry/node";
-import { Message, TextChannel } from "discord.js";
+import { isValid, parseISO } from "date-fns";
+import { TextChannel } from "discord.js";
 import { clamp } from "lodash";
 import { LeaderboardOptions } from "../../modules/recruitment/leaderboard/LeaderboardOptions";
 
-@ApplyOptions<CommandOptions>({
-	name: "leaderboard",
-	runIn: "GUILD_ANY",
-	cooldownDelay: 120000,
-	options: ["size", "startDate", "endDate", "resetIntervalInDays"],
-	flags: ["dynamic"],
-	requiredClientPermissions: ["ManageGuild", "SendMessages", "EmbedLinks"],
-	requiredUserPermissions: ["ManageGuild"],
-})
 export class LeaderboardCommand extends Command {
-	public async messageRun(message: Message, args: Args) {
-		const options = this.parseLeaderboardOptions(args);
-		const channel = <TextChannel>message.channel;
+	public constructor(context: Command.Context, options: Command.Options) {
+		super(context, {
+			...options,
+			name: "leaderboard",
+			description: "Post a leaderboard in the current channel",
+			runIn: "GUILD_ANY",
+			cooldownDelay: 1000,
+			requiredClientPermissions: [
+				"ManageGuild",
+				"SendMessages",
+				"EmbedLinks",
+			],
+			requiredUserPermissions: ["ManageGuild"],
+		});
+	}
+
+	public override registerApplicationCommands(registry: Command.Registry) {
+		registry.registerChatInputCommand((builder) =>
+			builder
+				.setName(this.name)
+				.setDescription(this.description)
+				.setDMPermission(false)
+				.addNumberOption((option) =>
+					option
+						.setName("size")
+						.setDescription(
+							"Number of users to display on the leaderboard.",
+						)
+						.setMinValue(1)
+						.setMaxValue(50)
+						.setRequired(false),
+				)
+				.addStringOption((builder) =>
+					builder
+						.setName("start-date")
+						.setDescription(
+							"Start date and time in ISO 8601 format.",
+						)
+						.setRequired(false),
+				)
+				.addStringOption((builder) =>
+					builder
+						.setName("end-date")
+						.setDescription("End date and time in ISO 8601 format.")
+						.setRequired(false),
+				)
+				.addNumberOption((builder) =>
+					builder
+						.setName("reset-interval-in-days")
+						.setDescription("Reset the leaderboard every x days")
+						.setMinValue(1)
+						.setMaxValue(365)
+						.setRequired(false),
+				)
+				.addBooleanOption((builder) =>
+					builder
+						.setName("dynamic")
+						.setDescription(
+							"Dynamically update the leaderboard when the underlying data changes",
+						)
+						.setRequired(false),
+				),
+		);
+	}
+
+	public override async chatInputRun(
+		interaction: Command.ChatInputCommandInteraction,
+	) {
+		const options = this.parseLeaderboardOptions(interaction);
+		const channel = <TextChannel>await interaction.channel.fetch();
 		try {
 			this.container.client.recruitmentModule.leaderboardManager.postLeaderboard(
 				channel,
@@ -26,32 +84,47 @@ export class LeaderboardCommand extends Command {
 		} catch (err) {
 			console.error(err);
 			Sentry.captureException(err);
+			interaction.reply({
+				content: "An error has occurred while posting the leaderboard.",
+				ephemeral: true,
+			});
+			return;
 		}
+		interaction.reply({
+			content: "Ok, posted leaderboard.",
+			ephemeral: true,
+		});
 	}
 
-	private parseLeaderboardOptions(args: Args): LeaderboardOptions {
-		// TODO use zod to parse the strings
-		const size = args.getOption("size") ?? "10";
-		const startDate = args.getOption("startDate");
-		const endDate = args.getOption("endDate");
-		const resetIntervalInDays = args.getOption("resetIntervalInDays");
-		const isDynamic = args.getFlags("dynamic");
+	private parseLeaderboardOptions(
+		interaction: Command.ChatInputCommandInteraction,
+	): LeaderboardOptions {
+		const size = interaction.options.getNumber("size", false) ?? 10;
+		const startDateISO = interaction.options.getString("start-date", false);
+		const endDateISO = interaction.options.getString("end-date", false);
+		const resetIntervalInDays = interaction.options.getNumber(
+			"reset-interval-in-days",
+			false,
+		);
+		const isDynamic = interaction.options.getBoolean("dynamic", false);
 
-		const options: LeaderboardOptions = {
-			size: clamp(parseInt(size), 1, 50),
+		const leaderboardOptions: LeaderboardOptions = {
+			size: clamp(size, 1, 50),
 			isDynamic,
 		};
 
-		if (startDate || endDate) {
-			options.filter = {
-				startDate: startDate ? new Date(startDate) : null,
+		if (startDateISO || endDateISO) {
+			const startDate = startDateISO ? parseISO(startDateISO) : null;
+			const endDate = endDateISO ? parseISO(endDateISO) : null;
+			leaderboardOptions.filter = {
+				startDate: isValid(startDate) ? startDate : null,
+				endDate: isValid(endDate) ? endDate : null,
 				resetIntervalInDays: resetIntervalInDays
-					? clamp(parseInt(resetIntervalInDays), 1, 365)
+					? clamp(resetIntervalInDays, 1, 365)
 					: null,
-				endDate: endDate ? new Date(endDate) : null,
 			};
 		}
 
-		return options;
+		return leaderboardOptions;
 	}
 }

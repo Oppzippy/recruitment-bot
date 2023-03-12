@@ -1,27 +1,42 @@
-import { ApplyOptions } from "@sapphire/decorators";
-import { Command, CommandOptions } from "@sapphire/framework";
-import { EmbedField, Message, EmbedBuilder, TextChannel } from "discord.js";
+import { Command } from "@sapphire/framework";
+import { EmbedField, EmbedBuilder, TextChannel } from "discord.js";
 import { RecruitmentInviteLinkLeaderboard } from "../../external/database/models/RecruitmentInviteLinkLeaderboard";
 import { isDiscordNotFoundError } from "../../util/DiscordUtils";
 
-@ApplyOptions<CommandOptions>({
-	name: "checkinvites",
-	runIn: "DM",
-	cooldownDelay: 120000,
-	requiredClientPermissions: ["SendMessages", "EmbedLinks"],
-})
 export class CheckInvitesCommand extends Command {
-	public async messageRun(message: Message) {
+	public constructor(context: Command.Context, options: Command.Options) {
+		super(context, {
+			...options,
+			name: "checkinvites",
+			cooldownDelay: 1000,
+			description:
+				"Check how many people you have invited to servers using RecruitmentBot.",
+			requiredClientPermissions: ["SendMessages", "EmbedLinks"],
+		});
+	}
+
+	public override registerApplicationCommands(registry: Command.Registry) {
+		registry.registerChatInputCommand((builder) =>
+			builder
+				.setName(this.name)
+				.setDescription(this.description)
+				.setDMPermission(true),
+		);
+	}
+
+	public override async chatInputRun(
+		interaction: Command.ChatInputCommandInteraction,
+	) {
 		const dataStore = this.container.client.dataStore;
 		const guildIds = await dataStore.inviteLinks.getGuildIdsOfUser(
-			message.author.id,
+			interaction.user.id,
 		);
 		const scoresByGuild = await Promise.all(
 			guildIds.map(async (guildId) => ({
 				guildId,
 				leaderboards: await this.getLeaderboardsAndScoresByGuild(
 					guildId,
-					message.author.id,
+					interaction.user.id,
 				),
 			})),
 		);
@@ -44,13 +59,17 @@ export class CheckInvitesCommand extends Command {
 		if (embeds.some((embed) => embed.data.fields.length > 0)) {
 			await Promise.all(
 				embeds.map((embed) =>
-					message.reply({
+					interaction.reply({
 						embeds: [embed],
+						ephemeral: true,
 					}),
 				),
 			);
 		} else {
-			await message.reply("You don't appear on any invite leaderboards.");
+			await interaction.reply({
+				content: "You don't appear on any invite leaderboards.",
+				ephemeral: true,
+			});
 		}
 	}
 
