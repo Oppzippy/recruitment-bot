@@ -31,7 +31,7 @@ export class HuokanAPI {
 	}
 
 	public async listen(port = 3000): Promise<void> {
-		await this.server.listen(port);
+		await this.server.listen({ port });
 	}
 
 	public async destroy(): Promise<void> {
