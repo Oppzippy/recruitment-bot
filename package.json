@@ -14,7 +14,7 @@
 		"integration": "knex seed:run --env staging && jest --config=jest-integration.config.mjs --runInBand"
 	},
 	"author": "Oppzippy",
-	"license": "UNLICENSED",
+	"license": "GPL-3.0",
 	"dependencies": {
 		"@sapphire/decorators": "^6.0.0",
 		"@sapphire/discord.js-utilities": "^6.0.3",
