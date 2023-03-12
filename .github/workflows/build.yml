@@ -41,4 +41,4 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push docker image
-        run: docker push ghcr.io/oppzippy/huokanbot:latest
+        run: docker push ghcr.io/oppzippy/recruitment-bot:latest
