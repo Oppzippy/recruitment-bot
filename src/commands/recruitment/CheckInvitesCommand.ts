@@ -57,14 +57,10 @@ export class CheckInvitesCommand extends Command {
 		});
 		const embeds = await Promise.all(embedPromises);
 		if (embeds.some((embed) => embed.data.fields.length > 0)) {
-			await Promise.all(
-				embeds.map((embed) =>
-					interaction.reply({
-						embeds: [embed],
-						ephemeral: true,
-					}),
-				),
-			);
+			await interaction.reply({
+				embeds,
+				ephemeral: true,
+			});
 		} else {
 			await interaction.reply({
 				content: "You don't appear on any invite leaderboards.",
