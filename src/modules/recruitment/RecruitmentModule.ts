@@ -95,12 +95,12 @@ export class RecruitmentModule extends Module {
 		const [isDuplicate, ownerId] = await Promise.all([
 			dataStore.inviteLinks.hasUserJoinedBefore(guildMember.user.id),
 			dataStore.inviteLinks.getOwnerId(inviteLink),
-			dataStore.inviteLinks.logInviteLinkUse(
-				guildMember.guild.id,
-				guildMember.user.id,
-				inviteLink,
-			),
 		]);
+		await dataStore.inviteLinks.logInviteLinkUse(
+			guildMember.guild.id,
+			guildMember.user.id,
+			inviteLink,
+		);
 		if (ownerId && !(await dataStore.userSettings.get(ownerId, "quiet"))) {
 			const owner = await this.client.users.fetch(ownerId);
 			const dmChannel = owner.dmChannel ?? (await owner.createDM());
