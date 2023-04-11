@@ -29,6 +29,7 @@ export class InviteLinkRespository extends KnexRepository {
 	public async logInviteLinkUse(
 		guildId: string,
 		userId: string,
+		isAccountOldEnough: boolean,
 		inviteLink?: string,
 	): Promise<void> {
 		try {
@@ -36,6 +37,7 @@ export class InviteLinkRespository extends KnexRepository {
 				accepteeDiscordId: userId,
 				inviteLink: inviteLink,
 				guildId: guildId,
+				weight: isAccountOldEnough ? 1 : 0,
 			});
 		} catch (err) {
 			if (err.sqlState == 40001) {
@@ -44,7 +46,12 @@ export class InviteLinkRespository extends KnexRepository {
 					"Deadlock occurred in logInviteLinkUse, retrying.",
 				);
 				await new Promise((resolve) => setTimeout(resolve, 2000));
-				await this.logInviteLinkUse(guildId, userId, inviteLink);
+				await this.logInviteLinkUse(
+					guildId,
+					userId,
+					isAccountOldEnough,
+					inviteLink,
+				);
 			} else {
 				throw err;
 			}

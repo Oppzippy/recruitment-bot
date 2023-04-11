@@ -1,7 +1,7 @@
 import { Command } from "@sapphire/framework";
 import * as Sentry from "@sentry/node";
 import { isValid, parseISO } from "date-fns";
-import { TextChannel } from "discord.js";
+import { PermissionsBitField, TextChannel } from "discord.js";
 import { clamp } from "lodash";
 import { LeaderboardOptions } from "../../modules/recruitment/leaderboard/LeaderboardOptions";
 
@@ -28,6 +28,9 @@ export class LeaderboardCommand extends Command {
 				.setName(this.name)
 				.setDescription(this.description)
 				.setDMPermission(false)
+				.setDefaultMemberPermissions(
+					PermissionsBitField.Flags.ManageGuild,
+				)
 				.addNumberOption((option) =>
 					option
 						.setName("size")

@@ -134,7 +134,7 @@ export class RecruiterRepository extends KnexRepository {
 			.groupBy("count_ril.owner_discord_id")
 			.where("count_ril.guild_id", "=", guildId)
 			.andWhereRaw(
-				`(${this.db({
+				`((${this.db({
 					exists_aril: "accepted_recruitment_invite_link",
 				})
 					.leftJoin(
@@ -151,7 +151,12 @@ export class RecruiterRepository extends KnexRepository {
 					.andWhereRaw(
 						"exists_aril.created_at < count_aril.created_at",
 					)
-					.toString()}) >= 1`,
+					// Only weight 0 and 1 are allowed. 0 is handled by counting it as a duplicate.
+					// Not a clean solution, but due to the complexity of the queries in this file,
+					// it is non-trivial to properly implement weighting. The main complication is
+					// that we aren't counting accepted_recruitment_invite_link, we're only using it
+					// for duplicate detection. The counting comes from recruitment_invite_link_usage_change.
+					.toString()}) >= 1 OR count_aril.weight = 0)`,
 			);
 
 		if (filter?.startDate) {

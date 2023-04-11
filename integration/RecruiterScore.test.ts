@@ -134,4 +134,11 @@ describe("recruiter score", () => {
 		});
 		expect(scores[0].count).toEqual(1);
 	});
+
+	it("doesn't include accounts that are too young", async () => {
+		const scores = await dataStore.recruiters.getRecruiterScores("guild5", {
+			userId: "owner6",
+		});
+		expect(scores[0].count).toEqual(1);
+	});
 });

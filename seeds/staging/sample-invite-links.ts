@@ -43,6 +43,11 @@ async function seedInviteLinks(knex: Knex): Promise<void> {
 			owner_discord_id: "owner5",
 			banned_at: "2020-02-10 00:00:00",
 		},
+		{
+			guild_id: "guild5",
+			invite_link: "invite8",
+			owner_discord_id: "owner6",
+		},
 	]);
 }
 
@@ -149,6 +154,30 @@ async function seedAcceptedInviteLinks(knex: Knex): Promise<void> {
 		createdAt: "2020-02-08 00:00:01",
 		uses: 1,
 	});
+	await addAcceptee(knex, {
+		guildId: "guild5",
+		inviteLink: "invite8",
+		acceptee: "acceptee10",
+		createdAt: "2020-01-01 00:00:00",
+		uses: 1,
+		isAccountOldEnough: false,
+	});
+	await addAcceptee(knex, {
+		guildId: "guild5",
+		inviteLink: "invite8",
+		acceptee: "acceptee11",
+		createdAt: "2020-01-01 00:00:00",
+		uses: 2,
+		isAccountOldEnough: true,
+	});
+	await addAcceptee(knex, {
+		guildId: "guild5",
+		inviteLink: "invite8",
+		acceptee: "acceptee10",
+		createdAt: "2020-01-01 00:00:01",
+		uses: 3,
+		isAccountOldEnough: true,
+	});
 }
 
 async function addAcceptee(
@@ -159,6 +188,7 @@ async function addAcceptee(
 		acceptee: string;
 		createdAt: string;
 		guildId: string;
+		isAccountOldEnough?: boolean;
 	},
 ) {
 	if (!acceptee.inviteLink) {
@@ -167,6 +197,7 @@ async function addAcceptee(
 			acceptee_discord_id: acceptee.acceptee,
 			created_at: acceptee.createdAt,
 			updated_at: acceptee.createdAt,
+			weight: acceptee.isAccountOldEnough == false ? 0 : 1,
 		});
 	} else {
 		await knex("accepted_recruitment_invite_link").insert({
@@ -175,6 +206,7 @@ async function addAcceptee(
 			acceptee_discord_id: acceptee.acceptee,
 			created_at: acceptee.createdAt,
 			updated_at: acceptee.createdAt,
+			weight: acceptee.isAccountOldEnough == false ? 0 : 1,
 		});
 		await knex("recruitment_invite_link_usage_change").insert({
 			invite_link: acceptee.inviteLink,

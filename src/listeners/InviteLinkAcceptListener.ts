@@ -1,12 +1,15 @@
-import { ApplyOptions } from "@sapphire/decorators";
-import { Listener, ListenerOptions } from "@sapphire/framework";
+import { Listener } from "@sapphire/framework";
 import * as Sentry from "@sentry/node";
 import { GuildMember } from "discord.js";
 
-@ApplyOptions<ListenerOptions>({
-	event: "guildMemberAdd",
-})
 export class InviteLinkAcceptListener extends Listener {
+	public constructor(context: Listener.Context, options: Listener.Options) {
+		super(context, {
+			...options,
+			event: "guildMemberAdd",
+		});
+	}
+
 	public async run(member: GuildMember): Promise<void> {
 		const transaction = Sentry.startTransaction({
 			name: "InviteAcceptListener.exec",

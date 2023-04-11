@@ -49,6 +49,7 @@ describe("huokanbot bank deposit HTTP api", () => {
 			await dataStore.inviteLinks.logInviteLinkUse(
 				"test",
 				"testUser2",
+				true,
 				"testLink2",
 			);
 		}
@@ -79,12 +80,14 @@ describe("huokanbot bank deposit HTTP api", () => {
 		await dataStore.inviteLinks.logInviteLinkUse(
 			"test",
 			"testUser3",
+			true,
 			"testLink3",
 		);
-		await dataStore.inviteLinks.logInviteLinkUse("test", "testUser3");
+		await dataStore.inviteLinks.logInviteLinkUse("test", "testUser3", true);
 		await dataStore.inviteLinks.logInviteLinkUse(
 			"test",
 			"testUser3",
+			true,
 			"testLink4",
 		);
 		const response = await Axios.get(
@@ -104,7 +107,7 @@ describe("huokanbot bank deposit HTTP api", () => {
 	});
 
 	it("404s when a user hasn't accepted an invite link", async () => {
-		await dataStore.inviteLinks.logInviteLinkUse("test", "testUser5");
+		await dataStore.inviteLinks.logInviteLinkUse("test", "testUser5", true);
 		const response = await Axios.get(
 			`${apiURL}/v1/recruitment/user/testUser5/recruiter`,
 			{

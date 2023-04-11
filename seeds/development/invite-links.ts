@@ -32,7 +32,12 @@ async function createInviteLinks(knex: Knex, usage: number) {
 				inviteLink,
 				(usesForLinks.get(inviteLink) ?? 0) + 1,
 			);
-			await addOne(knex, inviteLink, usesForLinks.get(inviteLink), time);
+			await addOne(
+				knex,
+				inviteLink,
+				usesForLinks.get(inviteLink) ?? 0,
+				time,
+			);
 		}
 	}
 }

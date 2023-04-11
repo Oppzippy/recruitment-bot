@@ -1,10 +1,5 @@
 import * as Sentry from "@sentry/node";
-import {
-	DiscordAPIError,
-	EmbedBuilder,
-	Guild,
-	GuildMember,
-} from "discord.js";
+import { DiscordAPIError, EmbedBuilder, Guild, GuildMember } from "discord.js";
 import { RESTJSONErrorCodes } from "discord-api-types/v10";
 import Multimap from "multimap";
 import { DataStore } from "../../external/DataStore";
@@ -12,6 +7,9 @@ import { HuokanClient } from "../../HuokanClient";
 import { Module } from "../Module";
 import { InviteLinkTracker } from "./leaderboard/InviteLinkTracker";
 import { LeaderboardManager } from "./leaderboard/LeaderboardManager";
+import { snowflakeDate } from "../../util/DiscordUtils";
+import { subDays } from "date-fns";
+import assert from "assert";
 
 export class RecruitmentModule extends Module {
 	public readonly leaderboardManager: LeaderboardManager;
@@ -92,13 +90,16 @@ export class RecruitmentModule extends Module {
 		guildMember: GuildMember,
 	) {
 		const dataStore = this.client.dataStore;
-		const [isDuplicate, ownerId] = await Promise.all([
+
+		const [isDuplicate, ownerId, isAccountOldEnough] = await Promise.all([
 			dataStore.inviteLinks.hasUserJoinedBefore(guildMember.user.id),
 			dataStore.inviteLinks.getOwnerId(inviteLink),
+			this.isGuildMemberOldEnough(guildMember),
 		]);
 		await dataStore.inviteLinks.logInviteLinkUse(
 			guildMember.guild.id,
 			guildMember.user.id,
+			isAccountOldEnough,
 			inviteLink,
 		);
 		if (ownerId && !(await dataStore.userSettings.get(ownerId, "quiet"))) {
@@ -107,9 +108,14 @@ export class RecruitmentModule extends Module {
 			let message = `<@!${guildMember.user.id}> accepted your invite.`;
 			if (isDuplicate) {
 				message +=
-					"  This user has been on the server before, so they will not count towards your score on the invite leaderboard.";
+					" This user has been on the server before, so they will not count towards your score on the invite leaderboard.";
+			} else if (!isAccountOldEnough) {
+				const minAge = await this.getMinAccountAgeInDays(
+					guildMember.guild.id,
+				);
+				message += ` This user's account is not at least ${minAge} days old, so they will not count towards your score on the invite leaderboard.`;
 			}
-			message += "  Use `!setting quiet` to toggle these messages.";
+			message += " Use `!setting quiet` to toggle these messages.";
 			const embed = new EmbedBuilder()
 				.setTitle(
 					`Your invite link ${inviteLink} was used by ${guildMember.user.tag}`,
@@ -132,5 +138,29 @@ export class RecruitmentModule extends Module {
 				}
 			}
 		}
+	}
+
+	private async isGuildMemberOldEnough(
+		guildMember: GuildMember,
+	): Promise<boolean> {
+		// Check age
+		const userAccountCreatedAt = snowflakeDate(BigInt(guildMember.user.id));
+		const minAccountAgeInDays = await this.getMinAccountAgeInDays(
+			guildMember.guild.id,
+		);
+		assert(typeof minAccountAgeInDays == "number");
+		const accountCreationCutoffDate = subDays(
+			new Date(),
+			minAccountAgeInDays,
+		);
+		return userAccountCreatedAt <= accountCreationCutoffDate;
+	}
+
+	private async getMinAccountAgeInDays(guildId: string): Promise<number> {
+		const minAccountAgeInDays =
+			(await this.db.guildSettings.get(guildId, "minAccountAgeInDays")) ??
+			0;
+		assert(typeof minAccountAgeInDays == "number");
+		return minAccountAgeInDays;
 	}
 }
