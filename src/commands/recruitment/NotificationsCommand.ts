@@ -1,6 +1,6 @@
 import { Command } from "@sapphire/framework";
 
-export class UserSettingCommand extends Command {
+export class NotificationsCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {
 		super(context, {
 			...options,

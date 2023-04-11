@@ -115,7 +115,7 @@ export class RecruitmentModule extends Module {
 				);
 				message += ` This user's account is not at least ${minAge} days old, so they will not count towards your score on the invite leaderboard.`;
 			}
-			message += " Use `!setting quiet` to toggle these messages.";
+			message += " Use `/notifications` to toggle these messages.";
 			const embed = new EmbedBuilder()
 				.setTitle(
 					`Your invite link ${inviteLink} was used by ${guildMember.user.tag}`,
