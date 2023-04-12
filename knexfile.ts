@@ -10,6 +10,8 @@ export default {
 			user: process.env.DB_USER,
 			password: process.env.DB_PASSWORD,
 			port: process.env.DB_PORT,
+			bigNumberStrings: true,
+			supportBigNumbers: true,
 		},
 		pool: {
 			min: 1,
@@ -31,6 +33,8 @@ export default {
 			user: process.env.DB_USER,
 			password: process.env.DB_PASSWORD,
 			port: process.env.DB_PORT,
+			bigNumberStrings: true,
+			supportBigNumbers: true,
 		},
 		pool: {
 			min: 2,
@@ -52,6 +56,8 @@ export default {
 			user: process.env.DB_USER,
 			password: process.env.DB_PASSWORD,
 			port: process.env.DB_PORT,
+			bigNumberStrings: true,
+			supportBigNumbers: true,
 		},
 		pool: {
 			min: 2,

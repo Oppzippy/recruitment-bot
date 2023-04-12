@@ -1,7 +1,7 @@
 import { HuokanAPI } from "../src/HuokanAPI";
 import { useDataStore, doneWithDataStore } from "./DataStore";
 
-let api: HuokanAPI;
+let api: HuokanAPI | undefined;
 let userCount = 0;
 let port = 3000;
 

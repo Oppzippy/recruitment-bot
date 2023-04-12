@@ -33,6 +33,8 @@ const knexConfig: Knex.Config = {
 		user: process.env.DB_USER,
 		password: process.env.DB_PASSWORD,
 		port: parseInt(process.env.DB_PORT),
+		bigNumberStrings: true,
+		supportBigNumbers: true,
 	},
 };
 

@@ -94,7 +94,7 @@ export class RecruiterRepository extends KnexRepository {
 		const rows = await query;
 		const scores = rows.reduce(
 			(map: Map<string, number>, score) =>
-				map.set(score.ownerDiscordId, score.score),
+				map.set(score.ownerDiscordId, parseInt(score.score)),
 			new Map<string, number>(),
 		);
 
@@ -170,7 +170,9 @@ export class RecruiterRepository extends KnexRepository {
 		for (const result of results) {
 			map.set(
 				result.ownerDiscordId,
-				typeof result.duplicates == "number" ? result.duplicates : 0,
+				typeof result.duplicates == "string"
+					? parseInt(result.duplicates)
+					: 0,
 			);
 		}
 		return map;
