@@ -1,22 +1,31 @@
 import Axios from "axios";
 import { DataStore } from "../src/external/DataStore";
-import { doneWithAPI, useAPI } from "./API";
-import { useDataStore, doneWithDataStore } from "./DataStore";
+import { Knex } from "knex";
+import { useKnexInstance } from "./helper/Knex";
+import { KnexDataStore } from "../src/external/database/KnexDataStore";
+import { HuokanAPI } from "../src/HuokanAPI";
 
 describe("recruitment HTTP api", () => {
 	let apiURL: string;
+	let api: HuokanAPI;
 	let apiKey: string;
 	let dataStore: DataStore;
-	beforeAll(async () => {
-		apiURL = await useAPI();
-		dataStore = useDataStore();
+	let knexInstance: Knex;
+
+	beforeEach(async () => {
+		knexInstance = await useKnexInstance();
+		dataStore = new KnexDataStore(knexInstance);
+
+		api = new HuokanAPI(dataStore);
+		apiURL = await api.listen(0);
+
 		apiKey = await dataStore.apiKeys.createApiKey("123");
 		await dataStore.apiKeys.addGuildPermission(apiKey, "10");
 	});
 
-	afterAll(async () => {
-		await doneWithAPI();
-		doneWithDataStore();
+	afterEach(async () => {
+		api.destroy();
+		await knexInstance.destroy();
 	});
 
 	it("gets invite links", async () => {

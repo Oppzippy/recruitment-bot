@@ -5,7 +5,7 @@
 		"sourceMap": true,
 		"outDir": "out",
 		"moduleResolution": "node",
-		"target": "ES2021",
+		"target": "ES2022",
 		"incremental": true,
 		"isolatedModules": false,
 		"esModuleInterop": true,
