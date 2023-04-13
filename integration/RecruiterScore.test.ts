@@ -8,12 +8,12 @@ import {
 	insertJoinedWithoutInviteLink,
 } from "./helper/InviteLink";
 
+jest.setTimeout(30000);
 describe("recruiter score", () => {
 	let knex: Knex;
 	let dataStore: DataStore;
 
 	beforeEach(async () => {
-		jest.setTimeout(30000);
 		knex = await useKnexInstance();
 		dataStore = new KnexDataStore(knex);
 	});
