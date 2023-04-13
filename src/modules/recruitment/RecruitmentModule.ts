@@ -19,8 +19,6 @@ export class RecruitmentModule extends Module {
 	public constructor(client: HuokanClient, db: DataStore) {
 		super(client, db);
 		this.leaderboardManager = new LeaderboardManager(client, db);
-
-		this.refreshLeaderboards();
 	}
 
 	public addRecentJoin(id: string, member: GuildMember) {
