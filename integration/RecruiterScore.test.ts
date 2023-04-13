@@ -13,6 +13,7 @@ describe("recruiter score", () => {
 	let dataStore: DataStore;
 
 	beforeEach(async () => {
+		jest.setTimeout(30000);
 		knex = await useKnexInstance();
 		dataStore = new KnexDataStore(knex);
 	});
