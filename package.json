@@ -11,7 +11,7 @@
 		"start": "node out/index.js",
 		"migrate": "knex migrate:latest",
 		"lint": "eslint src",
-		"integration": "jest --config=jest-integration.config.mjs"
+		"integration": "jest --config=jest-integration.config.mjs --runInBand"
 	},
 	"author": "Oppzippy",
 	"license": "GPL-3.0",
