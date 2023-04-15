@@ -15,9 +15,9 @@ const knexConfig = {
 	},
 };
 
-export async function useKnexInstance() {
+export async function useKnexInstance(name?: string) {
 	// Create the new db
-	const currentTestSuffix = expect.getState().currentTestName;
+	const currentTestSuffix = name ?? expect.getState().currentTestName;
 	const customKnexConfig = {
 		...knexConfig,
 		connection: {
