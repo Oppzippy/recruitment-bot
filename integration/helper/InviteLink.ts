@@ -1,5 +1,6 @@
-import { parseISO } from "date-fns";
+import { compareAsc, parseISO } from "date-fns";
 import { Knex } from "knex";
+import { memoize } from "lodash";
 
 type InviteLinkData = {
 	guilds: {
@@ -58,11 +59,12 @@ export async function insertJoinedWithoutInviteLink(
 
 export async function insertInviteLinks(knex: Knex, data: InviteLinkData) {
 	const inviteLinks: InviteLink[] = [];
-	let acceptees: Acceptee[] = [];
-	data.guilds.forEach((guild) => {
-		guild.recruiters.forEach((recruiter) => {
-			recruiter.inviteLinks.forEach((inviteLink) => {
-				const inviteLinkAcceptees: Acceptee[] = [];
+	const acceptees: Acceptee[] = [];
+
+	const memoizedParseISO = memoize((s: string) => parseISO(s));
+	for (const guild of data.guilds) {
+		for (const recruiter of guild.recruiters) {
+			for (const inviteLink of recruiter.inviteLinks) {
 				const inviteLinkDbRecord = {
 					guildId: guild.guildId,
 					inviteLink: inviteLink.inviteCode,
@@ -73,27 +75,29 @@ export async function insertInviteLinks(knex: Knex, data: InviteLinkData) {
 
 				inviteLink.acceptees
 					// numUses needs to increase over time, so ensure sorted by time for sequential numUses
-					.sort(
-						(left, right) =>
-							parseISO(left.createdAt).getTime() -
-							parseISO(right.createdAt).getTime(),
-					)
-					.forEach((acceptee, i) => {
-						inviteLinkAcceptees.push({
-							createdAt: parseISO(acceptee.createdAt),
-							discordId: acceptee.accepteeId,
-							inviteLink: inviteLinkDbRecord,
-							isAccountOldEnough:
-								acceptee.isAccountOldEnough ||
-								acceptee.isAccountOldEnough == undefined,
-							numUses: i + 1,
-						});
+					.sort((left, right) => {
+						return compareAsc(
+							memoizedParseISO(left.createdAt),
+							memoizedParseISO(right.createdAt),
+						);
 					});
-				acceptees = acceptees.concat(inviteLinkAcceptees);
-			});
-		});
-	});
-	await knex("recruitment_invite_link").insert(
+				for (let i = 0; i < inviteLink.acceptees.length; i++) {
+					const acceptee = inviteLink.acceptees[i];
+					acceptees.push({
+						createdAt: parseISO(acceptee.createdAt),
+						discordId: acceptee.accepteeId,
+						inviteLink: inviteLinkDbRecord,
+						isAccountOldEnough:
+							acceptee.isAccountOldEnough ||
+							acceptee.isAccountOldEnough == undefined,
+						numUses: i + 1,
+					});
+				}
+			}
+		}
+	}
+	await knex.batchInsert(
+		"recruitment_invite_link",
 		inviteLinks.map((inviteLink) => ({
 			guild_id: inviteLink.guildId,
 			invite_link: inviteLink.inviteLink,
@@ -105,7 +109,8 @@ export async function insertInviteLinks(knex: Knex, data: InviteLinkData) {
 		})),
 	);
 	await Promise.all([
-		knex("accepted_recruitment_invite_link").insert(
+		knex.batchInsert(
+			"accepted_recruitment_invite_link",
 			acceptees.map((acceptee) => ({
 				guild_id: acceptee.inviteLink.guildId,
 				acceptee_discord_id: acceptee.discordId,
@@ -115,7 +120,8 @@ export async function insertInviteLinks(knex: Knex, data: InviteLinkData) {
 				weight: acceptee.isAccountOldEnough == false ? 0 : 1,
 			})),
 		),
-		knex("recruitment_invite_link_usage_change").insert(
+		knex.batchInsert(
+			"recruitment_invite_link_usage_change",
 			acceptees.map((acceptee) => ({
 				invite_link: acceptee.inviteLink.inviteLink,
 				num_uses: acceptee.numUses,

@@ -36,7 +36,7 @@ async function run() {
 
 		console.log("Building data");
 
-		for (let recruiterId = 0; recruiterId < 1000; recruiterId++) {
+		for (let recruiterId = 0; recruiterId < 2000; recruiterId++) {
 			const recruiter: (typeof data)["guilds"][number]["recruiters"][number] =
 				{
 					recruiterId: recruiterId.toString(),
