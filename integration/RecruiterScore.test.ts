@@ -515,13 +515,6 @@ describe("recruiter score", () => {
 		});
 	});
 
-	// TODO move to separate test suite
-	it("gets invite links by owner without erroring", async () => {
-		await expect(
-			dataStore.inviteLinks.getInviteLinkByOwner("", ""),
-		).resolves.toBeUndefined();
-	});
-
 	it("excludes only banned invite links", async () => {
 		await insertInviteLinks(knex, {
 			guilds: [

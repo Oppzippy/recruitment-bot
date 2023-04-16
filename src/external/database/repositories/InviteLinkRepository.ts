@@ -145,39 +145,6 @@ export class InviteLinkRespository extends KnexRepository {
 			.first();
 	}
 
-	public async getInviteLinkByOwner(
-		guildId: string,
-		ownerId: string,
-	): Promise<RecruitmentInviteLink> {
-		return await this.db
-			.select<RecruitmentInviteLink>({
-				inviteLink: "recruitment_invite_link.invite_link",
-				ownerDiscordID: "recruitment_invite_link.owner_discord_id",
-				createdAt: "recruitment_invite_link.created_at",
-				updatedAt: "recruitment_invite_link.updated_at",
-			})
-			.where({
-				"recruitment_invite_link.guild_id": guildId,
-				ownerDiscordId: ownerId,
-			})
-			.from("recruitment_invite_link")
-			.leftJoin(
-				"setting",
-				this.db.raw(
-					`setting.setting_type = "guild" AND recruitment_invite_link.guild_id = setting.setting_group`,
-				),
-			)
-			.where(function () {
-				this.where("setting.setting", "=", "invite_channel")
-					.andWhereRaw(
-						"setting.updated_at <= recruitment_invite_link.created_at",
-					)
-					.orWhereNull("setting.setting");
-			})
-			.orderBy("recruitment_invite_link.created_at", "desc")
-			.first();
-	}
-
 	public async setInviteLinkUsage(usage: Map<string, number>): Promise<void> {
 		if (usage.size > 0) {
 			const insert = [];
