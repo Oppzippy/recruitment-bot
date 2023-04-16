@@ -52,7 +52,9 @@ export async function insertJoinedWithoutInviteLink(
 			updated_at: parseISO(acceptee.createdAt),
 			weight:
 				acceptee.isAccountOldEnough ||
-				acceptee.isAccountOldEnough == undefined,
+				acceptee.isAccountOldEnough == undefined
+					? 1
+					: 0,
 		})),
 	);
 }

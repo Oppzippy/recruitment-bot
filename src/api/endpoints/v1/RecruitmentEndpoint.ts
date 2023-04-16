@@ -11,7 +11,7 @@ export const RecruitmentEndpoint: FastifyPluginCallback = fp(
 		fastify
 			.route({
 				method: "GET",
-				url: "/v1/recruitment/user/:id/acceptedInvites",
+				url: "/v1/recruitment/user/:id(\\d+)/acceptedInvites",
 				schema: {
 					params: {
 						type: "object",
@@ -25,7 +25,7 @@ export const RecruitmentEndpoint: FastifyPluginCallback = fp(
 			})
 			.route({
 				method: "GET",
-				url: "/v1/recruitment/user/:id/recruiter",
+				url: "/v1/recruitment/user/:id(\\d+)/recruiter",
 				schema: {
 					params: {
 						type: "object",
@@ -59,10 +59,11 @@ async function getAccepteeById(
 	request: FastifyRequest,
 	reply: FastifyReply,
 ) {
-	const acceptedInviteLinks = await this.db.inviteLinks.getUserAcceptedInviteLinks(
-		request.guildId,
-		request.params["id"],
-	);
+	const acceptedInviteLinks =
+		await this.db.inviteLinks.getUserAcceptedInviteLinks(
+			request.guildId,
+			request.params["id"],
+		);
 	reply.send(acceptedInviteLinks);
 }
 
@@ -71,10 +72,11 @@ async function getAccepteeRecruiter(
 	request: FastifyRequest,
 	reply: FastifyReply,
 ) {
-	const acceptedInvites = await this.db.inviteLinks.getUserAcceptedInviteLinks(
-		request.guildId,
-		request.params["id"],
-	);
+	const acceptedInvites =
+		await this.db.inviteLinks.getUserAcceptedInviteLinks(
+			request.guildId,
+			request.params["id"],
+		);
 	if (acceptedInvites.length >= 1) {
 		const [firstAcceptedInvite] = acceptedInvites;
 		const ownerId = await this.db.inviteLinks.getOwnerId(

@@ -14,11 +14,15 @@ export class SettingRepository extends KnexRepository {
 		setting: string,
 		value: unknown,
 	): Promise<void> {
-		await this.db.raw(
-			`INSERT INTO setting (setting_type, setting_group, setting, value) VALUES (?, ?, ?, ?)
-			ON DUPLICATE KEY UPDATE value = VALUES(value)`,
-			[this.settingType, settingGroup, setting, JSON.stringify(value)],
-		);
+		await this.db("setting")
+			.insert({
+				setting_type: this.settingType,
+				setting_group: settingGroup,
+				setting,
+				value: JSON.stringify(value),
+			})
+			.onConflict(["setting_type", "setting_group", "setting"])
+			.merge();
 	}
 
 	public async get<T>(settingGroup: string, setting: string): Promise<T> {

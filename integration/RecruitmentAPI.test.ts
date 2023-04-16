@@ -113,9 +113,22 @@ describe("recruitment HTTP api", () => {
 		expect(response.status).toEqual(404);
 	});
 
-	it("404s for unknown users", async () => {
+	it("404s when getting recruiter of non numeric user id", async () => {
 		const response = await Axios.get(
-			`${apiURL}/v1/recruitment/user/unknownTestUser/recruiter`,
+			`${apiURL}/v1/recruitment/user/1unknownTestUser1/recruiter`,
+			{
+				headers: {
+					Authorization: `Bearer ${apiKey}`,
+				},
+				validateStatus: () => true,
+			},
+		);
+		expect(response.status).toEqual(404);
+	});
+
+	it("404s when getting accepted invites of non numeric user id", async () => {
+		const response = await Axios.get(
+			`${apiURL}/v1/recruitment/user/1unknownTestUser1/acceptedInvites`,
 			{
 				headers: {
 					Authorization: `Bearer ${apiKey}`,

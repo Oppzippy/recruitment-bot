@@ -19,5 +19,16 @@ services:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
+  dev_db_pgsql:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgsql_data:/var/lib/postgresql/data:rw
+    environment:
+      POSTGRES_DATABASE: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
 volumes:
   db_data: {}
+  pgsql_data: {}

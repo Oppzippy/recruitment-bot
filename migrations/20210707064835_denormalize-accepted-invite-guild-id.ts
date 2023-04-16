@@ -3,7 +3,7 @@ import { Knex } from "knex";
 export async function up(knex: Knex): Promise<void> {
 	await knex({ aril: "accepted_recruitment_invite_link" })
 		.update(
-			"aril.guild_id",
+			"guild_id",
 			knex({ ril: "recruitment_invite_link" })
 				.select("ril.guild_id")
 				.whereRaw("ril.invite_link = aril.invite_link"),

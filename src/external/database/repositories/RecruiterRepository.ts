@@ -79,19 +79,22 @@ export class RecruiterRepository extends KnexRepository {
 		const query = this.db({ ril: "recruitment_invite_link" })
 			.select({
 				ownerDiscordId: "ril.owner_discord_id",
-				score: this.db.raw(
-					`CAST(SUM((${numUsesSubquery.toString()})) AS SIGNED)`,
-				),
+				score: this.db.raw(`(SUM(?))`, numUsesSubquery),
 			})
 			.where("ril.guild_id", "=", guildId)
 			.whereNull("ril.banned_at")
-			.groupBy("ril.owner_discord_id")
-			.having("score", ">", 0);
+			.groupBy("ril.owner_discord_id");
 
 		if (filter?.userId) {
 			query.andWhere("ril.owner_discord_id", "=", filter.userId);
 		}
-		const rows = await query;
+
+		const queryPositiveScores = this.db
+			.select("*")
+			.from(query.as("asdf"))
+			.where("score", ">", "0");
+		const rows = await queryPositiveScores;
+
 		const scores = rows.reduce(
 			(map: Map<string, number>, score) =>
 				map.set(score.ownerDiscordId, parseInt(score.score)),
@@ -134,7 +137,13 @@ export class RecruiterRepository extends KnexRepository {
 			.groupBy("count_ril.owner_discord_id")
 			.where("count_ril.guild_id", "=", guildId)
 			.andWhereRaw(
-				`((${this.db({
+				// Only weight 0 and 1 are allowed. 0 is handled by counting it as a duplicate.
+				// Not a clean solution, but due to the complexity of the queries in this file,
+				// it is non-trivial to properly implement weighting. The main complication is
+				// that we aren't counting accepted_recruitment_invite_link, we're only using it
+				// for duplicate detection. The counting comes from recruitment_invite_link_usage_change.
+				"((?) >= 1 OR count_aril.weight = 0)",
+				this.db({
 					exists_aril: "accepted_recruitment_invite_link",
 				})
 					.leftJoin(
@@ -150,15 +159,8 @@ export class RecruiterRepository extends KnexRepository {
 					)
 					.andWhereRaw(
 						"exists_aril.created_at < count_aril.created_at",
-					)
-					// Only weight 0 and 1 are allowed. 0 is handled by counting it as a duplicate.
-					// Not a clean solution, but due to the complexity of the queries in this file,
-					// it is non-trivial to properly implement weighting. The main complication is
-					// that we aren't counting accepted_recruitment_invite_link, we're only using it
-					// for duplicate detection. The counting comes from recruitment_invite_link_usage_change.
-					.toString()}) >= 1 OR count_aril.weight = 0)`,
+					),
 			);
-
 		if (filter?.startDate) {
 			query.andWhere("count_aril.created_at", ">=", filter.startDate);
 		}
