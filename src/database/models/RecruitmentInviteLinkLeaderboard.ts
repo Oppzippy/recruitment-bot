@@ -1,7 +1,6 @@
-// TODO add types
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { InviteLinkFilter } from "../../modules/recruitment/leaderboard/InviteLinkFilter";
+import { parseISO } from "date-fns";
+import * as myzod from "myzod";
+import { RecruitmentInviteLinkFilter } from "./RecruitmentInviteLinkFilter";
 
 export type RecruitmentInviteLinkLeaderboard = {
 	id: number;
@@ -11,15 +10,17 @@ export type RecruitmentInviteLinkLeaderboard = {
 	size: number;
 	createdAt: Date;
 	updatedAt?: Date;
-	filter?: InviteLinkFilter;
+	filter?: RecruitmentInviteLinkFilter;
 };
 
-export function parseFilter(filter: any): InviteLinkFilter {
-	if (filter.startDate) {
-		filter.startDate = new Date(filter.startDate);
-	}
-	if (filter.endDate) {
-		filter.endDate = new Date(filter.endDate);
-	}
-	return filter;
+const filterSchema = myzod.object({
+	userId: myzod.string().optional(),
+	startDate: myzod.string().optional().map(parseISO),
+	resetIntervalInDays: myzod.number().optional(),
+	endDate: myzod.string().optional().map(parseISO),
+	now: myzod.string().optional().map(parseISO),
+});
+
+export function parseFilter(filterData: unknown): RecruitmentInviteLinkFilter {
+	return filterSchema.parse(filterData);
 }
