@@ -1,7 +1,7 @@
 import { Command } from "@sapphire/framework";
 import { EmbedField, EmbedBuilder, TextChannel } from "discord.js";
-import { RecruitmentInviteLinkLeaderboard } from "../../external/database/models/RecruitmentInviteLinkLeaderboard";
-import { isDiscordNotFoundError } from "../../util/DiscordUtils";
+import { RecruitmentInviteLinkLeaderboard } from "../database/models/RecruitmentInviteLinkLeaderboard";
+import { isDiscordNotFoundError } from "../util/DiscordUtils";
 
 export class CheckInvitesCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {

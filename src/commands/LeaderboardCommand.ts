@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/node";
 import { isValid, parseISO } from "date-fns";
 import { PermissionsBitField, TextChannel } from "discord.js";
 import { clamp } from "lodash";
-import { LeaderboardOptions } from "../../modules/recruitment/leaderboard/LeaderboardOptions";
+import { LeaderboardOptions } from "../modules/recruitment/leaderboard/LeaderboardOptions";
 
 export class LeaderboardCommand extends Command {
 	public constructor(context: Command.Context, options: Command.Options) {

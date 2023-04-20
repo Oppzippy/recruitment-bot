@@ -1,8 +1,8 @@
 import Axios from "axios";
-import { DataStore } from "../src/external/DataStore";
+import { DataStore } from "../src/database/DataStore";
 import { Knex } from "knex";
 import { useKnexInstance } from "./helper/Knex";
-import { KnexDataStore } from "../src/external/database/KnexDataStore";
+import { KnexDataStore } from "../src/database/KnexDataStore";
 import { HuokanAPI } from "../src/HuokanAPI";
 
 describe("recruitment HTTP api", () => {

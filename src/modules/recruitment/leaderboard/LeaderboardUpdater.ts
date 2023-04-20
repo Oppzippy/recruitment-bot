@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import { DataStore } from "../../../external/DataStore";
+import { DataStore } from "../../../database/DataStore";
 import { LeaderboardMessageGenerator } from "./LeaderboardMessageGenerator";
 import { LeaderboardOptions } from "./LeaderboardOptions";
 

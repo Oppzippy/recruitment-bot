@@ -3,7 +3,7 @@ import fastify, { FastifyInstance } from "fastify";
 import { RecruitmentEndpoint } from "./api/endpoints/v1/RecruitmentEndpoint";
 import { ApiKeyPlugin } from "./api/plugins/ApiKeyPlugin";
 import { DatabasePlugin } from "./api/plugins/DatabasePlugin";
-import { DataStore } from "./external/DataStore";
+import { DataStore } from "./database/DataStore";
 
 export class HuokanAPI {
 	private server: FastifyInstance;

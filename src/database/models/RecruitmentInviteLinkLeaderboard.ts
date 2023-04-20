@@ -1,7 +1,7 @@
 // TODO add types
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { InviteLinkFilter } from "../../../modules/recruitment/leaderboard/InviteLinkFilter";
+import { InviteLinkFilter } from "../../modules/recruitment/leaderboard/InviteLinkFilter";
 
 export type RecruitmentInviteLinkLeaderboard = {
 	id: number;

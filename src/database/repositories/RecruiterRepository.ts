@@ -1,8 +1,8 @@
 import * as Sentry from "@sentry/node";
 import { SpanStatus } from "@sentry/tracing";
 import { addDays } from "date-fns";
-import { InviteLinkFilter } from "../../../modules/recruitment/leaderboard/InviteLinkFilter";
-import { getCycleStartDate } from "../../../util/Date";
+import { InviteLinkFilter } from "../../modules/recruitment/leaderboard/InviteLinkFilter";
+import { getCycleStartDate } from "../../util/Date";
 import { KnexRepository } from "../KnexRepository";
 import { RecruitmentScore } from "../models/RecruitmentScore";
 

@@ -1,8 +1,8 @@
-import { ApiKeyRepository } from "./database/repositories/ApiKeyRepository";
-import { InviteLeaderboardRepository } from "./database/repositories/InviteLeaderboardRepository";
-import { InviteLinkRespository } from "./database/repositories/InviteLinkRepository";
-import { RecruiterRepository } from "./database/repositories/RecruiterRepository";
-import { SettingRepository } from "./database/repositories/SettingRepository";
+import { ApiKeyRepository } from "./repositories/ApiKeyRepository";
+import { InviteLeaderboardRepository } from "./repositories/InviteLeaderboardRepository";
+import { InviteLinkRespository } from "./repositories/InviteLinkRepository";
+import { RecruiterRepository } from "./repositories/RecruiterRepository";
+import { SettingRepository } from "./repositories/SettingRepository";
 
 export abstract class DataStore {
 	public readonly inviteLinks: InviteLinkRespository;

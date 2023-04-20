@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/node";
 import { DiscordAPIError, EmbedBuilder, Guild, GuildMember } from "discord.js";
 import { RESTJSONErrorCodes } from "discord-api-types/v10";
 import Multimap from "multimap";
-import { DataStore } from "../../external/DataStore";
+import { DataStore } from "../../database/DataStore";
 import { HuokanClient } from "../../HuokanClient";
 import { Module } from "../Module";
 import { InviteLinkTracker } from "./leaderboard/InviteLinkTracker";

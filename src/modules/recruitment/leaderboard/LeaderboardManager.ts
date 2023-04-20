@@ -1,8 +1,8 @@
 import * as Sentry from "@sentry/node";
 import { Guild, Client } from "discord.js";
 import { TextChannel, Message } from "discord.js";
-import { DataStore } from "../../../external/DataStore";
-import { RecruitmentInviteLinkLeaderboard } from "../../../external/database/models/RecruitmentInviteLinkLeaderboard";
+import { DataStore } from "../../../database/DataStore";
+import { RecruitmentInviteLinkLeaderboard } from "../../../database/models/RecruitmentInviteLinkLeaderboard";
 import { isDiscordNotFoundError } from "../../../util/DiscordUtils";
 import { LeaderboardOptions } from "./LeaderboardOptions";
 import { LeaderboardUpdater } from "./LeaderboardUpdater";

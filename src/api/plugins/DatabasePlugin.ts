@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyPluginCallback } from "fastify";
 import fp from "fastify-plugin";
-import { DataStore } from "../../external/DataStore";
+import { DataStore } from "../../database/DataStore";
 
 declare module "fastify" {
 	interface FastifyInstance {

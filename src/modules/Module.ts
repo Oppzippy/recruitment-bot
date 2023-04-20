@@ -1,4 +1,4 @@
-import { DataStore } from "../external/DataStore";
+import { DataStore } from "../database/DataStore";
 import { HuokanClient } from "../HuokanClient";
 
 export abstract class Module {

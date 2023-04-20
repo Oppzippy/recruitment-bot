@@ -10,7 +10,7 @@ import process from "process";
 import readline from "readline";
 import "source-map-support/register";
 import { getHeapSnapshot } from "v8";
-import { KnexDataStore } from "./external/database/KnexDataStore";
+import { KnexDataStore } from "./database/KnexDataStore";
 import { HuokanAPI } from "./HuokanAPI";
 import { HuokanClient } from "./HuokanClient";
 

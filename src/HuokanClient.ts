@@ -1,11 +1,9 @@
 import { SapphireClient } from "@sapphire/framework";
 import { Partials } from "discord.js";
-import { ConfigurationFile } from "./configuration-file/ConfigurationFile";
-import { DataStore } from "./external/DataStore";
+import { DataStore } from "./database/DataStore";
 import { RecruitmentModule } from "./modules/recruitment/RecruitmentModule";
 
 export class HuokanClient extends SapphireClient {
-	public readonly configFile: ConfigurationFile;
 	public readonly dataStore: DataStore;
 
 	public readonly recruitmentModule: RecruitmentModule;

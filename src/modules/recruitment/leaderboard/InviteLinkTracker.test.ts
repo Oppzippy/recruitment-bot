@@ -1,4 +1,4 @@
-import { DataStore } from "../../../external/DataStore";
+import { DataStore } from "../../../database/DataStore";
 import { Invite, InviteLinkTracker } from "./InviteLinkTracker";
 
 describe("invite link tracker", () => {
@@ -105,13 +105,13 @@ describe("invite link tracker", () => {
 function getInviteLinkTracker(
 	prevInvites = new Map<string, number>(),
 ): [InviteLinkTracker, DataStore] {
-	const mockDS = ({
+	const mockDS = {
 		inviteLinks: {
 			getInviteLinkUsage: jest.fn(async () => prevInvites),
 			setInviteLinkUsage: jest.fn(),
 			addInviteLinks: jest.fn(),
 		},
-	} as unknown) as DataStore;
+	} as unknown as DataStore;
 	return [new InviteLinkTracker(mockDS, "test"), mockDS];
 }
 

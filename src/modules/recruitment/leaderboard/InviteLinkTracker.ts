@@ -1,4 +1,4 @@
-import { DataStore } from "../../../external/DataStore";
+import { DataStore } from "../../../database/DataStore";
 
 const ELIGIBILITY_CUTOFF_DATE = new Date("2021-01-23T03:37Z");
 

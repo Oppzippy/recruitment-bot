@@ -1,6 +1,6 @@
 import { addDays } from "date-fns";
 import { EmbedBuilder } from "discord.js";
-import { RecruitmentScore } from "../../../external/database/models/RecruitmentScore";
+import { RecruitmentScore } from "../../../database/models/RecruitmentScore";
 import { getCycleStartDate } from "../../../util/Date";
 import { LeaderboardOptions } from "./LeaderboardOptions";
 

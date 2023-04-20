@@ -1,5 +1,5 @@
 import { Knex } from "knex";
-import { DataStore } from "../DataStore";
+import { DataStore } from "./DataStore";
 import { ApiKeyRepository } from "./repositories/ApiKeyRepository";
 import { InviteLeaderboardRepository } from "./repositories/InviteLeaderboardRepository";
 import { InviteLinkRespository } from "./repositories/InviteLinkRepository";

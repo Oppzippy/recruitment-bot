@@ -1,4 +1,4 @@
-import { LeaderboardOptions } from "../../../modules/recruitment/leaderboard/LeaderboardOptions";
+import { LeaderboardOptions } from "../../modules/recruitment/leaderboard/LeaderboardOptions";
 import { KnexRepository } from "../KnexRepository";
 import {
 	parseFilter,

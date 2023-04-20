@@ -1,7 +1,7 @@
 import { Knex } from "knex";
-import { DataStore } from "../src/external/DataStore";
+import { DataStore } from "../src/database/DataStore";
 import { useKnexInstance } from "./helper/Knex";
-import { KnexDataStore } from "../src/external/database/KnexDataStore";
+import { KnexDataStore } from "../src/database/KnexDataStore";
 import { parseISO } from "date-fns";
 import {
 	insertInviteLinks,
