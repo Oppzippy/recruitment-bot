@@ -41,7 +41,7 @@ export class InviteLinkRespository extends KnexRepository {
 			});
 		} catch (err) {
 			if (err.sqlState == 40001) {
-				// XXX deadlock, retry
+				// XXX Deadlock, retry. Is this still necessary? Unsure if deadlocks can still occur.
 				Sentry.captureMessage(
 					"Deadlock occurred in logInviteLinkUse, retrying.",
 				);

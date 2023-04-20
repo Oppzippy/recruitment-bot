@@ -101,7 +101,6 @@ export class LeaderboardManager {
 		message: Message,
 		options: LeaderboardOptions,
 	): Promise<void> {
-		// TODO options should be optional and fetched from db if not passed
 		const updater = new LeaderboardUpdater(this.db, options);
 		await updater.updateLeaderboard(message);
 	}

@@ -30,6 +30,6 @@ export class SettingRepository extends KnexRepository {
 			.select("value")
 			.where({ settingType: this.settingType, settingGroup, setting })
 			.first();
-		return row?.value; // XXX with mysql the json is parsed. mariadb does not parse the json.
+		return row?.value; // With mysql the json is parsed. mariadb does not parse the json.
 	}
 }
