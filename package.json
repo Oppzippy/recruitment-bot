@@ -8,7 +8,7 @@
 		"build": "tsc",
 		"compile": "npm run build",
 		"watch": "tsc --watch",
-		"start": "node out/index.js",
+		"start": "node --enable-source-maps out/index.js",
 		"migrate": "knex migrate:latest",
 		"lint": "eslint src",
 		"integration": "mocha --config .mocharc-integration.jsonc",
@@ -42,7 +42,6 @@
 		"myzod": "^1.10.0",
 		"node-cache": "^5.1.2",
 		"pg": "^8.10.0",
-		"source-map-support": "^0.5.21",
 		"ts-node": "^10.9.1",
 		"uuid": "^9.0.0"
 	},
