@@ -22,7 +22,6 @@ export class RecruiterRepository extends KnexRepository {
 				startDate: getCycleStartDate(
 					filter.startDate,
 					filter.resetIntervalInDays,
-					filter.now,
 				),
 			};
 			filter.endDate = addDays(
