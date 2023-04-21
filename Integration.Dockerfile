@@ -7,6 +7,7 @@ RUN addgroup -S recruitment-bot && adduser -S recruitment-bot -G recruitment-bot
 
 USER recruitment-bot:recruitment-bot
 WORKDIR /opt/recruitment-bot
+RUN chown recruitment-bot:recruitment-bot /opt/recruitment-bot
 
 COPY package.json .
 COPY package-lock.json .
