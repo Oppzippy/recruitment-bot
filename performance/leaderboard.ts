@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { useKnexInstance } from "../integration/helper/Knex";
-import { KnexDataStore } from "../src/external/database/KnexDataStore";
+import { KnexDataStore } from "../src/database/KnexDataStore";
 import { insertInviteLinks } from "../integration/helper/InviteLink";
 import { addSeconds, formatISO, parseISO } from "date-fns";
 import { uniqueId } from "lodash";
