@@ -1,19 +1,21 @@
 import { DataStore } from "../../../database/DataStore";
 import { Invite, InviteLinkTracker } from "./InviteLinkTracker";
+import { expect } from "chai";
+import * as sinon from "sinon";
 
 describe("invite link tracker", () => {
 	it("calculates differences with no previous links", async () => {
-		const [tracker] = getInviteLinkTracker();
+		const { tracker } = getInviteLinkTracker();
 		const createInvite = createInviteFactory();
 		const diff = await tracker.addState([
 			createInvite(),
 			createInvite({ uses: 2 }),
 		]);
-		expect(diff).toEqual(new Map([["invite2", 2]]));
+		expect(diff).to.deep.equal(new Map([["invite2", 2]]));
 	});
 
 	it("calculates differences with previous invite links", async () => {
-		const [tracker] = getInviteLinkTracker(
+		const { tracker } = getInviteLinkTracker(
 			new Map([
 				["invite1", 1],
 				["invite2", 2],
@@ -29,7 +31,7 @@ describe("invite link tracker", () => {
 			createInvite({ uses: 5 }),
 		]);
 
-		expect(diff).toEqual(
+		expect(diff).to.deep.equal(
 			new Map([
 				["invite2", 1],
 				["invite3", 3],
@@ -39,23 +41,23 @@ describe("invite link tracker", () => {
 	});
 
 	it("calculates difference with some ineligible links", async () => {
-		const [tracker] = getInviteLinkTracker();
+		const { tracker } = getInviteLinkTracker();
 		const createInvite = createInviteFactory();
 		const diff = await tracker.addState([
 			createInvite({ uses: 1, createdAt: new Date("2000-01-01") }),
 			createInvite({ uses: 1 }),
 		]);
-		expect(diff).toEqual(new Map([["invite2", 1]]));
+		expect(diff).to.deep.equal(new Map([["invite2", 1]]));
 	});
 
 	it("counts forced eligible links that would otherwise be ineligible", async () => {
-		const [tracker] = getInviteLinkTracker(new Map([["invite1", 1]]));
+		const { tracker } = getInviteLinkTracker(new Map([["invite1", 1]]));
 		const createInvite = createInviteFactory();
 		const diff = await tracker.addState([
 			createInvite({ uses: 2, createdAt: new Date("2000-01-01") }),
 			createInvite({ uses: 1 }),
 		]);
-		expect(diff).toEqual(
+		expect(diff).to.deep.equal(
 			new Map([
 				["invite1", 1],
 				["invite2", 1],
@@ -64,7 +66,7 @@ describe("invite link tracker", () => {
 	});
 
 	it("persists forced eligible links", async () => {
-		const [tracker] = getInviteLinkTracker(new Map([["invite2", 1]]));
+		const { tracker } = getInviteLinkTracker(new Map([["invite2", 1]]));
 		let createInvite = createInviteFactory();
 		await tracker.addState([
 			createInvite({ uses: 1 }),
@@ -81,38 +83,41 @@ describe("invite link tracker", () => {
 			createInvite({ uses: 2, createdAt: new Date("2000-01-01") }),
 		]);
 
-		expect(diff).toEqual(new Map([["invite2", 1]]));
+		expect(diff).to.deep.equal(new Map([["invite2", 1]]));
 	});
 
 	it("only inserts modified invite links", async () => {
-		const [tracker, mockDS] = getInviteLinkTracker();
+		const { tracker, mockDS } = getInviteLinkTracker();
 		const createInvite = createInviteFactory();
 		await tracker.addState([
 			createInvite(),
 			createInvite({ uses: 1 }),
 			createInvite({ uses: 1, createdAt: new Date("2000-01-01") }),
 		]);
-		expect(mockDS.inviteLinks.addInviteLinks).toHaveBeenCalledWith([
-			{
-				guildId: "test",
-				inviteLink: "invite2",
-				ownerDiscordId: "testInviter",
-			},
+		expect(mockDS.inviteLinks.addInviteLinks.args).to.deep.contain([
+			[
+				{
+					guildId: "test",
+					inviteLink: "invite2",
+					ownerDiscordId: "testInviter",
+				},
+			],
 		]);
 	});
 });
 
-function getInviteLinkTracker(
-	prevInvites = new Map<string, number>(),
-): [InviteLinkTracker, DataStore] {
+function getInviteLinkTracker(prevInvites = new Map<string, number>()) {
 	const mockDS = {
 		inviteLinks: {
-			getInviteLinkUsage: jest.fn(async () => prevInvites),
-			setInviteLinkUsage: jest.fn(),
-			addInviteLinks: jest.fn(),
+			getInviteLinkUsage: sinon.fake(async () => prevInvites),
+			setInviteLinkUsage: sinon.fake(),
+			addInviteLinks: sinon.fake(),
 		},
-	} as unknown as DataStore;
-	return [new InviteLinkTracker(mockDS, "test"), mockDS];
+	};
+	return {
+		tracker: new InviteLinkTracker(mockDS as unknown as DataStore, "test"),
+		mockDS,
+	};
 }
 
 function createInviteFactory() {

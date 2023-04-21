@@ -1,0 +1,5 @@
+// .mocharc.js
+{
+	"spec": ["src/**/*.spec.ts"],
+	"require": "ts-node/register"
+}

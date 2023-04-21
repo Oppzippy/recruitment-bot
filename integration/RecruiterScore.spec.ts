@@ -8,21 +8,24 @@ import {
 	insertJoinedWithoutInviteLink,
 } from "./helper/InviteLink";
 
-jest.setTimeout(30000);
-describe("recruiter score", () => {
+import { expect } from "chai";
+
+describe("recruiter score", function () {
+	this.timeout(30000);
+
 	let knex: Knex;
 	let dataStore: DataStore;
 
-	beforeEach(async () => {
-		knex = await useKnexInstance();
+	beforeEach(async function () {
+		knex = await useKnexInstance(this.currentTest?.title);
 		dataStore = new KnexDataStore(knex);
 	});
 
-	afterEach(() => {
+	afterEach(function () {
 		knex.destroy();
 	});
 
-	it("gets scores with duplicates", async () => {
+	it("gets scores with duplicates", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -70,11 +73,11 @@ describe("recruiter score", () => {
 		});
 		const scores =
 			await dataStore.recruiters.getRecruiterScoresWithDuplicates("1");
-		expect(scores.get("1")).toEqual(3);
-		expect(scores.get("2")).toEqual(1);
+		expect(scores.get("1")).to.equal(3);
+		expect(scores.get("2")).to.equal(1);
 	});
 
-	it("gets scores with duplicates in a range", async () => {
+	it("gets scores with duplicates in a range", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -124,11 +127,11 @@ describe("recruiter score", () => {
 			await dataStore.recruiters.getRecruiterScoresWithDuplicates("1", {
 				endDate: parseISO("2020-01-01T03:00:00Z"),
 			});
-		expect(scores.get("1")).toEqual(2);
-		expect(scores.get("2")).toBeUndefined();
+		expect(scores.get("1")).to.equal(2);
+		expect(scores.get("2")).to.be.undefined;
 	});
 
-	it("gets duplicates", async () => {
+	it("gets duplicates", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -186,11 +189,11 @@ describe("recruiter score", () => {
 		const duplicates = await dataStore.recruiters.getRecruiterDuplicates(
 			"1",
 		);
-		expect(duplicates.get("1")).toEqual(2);
-		expect(duplicates.get("2")).toEqual(1);
+		expect(duplicates.get("1")).to.equal(2);
+		expect(duplicates.get("2")).to.equal(1);
 	});
 
-	it("doesn't track duplicates after an end date", async () => {
+	it("doesn't track duplicates after an end date", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -252,7 +255,7 @@ describe("recruiter score", () => {
 		const score = await dataStore.recruiters.getRecruiterScores("1", {
 			endDate: parseISO("2020-01-01T03:00:00Z"),
 		});
-		expect(score).toEqual([
+		expect(score).to.deep.equal([
 			{
 				guildId: "1",
 				recruiterDiscordId: "1",
@@ -261,7 +264,7 @@ describe("recruiter score", () => {
 		]);
 	});
 
-	it("doesn't subtract duplicates from before the start date", async () => {
+	it("doesn't subtract duplicates from before the start date", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -296,7 +299,7 @@ describe("recruiter score", () => {
 		const score = await dataStore.recruiters.getRecruiterScores("1", {
 			startDate: parseISO("2020-01-01T03:00:00Z"),
 		});
-		expect(score).toEqual([
+		expect(score).to.deep.equal([
 			{
 				guildId: "1",
 				recruiterDiscordId: "1",
@@ -305,7 +308,7 @@ describe("recruiter score", () => {
 		]);
 	});
 
-	it("filters duplicates with a start and end date", async () => {
+	it("filters duplicates with a start and end date", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -364,7 +367,7 @@ describe("recruiter score", () => {
 			startDate: new Date("2020-01-02T00:00:00Z"),
 			endDate: new Date("2020-01-02T10:00:00Z"),
 		});
-		expect(score).toEqual([
+		expect(score).to.deep.equal([
 			{
 				guildId: "1",
 				recruiterDiscordId: "1",
@@ -373,7 +376,7 @@ describe("recruiter score", () => {
 		]);
 	});
 
-	it("retrieves all records with no filters", async () => {
+	it("retrieves all records with no filters", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -421,7 +424,7 @@ describe("recruiter score", () => {
 			],
 		});
 		const scores = await dataStore.recruiters.getRecruiterScores("1");
-		expect(new Set(scores)).toEqual(
+		expect(new Set(scores)).to.deep.equal(
 			new Set([
 				{
 					guildId: "1",
@@ -437,7 +440,7 @@ describe("recruiter score", () => {
 		);
 	});
 
-	it("retrieves all records with date filter extremities", async () => {
+	it("retrieves all records with date filter extremities", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -465,14 +468,14 @@ describe("recruiter score", () => {
 			startDate: new Date(0),
 			endDate: parseISO("2500-01-01T00:00:00Z"),
 		});
-		expect(scores).toContainEqual({
+		expect(scores).to.deep.contain({
 			guildId: "1",
 			recruiterDiscordId: "1",
 			count: 1,
 		});
 	});
 
-	it("doesn't count users that have joined before without an invite link", async () => {
+	it("doesn't count users that have joined before without an invite link", async function () {
 		insertJoinedWithoutInviteLink(knex, [
 			{
 				accepteeId: "1",
@@ -508,14 +511,14 @@ describe("recruiter score", () => {
 			],
 		});
 		const scores = await dataStore.recruiters.getRecruiterScores("1");
-		expect(scores).toContainEqual({
+		expect(scores).to.deep.contain({
 			guildId: "1",
 			recruiterDiscordId: "1",
 			count: 1,
 		});
 	});
 
-	it("excludes only banned invite links", async () => {
+	it("excludes only banned invite links", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -550,7 +553,7 @@ describe("recruiter score", () => {
 			],
 		});
 		const scores = await dataStore.recruiters.getRecruiterScores("1");
-		expect(scores).toEqual([
+		expect(scores).to.deep.equal([
 			{
 				guildId: "1",
 				recruiterDiscordId: "1",
@@ -559,7 +562,7 @@ describe("recruiter score", () => {
 		]);
 	});
 
-	it("doesn't include accounts that are too young", async () => {
+	it("doesn't include accounts that are too young", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -589,7 +592,7 @@ describe("recruiter score", () => {
 			],
 		});
 		const scores = await dataStore.recruiters.getRecruiterScores("1");
-		expect(scores).toEqual([
+		expect(scores).to.deep.equal([
 			{
 				guildId: "1",
 				recruiterDiscordId: "1",
@@ -598,7 +601,7 @@ describe("recruiter score", () => {
 		]);
 	});
 
-	it("filters by guild id", async () => {
+	it("filters by guild id", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -664,7 +667,7 @@ describe("recruiter score", () => {
 			],
 		});
 		const scores = await dataStore.recruiters.getRecruiterScores("1");
-		expect(scores).toEqual([
+		expect(scores).to.deep.equal([
 			{
 				guildId: "1",
 				recruiterDiscordId: "1",
@@ -673,7 +676,7 @@ describe("recruiter score", () => {
 		]);
 	});
 
-	it("filters by user id", async () => {
+	it("filters by user id", async function () {
 		await insertInviteLinks(knex, {
 			guilds: [
 				{
@@ -726,7 +729,7 @@ describe("recruiter score", () => {
 		const scores = await dataStore.recruiters.getRecruiterScores("1", {
 			userId: "2",
 		});
-		expect(scores).toEqual([
+		expect(scores).to.deep.equal([
 			{
 				guildId: "1",
 				recruiterDiscordId: "2",

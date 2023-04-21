@@ -4,16 +4,19 @@ import { Knex } from "knex";
 import { useKnexInstance } from "./helper/Knex";
 import { KnexDataStore } from "../src/database/KnexDataStore";
 import { HuokanAPI } from "../src/HuokanAPI";
+import { expect } from "chai";
 
-describe("recruitment HTTP api", () => {
+describe("recruitment HTTP api", function () {
+	this.timeout(30000);
+
 	let apiURL: string;
 	let api: HuokanAPI;
 	let apiKey: string;
 	let dataStore: DataStore;
 	let knexInstance: Knex;
 
-	beforeEach(async () => {
-		knexInstance = await useKnexInstance();
+	beforeEach(async function () {
+		knexInstance = await useKnexInstance(this.currentTest?.title);
 		dataStore = new KnexDataStore(knexInstance);
 
 		api = new HuokanAPI(dataStore);
@@ -23,12 +26,12 @@ describe("recruitment HTTP api", () => {
 		await dataStore.apiKeys.addGuildPermission(apiKey, "10");
 	});
 
-	afterEach(async () => {
+	afterEach(async function () {
 		api.destroy();
 		await knexInstance.destroy();
 	});
 
-	it("gets invite links", async () => {
+	it("gets invite links", async function () {
 		await dataStore.inviteLinks.addInviteLink("10", "testLink", "1");
 		const response = await Axios.get(
 			`${apiURL}/v1/recruitment/inviteLink/testLink`,
@@ -38,13 +41,13 @@ describe("recruitment HTTP api", () => {
 				},
 			},
 		);
-		expect(response.data).toMatchObject({
+		expect(response.data).to.contain({
 			inviteLink: "testLink",
 			ownerDiscordId: "1",
 		});
 	});
 
-	it("gets the invite links used by a user", async () => {
+	it("gets the invite links used by a user", async function () {
 		await dataStore.inviteLinks.addInviteLink("10", "testLink2", "2");
 		for (let i = 0; i < 5; i++) {
 			await dataStore.inviteLinks.logInviteLinkUse(
@@ -63,10 +66,10 @@ describe("recruitment HTTP api", () => {
 			},
 		);
 
-		expect(response.data).toHaveLength(5);
+		expect(response.data).to.have.length(5);
 	});
 
-	it("gets a user's recruiter", async () => {
+	it("gets a user's recruiter", async function () {
 		// TODO test with only one invite link use
 		await dataStore.inviteLinks.addInviteLink("10", "testLink3", "3");
 		await dataStore.inviteLinks.addInviteLink("10", "testLink4", "4");
@@ -91,15 +94,15 @@ describe("recruitment HTTP api", () => {
 				},
 			},
 		);
-		expect(response.data).toMatchObject({
+		expect(response.data).to.contain({
 			inviteLink: "testLink3",
 			recruiterDiscordId: "3",
 		});
 		// TODO test timestamp
-		expect(response.data).toHaveProperty("timestamp");
+		expect(response.data).to.have.property("timestamp");
 	});
 
-	it("404s when a user hasn't accepted an invite link", async () => {
+	it("404s when a user hasn't accepted an invite link", async function () {
 		await dataStore.inviteLinks.logInviteLinkUse("10", "5", true);
 		const response = await Axios.get(
 			`${apiURL}/v1/recruitment/user/5/recruiter`,
@@ -110,10 +113,10 @@ describe("recruitment HTTP api", () => {
 				validateStatus: () => true,
 			},
 		);
-		expect(response.status).toEqual(404);
+		expect(response.status).to.equal(404);
 	});
 
-	it("404s when getting recruiter of non numeric user id", async () => {
+	it("404s when getting recruiter of non numeric user id", async function () {
 		const response = await Axios.get(
 			`${apiURL}/v1/recruitment/user/1unknownTestUser1/recruiter`,
 			{
@@ -123,10 +126,10 @@ describe("recruitment HTTP api", () => {
 				validateStatus: () => true,
 			},
 		);
-		expect(response.status).toEqual(404);
+		expect(response.status).to.equal(404);
 	});
 
-	it("404s when getting accepted invites of non numeric user id", async () => {
+	it("404s when getting accepted invites of non numeric user id", async function () {
 		const response = await Axios.get(
 			`${apiURL}/v1/recruitment/user/1unknownTestUser1/acceptedInvites`,
 			{
@@ -136,6 +139,6 @@ describe("recruitment HTTP api", () => {
 				validateStatus: () => true,
 			},
 		);
-		expect(response.status).toEqual(404);
+		expect(response.status).to.equal(404);
 	});
 });

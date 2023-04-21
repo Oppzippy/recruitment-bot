@@ -15,15 +15,14 @@ const knexConfig = {
 	},
 };
 
-export async function useKnexInstance(name?: string) {
+export async function useKnexInstance(name: string | undefined) {
 	// Create the new db
-	const currentTestSuffix = name ?? expect.getState().currentTestName;
 	const customKnexConfig = {
 		...knexConfig,
 		connection: {
 			...knexConfig.connection,
 			// ensure valid table name
-			database: `${randomUUID()}_${currentTestSuffix}`
+			database: `${randomUUID()}_${name ?? "MISSING_NAME"}`
 				.replaceAll(" ", "_")
 				.replaceAll(/[^A-Za-z0-9_]/g, "")
 				.toLowerCase()
