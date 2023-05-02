@@ -14,14 +14,16 @@ export type RecruitmentInviteLinkLeaderboard = {
 };
 
 const filterSchema = myzod.object({
-	userId: myzod.string().optional(),
+	userId: myzod.string().optional().nullable(),
 	startDate: myzod
 		.string()
+		.nullable()
 		.optional()
 		.map((date) => parseISO(date)),
-	resetIntervalInDays: myzod.number().optional(),
+	resetIntervalInDays: myzod.number().optional().nullable(),
 	endDate: myzod
 		.string()
+		.nullable()
 		.optional()
 		.map((date) => parseISO(date)),
 });
