@@ -18,7 +18,7 @@
 	"license": "GPL-3.0",
 	"dependencies": {
 		"@sapphire/decorators": "^6.0.0",
-		"@sapphire/discord.js-utilities": "^6.0.3",
+		"@sapphire/discord.js-utilities": "^6.1.0",
 		"@sapphire/framework": "^4.2.1",
 		"@sapphire/utilities": "^3.11.0",
 		"@sentry/node": "^7.42.0",
