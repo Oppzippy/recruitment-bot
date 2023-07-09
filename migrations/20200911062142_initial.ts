@@ -1,6 +1,9 @@
 import { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
+	if (knex.client?.config?.client == "pg") {
+		await knex.raw("CREATE EXTENSION moddatetime");
+	}
 	await knex.schema
 		.createTable("recruitment_invite_link", (table) => {
 			table.increments("id").primary();
