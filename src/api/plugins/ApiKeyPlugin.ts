@@ -24,9 +24,8 @@ async function onRequest(
 	reply: FastifyReply,
 ) {
 	if (request.headers.authorization) {
-		const authorization = request.headers.authorization.match(
-			/^bearer (.*)$/i,
-		);
+		const authorization =
+			request.headers.authorization.match(/^bearer (.*)$/i);
 		const key = authorization && authorization[1];
 		if (!key || !(await this.db.apiKeys.doesApiKeyExist(key))) {
 			reply.code(401).send({

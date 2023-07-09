@@ -30,4 +30,3 @@ services:
       POSTGRES_DATABASE: ${DB_DATABASE}
       POSTGRES_USER: recruitmentbot
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-
