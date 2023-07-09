@@ -1,5 +1,5 @@
 services:
-  integration_app:
+  integration_app_mysql:
     build:
       context: ..
       dockerfile: Integration.Dockerfile
@@ -11,22 +11,15 @@ services:
       - ../src:/opt/recruitment-bot/src
       - ../out:/opt/recruitment-bot/out
     env_file:
-      - .env
+    - .env-mysql
+
   integration_db_mysql:
     image: mysql:latest
     command: --default-authentication-plugin=mysql_native_password
     tmpfs:
       - /var/lib/mysql/:rw
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: recruitmentbot
+      MYSQL_DATABASE: recruitmentbot
       MYSQL_USER: recruitmentbot
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-  integration_db_pgsql:
-    image: postgres:latest
-    tmpfs:
-      - /var/lib/postgresql/data:rw
-    environment:
-      POSTGRES_DATABASE: ${DB_DATABASE}
-      POSTGRES_USER: recruitmentbot
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: recruitmentbot
