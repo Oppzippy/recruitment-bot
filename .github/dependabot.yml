@@ -10,6 +10,8 @@ updates:
       minor:
         update-types:
           - "minor"
+      patch:
+        update-types:
           - "patch"
     schedule:
       interval: weekly
