@@ -10,6 +10,7 @@ updates:
       minor:
         update-types:
           - "minor"
+          - "patch"
       patch:
         update-types:
           - "patch"
