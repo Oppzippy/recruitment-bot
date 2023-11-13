@@ -33,7 +33,7 @@
 		"fluent-json-schema": "^4.2.1",
 		"jsonfile": "^6.1.0",
 		"keyv": "^4.5.4",
-		"knex": "2.4.2",
+		"knex": "3.0.1",
 		"knex-stringcase": "^1.4.6",
 		"lodash": "^4.17.21",
 		"middie": "^7.1.0",
