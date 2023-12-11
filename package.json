@@ -20,7 +20,7 @@
 		"@sapphire/decorators": "^6.0.0",
 		"@sapphire/discord.js-utilities": "^7.1.2",
 		"@sapphire/framework": "^4.8.5",
-		"@sapphire/utilities": "^3.11.0",
+		"@sapphire/utilities": "^3.14.0",
 		"@sentry/node": "^7.84.0",
 		"@sentry/tracing": "^7.84.0",
 		"axios": "^1.6.2",
