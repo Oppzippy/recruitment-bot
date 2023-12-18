@@ -24,7 +24,7 @@
 		"@sentry/node": "^7.88.0",
 		"@sentry/tracing": "^7.88.0",
 		"axios": "^1.6.2",
-		"date-fns": "^2.29.3",
+		"date-fns": "^3.0.0",
 		"discord-api-types": "^0.37.66",
 		"discord.js": "^14.14.1",
 		"dotenv": "^16.0.3",
