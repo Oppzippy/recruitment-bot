@@ -6,29 +6,29 @@ services:
   #     - .env
   #   depends_on:
   #     - database
-  dev_db:
-    image: mysql:latest
-    volumes:
-      - db_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
-    restart: always
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+  # dev_db:
+  #   image: mysql:latest
+  #   volumes:
+  #     - db_data:/var/lib/mysql
+  #   ports:
+  #     - 127.0.0.1:3306:3306
+  #   restart: always
+  #   command: --default-authentication-plugin=mysql_native_password
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+  #     MYSQL_DATABASE: ${DB_DATABASE}
+  #     MYSQL_USER: ${DB_USER}
+  #     MYSQL_PASSWORD: ${DB_PASSWORD}
   dev_db_pgsql:
     image: postgres:latest
     ports:
-      - "5432:5432"
+      - 127.0.0.1:5432:5432
     volumes:
       - pgsql_data:/var/lib/postgresql/data:rw
     environment:
-      POSTGRES_DATABASE: ${DB_DATABASE}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DATABASE: recruitmentbot
+      POSTGRES_USER: recruitmentbot
+      POSTGRES_PASSWORD: recruitmentbot
 volumes:
   db_data: {}
   pgsql_data: {}

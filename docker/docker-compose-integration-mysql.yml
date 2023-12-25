@@ -11,7 +11,7 @@ services:
       - ../src:/opt/recruitment-bot/src
       - ../out:/opt/recruitment-bot/out
     env_file:
-    - .env-mysql
+      - .env-mysql
 
   integration_db_mysql:
     image: mysql:latest
