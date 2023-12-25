@@ -19,7 +19,7 @@
 	"dependencies": {
 		"@sapphire/decorators": "^6.0.3",
 		"@sapphire/discord.js-utilities": "^7.1.4",
-		"@sapphire/framework": "^4.8.5",
+		"@sapphire/framework": "^5.0.4",
 		"@sapphire/utilities": "^3.11.0",
 		"@sentry/node": "^7.91.0",
 		"@sentry/tracing": "^7.91.0",
