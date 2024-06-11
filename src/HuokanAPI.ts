@@ -31,7 +31,7 @@ export class HuokanAPI {
 	}
 
 	public async listen(port = 3000): Promise<string> {
-		return await this.server.listen({ port });
+		return await this.server.listen({ port, host: "127.0.0.1" });
 	}
 
 	public async destroy(): Promise<void> {
