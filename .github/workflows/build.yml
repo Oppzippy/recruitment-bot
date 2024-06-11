@@ -12,7 +12,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - name: Install dependencies
         run: npm ci
       - name: Lint
@@ -22,11 +22,9 @@ jobs:
       - name: Run unit tests
         run: npm test -- -ci
       - name: Build docker images for integration test
-        run: docker-compose -f docker/docker-compose-integration-mysql.yml build
-      - name: Integration test with mysql
-        run: docker-compose -f docker/docker-compose-integration-mysql.yml up --abort-on-container-exit
+        run: docker-compose -f docker/docker-compose-integration.yml build
       - name: Integration test with postgresql
-        run: docker-compose -f docker/docker-compose-integration-pgsql.yml up --abort-on-container-exit
+        run: docker-compose -f docker/docker-compose-integration.yml up --abort-on-container-exit
 
   release:
     needs: test
