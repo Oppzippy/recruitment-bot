@@ -25,10 +25,10 @@
 		"@sentry/tracing": "^7.100.1",
 		"axios": "^1.6.7",
 		"date-fns": "^3.3.1",
-		"discord-api-types": "^0.37.69",
+		"discord-api-types": "^0.37.89",
 		"discord.js": "^14.14.1",
 		"dotenv": "^16.4.2",
-		"fastify": "^4.26.0",
+		"fastify": "^4.28.0",
 		"fastify-plugin": "^4.5.0",
 		"fluent-json-schema": "^4.2.1",
 		"jsonfile": "^6.1.0",
@@ -60,9 +60,9 @@
 		"chai": "^4.3.10",
 		"eslint": "^8.56.0",
 		"mocha": "^10.3.0",
-		"prettier": "^3.2.5",
+		"prettier": "^3.3.2",
 		"sinon": "^18.0.0",
-		"typescript": "~5.3.3"
+		"typescript": "~5.4.5"
 	},
 	"optionalDependencies": {
 		"bufferutil": "^4.0.8",
