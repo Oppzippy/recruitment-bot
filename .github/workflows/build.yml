@@ -22,9 +22,9 @@ jobs:
       - name: Run unit tests
         run: npm test -- -ci
       - name: Build docker images for integration test
-        run: docker-compose -f docker/docker-compose-integration.yml build
+        run: docker compose -f docker/docker-compose-integration.yml build
       - name: Integration test with postgresql
-        run: docker-compose -f docker/docker-compose-integration.yml up --abort-on-container-exit
+        run: docker compose -f docker/docker-compose-integration.yml up --abort-on-container-exit
 
   release:
     needs: test
