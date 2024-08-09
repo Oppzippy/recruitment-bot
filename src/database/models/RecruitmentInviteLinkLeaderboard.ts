@@ -1,4 +1,4 @@
-import * as myzod from "myzod";
+import { z } from "zod";
 import { RecruitmentInviteLinkFilter } from "./RecruitmentInviteLinkFilter";
 import { parseISO } from "date-fns";
 
@@ -13,27 +13,27 @@ export type RecruitmentInviteLinkLeaderboard = {
 	filter?: RecruitmentInviteLinkFilter;
 };
 
-const filterSchema = myzod.object({
-	userId: myzod
+const filterSchema = z.object({
+	userId: z
 		.string()
 		.optional()
 		.nullable()
-		.map((value) => value ?? undefined),
-	startDate: myzod
+		.transform((value) => value ?? undefined),
+	startDate: z
 		.string()
 		.optional()
 		.nullable()
-		.map((date) => (date ? parseISO(date) : undefined)),
-	resetIntervalInDays: myzod
+		.transform((date) => (date ? parseISO(date) : undefined)),
+	resetIntervalInDays: z
 		.number()
 		.optional()
 		.nullable()
-		.map((value) => value ?? undefined),
-	endDate: myzod
+		.transform((value) => value ?? undefined),
+	endDate: z
 		.string()
 		.optional()
 		.nullable()
-		.map((date) => (date ? parseISO(date) : undefined)),
+		.transform((date) => (date ? parseISO(date) : undefined)),
 });
 
 export function parseFilter(filterData: unknown): RecruitmentInviteLinkFilter {
