@@ -26,7 +26,7 @@ export async function useKnexInstance(name: string | undefined) {
 				.replaceAll(" ", "_")
 				.replaceAll(/[^A-Za-z0-9_]/g, "")
 				.toLowerCase()
-				.substring(0, 64),
+				.substring(0, 50),
 		},
 	};
 	const knexInstance = knex(knexStringcase(knexConfig));
