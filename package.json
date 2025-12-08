@@ -30,7 +30,7 @@
 		"dotenv": "^16.4.2",
 		"fastify": "^4.26.0",
 		"fastify-plugin": "^4.5.0",
-		"fluent-json-schema": "^5.0.0",
+		"fluent-json-schema": "^6.0.0",
 		"jsonfile": "^6.1.0",
 		"keyv": "^4.5.4",
 		"knex": "2.4.2",
