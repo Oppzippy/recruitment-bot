@@ -3,11 +3,11 @@ import * as Sentry from "@sentry/node";
 import { GuildMember } from "discord.js";
 
 export class InviteLinkAcceptListener extends Listener {
-	public constructor(context: Listener.Context, options: Listener.Options) {
-		super(context, {
-			...options,
-			event: "guildMemberAdd",
-		});
+	public constructor(
+		context: Listener.LoaderContext,
+		options: Listener.Options,
+	) {
+		super(context, { ...options, event: "guildMemberAdd" });
 	}
 
 	public async run(member: GuildMember): Promise<void> {

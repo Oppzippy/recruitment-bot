@@ -1,9 +1,9 @@
 {
 	"compilerOptions": {
-		"module": "CommonJS",
+		"module": "commonjs",
 		"alwaysStrict": true,
 		"sourceMap": true,
-		"outDir": "out",
+		"outDir": "./out",
 		"moduleResolution": "node",
 		"target": "ES2022",
 		"incremental": true,
@@ -11,5 +11,5 @@
 		"esModuleInterop": true,
 		"experimentalDecorators": true
 	},
-	"include": ["src/**/*"]
+	"include": ["src/**/*", "integration/**/*", "migrations/**/*"]
 }

@@ -1,5 +1,4 @@
 // .mocharc.js
 {
-	"spec": ["integration/**/*.spec.ts"],
-	"require": "ts-node/register"
+	"spec": ["./out/integration/**/*.spec.js"]
 }

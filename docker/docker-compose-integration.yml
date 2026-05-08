@@ -4,19 +4,19 @@ services:
       context: ..
       dockerfile: Integration.Dockerfile
     volumes:
-      - ../integration:/opt/recruitment-bot/integration
-      - ../migrations:/opt/recruitment-bot/migrations
-      - ../seeds:/opt/recruitment-bot/seeds
-      - ../coverage:/opt/recruitment-bot/coverage
-      - ../src:/opt/recruitment-bot/src
-      - ../out:/opt/recruitment-bot/out
+      - ../integration:/opt/recruitment-bot/integration:z
+      - ../migrations:/opt/recruitment-bot/migrations:z
+      - ../seeds:/opt/recruitment-bot/seeds:z
+      - ../coverage:/opt/recruitment-bot/coverage:z
+      - ../src:/opt/recruitment-bot/src:z
+      - ../out:/opt/recruitment-bot/out:z
     env_file:
       - .env-pgsql
 
   integration_db_pgsql:
     image: postgres:latest
     tmpfs:
-      - /var/lib/postgresql/data:rw
+      - /var/lib/postgresql:rw
     environment:
       POSTGRES_DATABASE: recruitmentbot
       POSTGRES_USER: recruitmentbot

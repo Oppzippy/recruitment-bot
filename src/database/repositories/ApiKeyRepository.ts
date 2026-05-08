@@ -4,10 +4,7 @@ import { KnexRepository } from "../KnexRepository";
 export class ApiKeyRepository extends KnexRepository {
 	public async createApiKey(ownerDiscordId: string): Promise<string> {
 		const apiKey = uuidv4();
-		await this.db("api_key").insert({
-			key: apiKey,
-			ownerDiscordId,
-		});
+		await this.db("api_key").insert({ key: apiKey, ownerDiscordId });
 		return apiKey;
 	}
 

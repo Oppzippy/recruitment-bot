@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/node";
-import fastify, { FastifyInstance } from "fastify";
+import fastify, { FastifyError, FastifyInstance } from "fastify";
 import { RecruitmentEndpoint } from "./api/endpoints/v1/RecruitmentEndpoint";
 import { ApiKeyPlugin } from "./api/plugins/ApiKeyPlugin";
 import { DatabasePlugin } from "./api/plugins/DatabasePlugin";
@@ -9,13 +9,15 @@ export class HuokanAPI {
 	private server: FastifyInstance;
 	public constructor(db: DataStore) {
 		this.server = fastify({});
-		this.server.setErrorHandler((error, request, reply) => {
+		this.server.setErrorHandler<FastifyError>((error, request, reply) => {
 			if (error.validation) {
-				reply.status(400).send({
-					statusCode: 400,
-					error: "Bad Request",
-					message: error.message,
-				});
+				reply
+					.status(400)
+					.send({
+						statusCode: 400,
+						error: "Bad Request",
+						message: error.message,
+					});
 			} else {
 				reply
 					.status(500)

@@ -1,21 +1,26 @@
 import { randomUUID } from "crypto";
-import { knex } from "knex";
-import knexStringcase from "knex-stringcase";
+import { Knex, knex } from "knex";
+const knexStringcase = require("knex-stringcase");
 
-const knexConfig = {
+const knexConfigTemplate = {
 	client: process.env.DB_CLIENT,
 	connection: {
 		timezone: "+00:00",
 		host: process.env.DB_HOST,
 		user: process.env.DB_USER,
 		password: process.env.DB_PASSWORD,
-		port: process.env.DB_PORT,
+		port: parseInt(process.env.DB_PORT),
 		bigNumberStrings: true,
 		supportBigNumbers: true,
 	},
-};
+	migrations: {
+		directory: "out/migrations"
+	},
+} satisfies Knex.Config;
 
 export async function useKnexInstance(name: string | undefined) {
+	// passing knexConfig to knex will modify the config
+	const knexConfig = structuredClone(knexConfigTemplate);
 	// Create the new db
 	const customKnexConfig = {
 		...knexConfig,
@@ -28,8 +33,9 @@ export async function useKnexInstance(name: string | undefined) {
 				.toLowerCase()
 				.substring(0, 50),
 		},
+		...knexStringcase.default()
 	};
-	const knexInstance = knex(knexStringcase(knexConfig));
+	const knexInstance = knex(knexConfig);
 	await knexInstance.raw(
 		"CREATE DATABASE ??",
 		customKnexConfig.connection.database,
@@ -37,7 +43,7 @@ export async function useKnexInstance(name: string | undefined) {
 	// Destroy connection with default db and create a new one with the correct db
 	await knexInstance.destroy();
 
-	const testKnexInstance = knex(knexStringcase(customKnexConfig));
+	const testKnexInstance = knex(customKnexConfig);
 	await testKnexInstance.migrate.latest();
 	return testKnexInstance;
 }

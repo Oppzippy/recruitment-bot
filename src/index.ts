@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import { createWriteStream } from "fs";
 import { mkdir } from "fs/promises";
 import { knex, Knex } from "knex";
-import knexStringcase from "knex-stringcase";
 import { pick } from "lodash";
 import process from "process";
 import readline from "readline";
@@ -12,6 +11,7 @@ import { getHeapSnapshot } from "v8";
 import { KnexDataStore } from "./database/KnexDataStore";
 import { HuokanAPI } from "./HuokanAPI";
 import { HuokanClient } from "./HuokanClient";
+const knexStringcase = require("knex-stringcase");
 
 dotenv.config();
 
@@ -35,9 +35,11 @@ const knexConfig: Knex.Config = {
 		bigNumberStrings: true,
 		supportBigNumbers: true,
 	},
+	migrations: { directory: "out/migrations" },
+	...knexStringcase.default(),
 };
 
-const knexInstance = knex(knexStringcase(knexConfig));
+const knexInstance = knex(knexConfig);
 const db = new KnexDataStore(knexInstance);
 
 const client = new HuokanClient(db);

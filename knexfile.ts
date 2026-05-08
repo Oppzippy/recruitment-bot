@@ -13,16 +13,12 @@ export default {
 			bigNumberStrings: true,
 			supportBigNumbers: true,
 		},
-		pool: {
-			min: 1,
-			max: 4,
-		},
+		pool: { min: 1, max: 4 },
 		migrations: {
 			tableName: "knex_migrations",
+			directory: "./out/migrations",
 		},
-		seeds: {
-			directory: "./seeds/development",
-		},
+		seeds: { directory: "./seeds/development" },
 	},
 
 	staging: {
@@ -36,16 +32,12 @@ export default {
 			bigNumberStrings: true,
 			supportBigNumbers: true,
 		},
-		pool: {
-			min: 2,
-			max: 10,
-		},
+		pool: { min: 2, max: 10 },
 		migrations: {
 			tableName: "knex_migrations",
+			directory: "./out/migrations",
 		},
-		seeds: {
-			directory: "./seeds/staging",
-		},
+		seeds: { directory: "./seeds/staging" },
 	},
 
 	production: {
@@ -59,12 +51,10 @@ export default {
 			bigNumberStrings: true,
 			supportBigNumbers: true,
 		},
-		pool: {
-			min: 2,
-			max: 10,
-		},
+		pool: { min: 2, max: 10 },
 		migrations: {
 			tableName: "knex_migrations",
+			directory: "./out/migrations",
 		},
 	},
 };
