@@ -32,7 +32,7 @@
 		"fastify-plugin": "^5.1.0",
 		"fluent-json-schema": "^6.0.0",
 		"keyv": "^5.6.0",
-		"knex": "3.2.0",
+		"knex": "3.2.10",
 		"knex-stringcase": "^1.6.0",
 		"lodash": "^4.17.21",
 		"@fastify/middie": "^9.1.0",
