@@ -57,7 +57,7 @@
 		"mocha": "^11.7.6",
 		"prettier": "^3.2.5",
 		"sinon": "^22.0.0",
-		"typescript": "~5.4.0"
+		"typescript": "~6.0.3"
 	},
 	"optionalDependencies": {
 		"bufferutil": "^4.0.8",
